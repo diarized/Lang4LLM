@@ -1,0 +1,88 @@
+fn normalize(s: string) -> string {
+    let lower_s: string = to_lower(s);
+    let chs: [string] = chars(lower_s);
+    let mut result: string = "";
+    for i in range(0, len(chs)) {
+        if chs[i] != " " {
+            result = result + to_string(chs[i]);
+        };
+    }
+    return result;
+}
+
+fn char_to_index(c: string) -> int {
+    let alphabet: string = "abcdefghijklmnopqrstuvwxyz";
+    let alph_chs: [string] = chars(alphabet);
+    let mut idx: int = -1;
+    for i in range(0, len(alph_chs)) {
+        if alph_chs[i] == c {
+            idx = i;
+        };
+    }
+    return idx;
+}
+
+fn is_anagram(a: string, b: string) -> bool {
+    let na: string = normalize(a);
+    let nb: string = normalize(b);
+    if len(na) != len(nb) {
+        return false;
+    };
+    let mut counts: [int] = [];
+    for i in range(0, 26) {
+        push(counts, 0);
+    }
+    let chs_a: [string] = chars(na);
+    for i in range(0, len(chs_a)) {
+        let idx_a: int = char_to_index(chs_a[i]);
+        if idx_a >= 0 {
+            counts[idx_a] = counts[idx_a] + 1;
+        };
+    }
+    let chs_b: [string] = chars(nb);
+    for i in range(0, len(chs_b)) {
+        let idx_b: int = char_to_index(chs_b[i]);
+        if idx_b >= 0 {
+            counts[idx_b] = counts[idx_b] - 1;
+        };
+    }
+    let mut all_zero: bool = true;
+    for i in range(0, 26) {
+        if counts[i] != 0 {
+            all_zero = false;
+        };
+    }
+    return all_zero;
+}
+
+fn main() -> unit {
+    // Test 1: classic anagram
+    print("is_anagram(listen, silent) = " + to_string(is_anagram("listen", "silent")));
+
+    // Test 2: case-insensitive anagram
+    print("is_anagram(Listen, Silent) = " + to_string(is_anagram("Listen", "Silent")));
+
+    // Test 3: not an anagram
+    print("is_anagram(hello, world) = " + to_string(is_anagram("hello", "world")));
+
+    // Test 4: anagram with spaces
+    print("is_anagram(the morse code, here come dots) = " + to_string(is_anagram("the morse code", "here come dots")));
+
+    // Test 5: different lengths after space removal
+    print("is_anagram(abc, ab) = " + to_string(is_anagram("abc", "ab")));
+
+    // Test 6: both empty strings
+    print("is_anagram(, ) = " + to_string(is_anagram("", "")));
+
+    // Test 7: one empty one non-empty
+    print("is_anagram(, a) = " + to_string(is_anagram("", "a")));
+
+    // Test 8: repeated characters — counts differ
+    print("is_anagram(aab, bba) = " + to_string(is_anagram("aab", "bba")));
+
+    // Test 9: single character match
+    print("is_anagram(a, a) = " + to_string(is_anagram("a", "a")));
+
+    // Test 10: single character no match
+    print("is_anagram(a, b) = " + to_string(is_anagram("a", "b")));
+}

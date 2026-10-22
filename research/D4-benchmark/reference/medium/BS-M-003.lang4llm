@@ -1,0 +1,68 @@
+fn merge_sorted(list1: [int], list2: [int]) -> [int] {
+    let mut result: [int] = [];
+    let mut i: int = 0;
+    let mut j: int = 0;
+    let n1: int = len(list1);
+    let n2: int = len(list2);
+    while i < n1 and j < n2 {
+        if list1[i] <= list2[j] {
+            push(result, list1[i]);
+            i = i + 1;
+        } else {
+            push(result, list2[j]);
+            j = j + 1;
+        };
+    }
+    while i < n1 {
+        push(result, list1[i]);
+        i = i + 1;
+    }
+    while j < n2 {
+        push(result, list2[j]);
+        j = j + 1;
+    }
+    return result;
+}
+
+fn arr_to_string(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    let a1: [int] = [1, 3, 5];
+    let b1: [int] = [2, 4, 6];
+    print("equal length: " + arr_to_string(merge_sorted(a1, b1)));
+
+    let a2: [int] = [1, 5, 9];
+    let b2: [int] = [2, 3, 4, 6, 7, 8];
+    print("diff length: " + arr_to_string(merge_sorted(a2, b2)));
+
+    let a3: [int] = [1, 2, 3];
+    let empty: [int] = [];
+    print("one empty: " + arr_to_string(merge_sorted(a3, empty)));
+
+    print("both empty: " + arr_to_string(merge_sorted(empty, empty)));
+
+    let a4: [int] = [1, 2, 3];
+    let b4: [int] = [4, 5, 6];
+    print("no overlap: " + arr_to_string(merge_sorted(a4, b4)));
+
+    let a5: [int] = [1, 3, 5];
+    let b5: [int] = [3, 5, 7];
+    print("duplicates: " + arr_to_string(merge_sorted(a5, b5)));
+
+    let a6: [int] = [-5, -1, 3];
+    let b6: [int] = [-3, 0, 2];
+    print("negatives: " + arr_to_string(merge_sorted(a6, b6)));
+}

@@ -1,0 +1,25 @@
+{
+  "spec": "BS-M-018",
+  "title": "Find All Permutations",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count([1,2,3]) = 6",
+    "[1, 2, 3]",
+    "[1, 3, 2]",
+    "[2, 1, 3]",
+    "[2, 3, 1]",
+    "[3, 1, 2]",
+    "[3, 2, 1]",
+    "count([1,2]) = 2",
+    "[1, 2]",
+    "[2, 1]",
+    "count([5]) = 1",
+    "[5]",
+    "count([]) = 1",
+    "[]",
+    "count([3,1,2]) = 6",
+    "first perm: [1, 2, 3]",
+    "last perm: [3, 2, 1]"
+  ]
+}

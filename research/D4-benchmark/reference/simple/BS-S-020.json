@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-020",
+  "title": "Check Balanced Digits",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "notes": "Digit-to-int conversion uses as_int(as_float(digit_char)) since Lang4LLM has no direct char-to-int parse",
+  "expected": [
+    "is_balanced_digits(1230) = true",
+    "is_balanced_digits(1231) = false",
+    "is_balanced_digits(12321) = true",
+    "is_balanced_digits(7) = true",
+    "is_balanced_digits(0) = true",
+    "is_balanced_digits(13) = false"
+  ]
+}

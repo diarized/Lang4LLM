@@ -1,0 +1,28 @@
+fn list_contains(numbers: [int], target: int) -> bool {
+    for i in range(0, len(numbers)) {
+        if numbers[i] == target {
+            return true;
+        };
+    }
+    return false;
+}
+
+fn main() -> unit {
+    let a: [int] = [10, 20, 30, 40];
+    print("list_contains([10,20,30,40], 30) = " + to_string(list_contains(a, 30)));
+
+    let b: [int] = [1, 2, 3, 4];
+    print("list_contains([1,2,3,4], 9) = " + to_string(list_contains(b, 9)));
+
+    let c: [int] = [];
+    print("list_contains([], 5) = " + to_string(list_contains(c, 5)));
+
+    let d: [int] = [7, 1, 2, 3];
+    print("list_contains([7,1,2,3], 7) = " + to_string(list_contains(d, 7)));
+
+    let e: [int] = [-1, 0, 1];
+    print("list_contains([-1,0,1], 0) = " + to_string(list_contains(e, 0)));
+
+    let f: [int] = [5];
+    print("list_contains([5], 5) = " + to_string(list_contains(f, 5)));
+}

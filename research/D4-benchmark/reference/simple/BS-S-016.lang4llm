@@ -1,0 +1,19 @@
+fn is_power_of_two(n: int) -> bool {
+    if n <= 0 {
+        return false;
+    };
+    let mut current: int = 1;
+    while current < n {
+        current = current * 2;
+    }
+    return current == n;
+}
+
+fn main() -> unit {
+    print("is_power_of_two(8) = " + to_string(is_power_of_two(8)));
+    print("is_power_of_two(6) = " + to_string(is_power_of_two(6)));
+    print("is_power_of_two(1) = " + to_string(is_power_of_two(1)));
+    print("is_power_of_two(0) = " + to_string(is_power_of_two(0)));
+    print("is_power_of_two(-4) = " + to_string(is_power_of_two(-4)));
+    print("is_power_of_two(1024) = " + to_string(is_power_of_two(1024)));
+}

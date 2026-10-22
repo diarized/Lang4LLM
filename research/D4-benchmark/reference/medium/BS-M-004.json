@@ -1,0 +1,14 @@
+{
+  "spec": "BS-M-004",
+  "title": "Fibonacci Sequence",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "fib(0) = []",
+    "fib(1) = [0]",
+    "fib(2) = [0, 1]",
+    "fib(3) = [0, 1, 1]",
+    "fib(5) = [0, 1, 1, 2, 3]",
+    "fib(10) = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]"
+  ]
+}

@@ -1,0 +1,32 @@
+// BS-S-012: Get Last Element
+// Lang4LLM does not have an Option/nullable type.
+// We use a helper that prints the result, handling empty list with "none" sentinel output.
+
+fn get_last(numbers: [int]) -> int {
+    // Returns last element. Caller must check is_empty first.
+    return numbers[len(numbers) - 1];
+}
+
+fn print_last(numbers: [int]) -> string {
+    if is_empty(numbers) {
+        return "none";
+    };
+    return to_string(get_last(numbers));
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 3, 4, 5];
+    print("get_last([1,2,3,4,5]) = " + print_last(a));
+
+    let b: [int] = [42];
+    print("get_last([42]) = " + print_last(b));
+
+    let c: [int] = [];
+    print("get_last([]) = " + print_last(c));
+
+    let d: [int] = [-10, -3, -7];
+    print("get_last([-10,-3,-7]) = " + print_last(d));
+
+    let e: [int] = [5, 3, 1, 0];
+    print("get_last([5,3,1,0]) = " + print_last(e));
+}

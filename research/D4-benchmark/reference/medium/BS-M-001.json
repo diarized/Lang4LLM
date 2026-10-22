@@ -1,0 +1,17 @@
+{
+  "spec": "BS-M-001",
+  "title": "Binary Search",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "search(7) = 3",
+    "search(12) = -1",
+    "search(1) = 0",
+    "search(11) = 5",
+    "search(0) = -1",
+    "search_empty = -1",
+    "search_single_found = 0",
+    "search_single_miss = -1",
+    "search(5) = 2"
+  ]
+}

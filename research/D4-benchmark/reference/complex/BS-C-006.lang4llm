@@ -1,0 +1,214 @@
+struct Graph {
+    verts: [int],
+    adj_u: [int],
+    adj_v: [int]
+}
+
+fn graph_new() -> Graph {
+    let v: [int] = [];
+    let u: [int] = [];
+    let w: [int] = [];
+    return Graph { verts: v, adj_u: u, adj_v: w };
+}
+
+fn arr_contains_int(arr: [int], v: int) -> bool {
+    let mut i: int = 0;
+    while i < len(arr) {
+        if arr[i] == v { return true; };
+        i = i + 1;
+    }
+    return false;
+}
+
+fn graph_add_edge(g: Graph, u: int, v: int) -> Graph {
+    let mut new_verts: [int] = g.verts;
+    let mut new_u: [int] = g.adj_u;
+    let mut new_v: [int] = g.adj_v;
+    if not arr_contains_int(new_verts, u) { push(new_verts, u); };
+    if not arr_contains_int(new_verts, v) { push(new_verts, v); };
+    let mut has_uv: bool = false;
+    let mut has_vu: bool = false;
+    let mut i: int = 0;
+    while i < len(new_u) {
+        if new_u[i] == u and new_v[i] == v { has_uv = true; };
+        if new_u[i] == v and new_v[i] == u { has_vu = true; };
+        i = i + 1;
+    }
+    if not has_uv {
+        push(new_u, u);
+        push(new_v, v);
+    };
+    if u != v and not has_vu {
+        push(new_u, v);
+        push(new_v, u);
+    };
+    return Graph { verts: new_verts, adj_u: new_u, adj_v: new_v };
+}
+
+fn graph_neighbors(g: Graph, v: int) -> [int] {
+    let mut result: [int] = [];
+    let mut i: int = 0;
+    while i < len(g.adj_u) {
+        if g.adj_u[i] == v {
+            push(result, g.adj_v[i]);
+        };
+        i = i + 1;
+    }
+    return result;
+}
+
+fn graph_bfs(g: Graph, start: int) -> [int] {
+    let mut visited: [int] = [];
+    let mut queue: [int] = [];
+    let mut head: int = 0;
+    push(visited, start);
+    push(queue, start);
+    while head < len(queue) {
+        let cur: int = queue[head];
+        head = head + 1;
+        let nbrs: [int] = graph_neighbors(g, cur);
+        let mut i: int = 0;
+        while i < len(nbrs) {
+            let nb: int = nbrs[i];
+            if not arr_contains_int(visited, nb) {
+                push(visited, nb);
+                push(queue, nb);
+            };
+            i = i + 1;
+        }
+    }
+    return visited;
+}
+
+fn graph_dfs_rec(g: Graph, v: int, visited: [int]) -> [int] {
+    let mut new_visited: [int] = visited;
+    push(new_visited, v);
+    let nbrs: [int] = graph_neighbors(g, v);
+    let mut i: int = 0;
+    while i < len(nbrs) {
+        let nb: int = nbrs[i];
+        if not arr_contains_int(new_visited, nb) {
+            new_visited = graph_dfs_rec(g, nb, new_visited);
+        };
+        i = i + 1;
+    }
+    return new_visited;
+}
+
+fn graph_dfs(g: Graph, start: int) -> [int] {
+    return graph_dfs_rec(g, start, []);
+}
+
+fn graph_has_cycle_in_component(g: Graph, start: int) -> bool {
+    let mut visited: [int] = [];
+    let mut queue: [int] = [];
+    let mut parent_arr: [int] = [];
+    let mut head: int = 0;
+    push(visited, start);
+    push(queue, start);
+    push(parent_arr, -1);
+    while head < len(queue) {
+        let cur: int = queue[head];
+        let cur_parent: int = parent_arr[head];
+        head = head + 1;
+        let nbrs: [int] = graph_neighbors(g, cur);
+        let mut i: int = 0;
+        while i < len(nbrs) {
+            let nb: int = nbrs[i];
+            if nb == cur {
+                return true;
+            };
+            if arr_contains_int(visited, nb) {
+                if nb != cur_parent {
+                    return true;
+                };
+            } else {
+                push(visited, nb);
+                push(queue, nb);
+                push(parent_arr, cur);
+            };
+            i = i + 1;
+        }
+    }
+    return false;
+}
+
+fn graph_has_cycle(g: Graph) -> bool {
+    let mut visited: [int] = [];
+    let mut i: int = 0;
+    while i < len(g.verts) {
+        let v: int = g.verts[i];
+        if not arr_contains_int(visited, v) {
+            if graph_has_cycle_in_component(g, v) {
+                return true;
+            };
+            let comp: [int] = graph_bfs(g, v);
+            visited = concat(visited, comp);
+        };
+        i = i + 1;
+    }
+    return false;
+}
+
+fn graph_count_components(g: Graph) -> int {
+    let mut visited: [int] = [];
+    let mut n_comps: int = 0;
+    let mut i: int = 0;
+    while i < len(g.verts) {
+        let v: int = g.verts[i];
+        if not arr_contains_int(visited, v) {
+            let comp: [int] = graph_bfs(g, v);
+            visited = concat(visited, comp);
+            n_comps = n_comps + 1;
+        };
+        i = i + 1;
+    }
+    return n_comps;
+}
+
+fn arr_str(arr: [int]) -> string {
+    if is_empty(arr) { return "[]"; };
+    let mut s: string = "[";
+    let mut i: int = 0;
+    while i < len(arr) {
+        if i > 0 { s = s + ", "; };
+        s = s + to_string(arr[i]);
+        i = i + 1;
+    }
+    return s + "]";
+}
+
+fn main() -> unit {
+    let g0: Graph = graph_new();
+    let g1: Graph = graph_add_edge(g0, 1, 2);
+    let g2: Graph = graph_add_edge(g1, 1, 3);
+    let g3: Graph = graph_add_edge(g2, 2, 4);
+    let g4: Graph = graph_add_edge(g3, 3, 4);
+    print("bfs(1) = " + arr_str(graph_bfs(g4, 1)));
+    print("dfs(1) = " + arr_str(graph_dfs(g4, 1)));
+    print("has_cycle = " + to_string(graph_has_cycle(g4)));
+
+    let h0: Graph = graph_new();
+    let h1: Graph = graph_add_edge(h0, 1, 2);
+    let h2: Graph = graph_add_edge(h1, 2, 3);
+    print("has_cycle(tree) = " + to_string(graph_has_cycle(h2)));
+
+    let k0: Graph = graph_new();
+    let k1: Graph = graph_add_edge(k0, 1, 2);
+    let k2: Graph = graph_add_edge(k1, 2, 3);
+    let k3: Graph = graph_add_edge(k2, 3, 1);
+    print("has_cycle(triangle) = " + to_string(graph_has_cycle(k3)));
+
+    let sl0: Graph = graph_new();
+    let sl1: Graph = graph_add_edge(sl0, 1, 1);
+    print("has_cycle(self_loop) = " + to_string(graph_has_cycle(sl1)));
+
+    let dc0: Graph = graph_new();
+    let dc1: Graph = graph_add_edge(dc0, 1, 2);
+    let dc2: Graph = graph_add_edge(dc1, 2, 3);
+    let dc3: Graph = graph_add_edge(dc2, 4, 5);
+    print("components count = " + to_string(graph_count_components(dc3)));
+
+    let empty: Graph = graph_new();
+    print("empty has_cycle = " + to_string(graph_has_cycle(empty)));
+}

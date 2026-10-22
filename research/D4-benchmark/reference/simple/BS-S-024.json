@@ -1,0 +1,18 @@
+{
+  "spec": "BS-S-024",
+  "title": "Check if String is Numeric",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_numeric(\"123\") = true",
+    "is_numeric(\"-456\") = true",
+    "is_numeric(\"12a3\") = false",
+    "is_numeric(\"\") = false",
+    "is_numeric(\"-\") = false",
+    "is_numeric(\" 123\") = false",
+    "is_numeric(\"3.14\") = false",
+    "is_numeric(\"0\") = true",
+    "is_numeric(\"007\") = true",
+    "is_numeric(\"+5\") = false"
+  ]
+}

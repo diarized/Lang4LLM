@@ -1,0 +1,135 @@
+struct LRUCache {
+    keys: [int],
+    vals: [int],
+    times: [int],
+    cap: int,
+    clock: int
+}
+
+fn lru_new(capacity: int) -> LRUCache {
+    let k: [int] = [];
+    let v: [int] = [];
+    let t: [int] = [];
+    return LRUCache { keys: k, vals: v, times: t, cap: capacity, clock: 0 };
+}
+
+fn lru_find(cache: LRUCache, key: int) -> int {
+    let mut i: int = 0;
+    while i < len(cache.keys) {
+        if cache.keys[i] == key { return i; };
+        i = i + 1;
+    }
+    return -1;
+}
+
+fn lru_get(cache: LRUCache, key: int) -> int {
+    return lru_find(cache, key);
+}
+
+fn lru_get_val(cache: LRUCache, key: int) -> int {
+    let idx: int = lru_find(cache, key);
+    if idx == -1 { return -1; };
+    return cache.vals[idx];
+}
+
+fn lru_touch(cache: LRUCache, idx: int) -> LRUCache {
+    let mut new_times: [int] = cache.times;
+    new_times[idx] = cache.clock;
+    return LRUCache { keys: cache.keys, vals: cache.vals, times: new_times, cap: cache.cap, clock: cache.clock + 1 };
+}
+
+fn lru_evict_min_idx(cache: LRUCache) -> int {
+    let mut min_time: int = cache.times[0];
+    let mut min_idx: int = 0;
+    let mut i: int = 1;
+    while i < len(cache.times) {
+        if cache.times[i] < min_time {
+            min_time = cache.times[i];
+            min_idx = i;
+        };
+        i = i + 1;
+    }
+    return min_idx;
+}
+
+fn lru_remove_at(cache: LRUCache, del_idx: int) -> LRUCache {
+    let mut new_keys: [int] = [];
+    let mut new_vals: [int] = [];
+    let mut new_times: [int] = [];
+    let mut i: int = 0;
+    while i < len(cache.keys) {
+        if i != del_idx {
+            push(new_keys, cache.keys[i]);
+            push(new_vals, cache.vals[i]);
+            push(new_times, cache.times[i]);
+        };
+        i = i + 1;
+    }
+    return LRUCache { keys: new_keys, vals: new_vals, times: new_times, cap: cache.cap, clock: cache.clock };
+}
+
+fn lru_get_op(cache: LRUCache, key: int) -> LRUCache {
+    let idx: int = lru_find(cache, key);
+    if idx == -1 { return cache; };
+    return lru_touch(cache, idx);
+}
+
+fn lru_put_op(cache: LRUCache, key: int, val: int) -> LRUCache {
+    let idx: int = lru_find(cache, key);
+    if idx != -1 {
+        let mut new_vals: [int] = cache.vals;
+        new_vals[idx] = val;
+        let c2: LRUCache = LRUCache { keys: cache.keys, vals: new_vals, times: cache.times, cap: cache.cap, clock: cache.clock };
+        return lru_touch(c2, idx);
+    } else {
+        let mut c3: LRUCache = cache;
+        if len(cache.keys) >= cache.cap {
+            let evict_idx: int = lru_evict_min_idx(cache);
+            c3 = lru_remove_at(cache, evict_idx);
+        };
+        let mut put_keys: [int] = c3.keys;
+        let mut put_vals: [int] = c3.vals;
+        let mut put_times: [int] = c3.times;
+        push(put_keys, key);
+        push(put_vals, val);
+        push(put_times, c3.clock);
+        return LRUCache { keys: put_keys, vals: put_vals, times: put_times, cap: c3.cap, clock: c3.clock + 1 };
+    };
+}
+
+fn main() -> unit {
+    let c0: LRUCache = lru_new(2);
+    let c1: LRUCache = lru_put_op(c0, 1, 100);
+    let c2: LRUCache = lru_put_op(c1, 2, 200);
+    let c3: LRUCache = lru_get_op(c2, 1);
+    print("get(1) = " + to_string(lru_get_val(c3, 1)));
+    let c4: LRUCache = lru_put_op(c3, 3, 300);
+    print("get(2) = " + to_string(lru_get_val(c4, 2)));
+    print("get(3) = " + to_string(lru_get_val(c4, 3)));
+
+    let d0: LRUCache = lru_new(2);
+    let d1: LRUCache = lru_put_op(d0, 1, 100);
+    let d2: LRUCache = lru_put_op(d1, 2, 200);
+    let d3: LRUCache = lru_put_op(d2, 1, 150);
+    let d4: LRUCache = lru_put_op(d3, 3, 300);
+    print("get(1) = " + to_string(lru_get_val(d4, 1)));
+    print("get(2) = " + to_string(lru_get_val(d4, 2)));
+
+    let e0: LRUCache = lru_new(1);
+    let e1: LRUCache = lru_put_op(e0, 1, 100);
+    let e2: LRUCache = lru_put_op(e1, 2, 200);
+    print("get(1) = " + to_string(lru_get_val(e2, 1)));
+    print("get(2) = " + to_string(lru_get_val(e2, 2)));
+
+    let f0: LRUCache = lru_new(3);
+    let f1: LRUCache = lru_put_op(f0, 1, 100);
+    let f2: LRUCache = lru_put_op(f1, 2, 200);
+    let f3: LRUCache = lru_put_op(f2, 3, 300);
+    let f4: LRUCache = lru_get_op(f3, 1);
+    let f5: LRUCache = lru_get_op(f4, 2);
+    let f6: LRUCache = lru_put_op(f5, 4, 400);
+    print("get(3) = " + to_string(lru_get_val(f6, 3)));
+    print("get(1) = " + to_string(lru_get_val(f6, 1)));
+    print("get(2) = " + to_string(lru_get_val(f6, 2)));
+    print("get(4) = " + to_string(lru_get_val(f6, 4)));
+}

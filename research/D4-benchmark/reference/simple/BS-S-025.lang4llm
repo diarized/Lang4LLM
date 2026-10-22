@@ -1,0 +1,19 @@
+// BS-S-025: Repeat String
+// Concatenate a string with itself exactly count times.
+
+fn repeat_string(text: string, count: int) -> string {
+    let mut result: string = "";
+    for i in range(0, count) {
+        result = to_string(result) + text;
+    }
+    return result;
+}
+
+fn main() -> unit {
+    print("repeat_string(\"ab\", 3) = \"" + repeat_string("ab", 3) + "\"");
+    print("repeat_string(\"hello\", 0) = \"" + repeat_string("hello", 0) + "\"");
+    print("repeat_string(\"hello\", 1) = \"" + repeat_string("hello", 1) + "\"");
+    print("repeat_string(\"\", 5) = \"" + repeat_string("", 5) + "\"");
+    print("repeat_string(\"x\", 4) = \"" + repeat_string("x", 4) + "\"");
+    print("repeat_string(\"ha \", 2) = \"" + repeat_string("ha ", 2) + "\"");
+}

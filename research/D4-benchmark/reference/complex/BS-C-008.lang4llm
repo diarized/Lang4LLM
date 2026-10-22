@@ -1,0 +1,96 @@
+struct MergeResult {
+    sorted: [int],
+    count: int
+}
+
+fn merge_count(left: [int], right: [int]) -> MergeResult {
+    let mut merged: [int] = [];
+    let mut inv: int = 0;
+    let mut i: int = 0;
+    let mut j: int = 0;
+    while i < len(left) and j < len(right) {
+        if left[i] <= right[j] {
+            push(merged, left[i]);
+            i = i + 1;
+        } else {
+            push(merged, right[j]);
+            inv = inv + (len(left) - i);
+            j = j + 1;
+        };
+    }
+    while i < len(left) {
+        push(merged, left[i]);
+        i = i + 1;
+    }
+    while j < len(right) {
+        push(merged, right[j]);
+        j = j + 1;
+    }
+    return MergeResult { sorted: merged, count: inv };
+}
+
+fn merge_sort(arr: [int]) -> MergeResult {
+    let n: int = len(arr);
+    if n <= 1 {
+        return MergeResult { sorted: arr, count: 0 };
+    };
+    let mid: int = n / 2;
+    let mut left_arr: [int] = [];
+    let mut right_arr: [int] = [];
+    let mut i: int = 0;
+    while i < mid {
+        push(left_arr, arr[i]);
+        i = i + 1;
+    }
+    while i < n {
+        push(right_arr, arr[i]);
+        i = i + 1;
+    }
+    let lr: MergeResult = merge_sort(left_arr);
+    let rr: MergeResult = merge_sort(right_arr);
+    let mr: MergeResult = merge_count(lr.sorted, rr.sorted);
+    return MergeResult { sorted: mr.sorted, count: lr.count + rr.count + mr.count };
+}
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) { return "[]"; };
+    let mut s: string = "[";
+    let mut i: int = 0;
+    while i < len(arr) {
+        if i > 0 { s = s + ", "; };
+        s = s + to_string(arr[i]);
+        i = i + 1;
+    }
+    return s + "]";
+}
+
+fn run(arr: [int]) -> unit {
+    let res: MergeResult = merge_sort(arr);
+    print("sorted = " + arr_to_str(res.sorted) + ", inversions = " + to_string(res.count));
+}
+
+fn main() -> unit {
+    let a1: [int] = [3, 1, 2];
+    run(a1);
+
+    let a2: [int] = [1, 2, 3, 4, 5];
+    run(a2);
+
+    let a3: [int] = [4, 3, 2, 1];
+    run(a3);
+
+    let a4: [int] = [2, 1, 2, 1];
+    run(a4);
+
+    let a5: [int] = [];
+    run(a5);
+
+    let a6: [int] = [42];
+    run(a6);
+
+    let a7: [int] = [2, 2, 2];
+    run(a7);
+
+    let a8: [int] = [5, 1, 3, 2, 4];
+    run(a8);
+}

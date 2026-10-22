@@ -1,0 +1,25 @@
+{
+  "spec": "BS-M-029",
+  "title": "Roman Numeral Converter",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "to_roman(1) = I",
+    "to_roman(3) = III",
+    "to_roman(4) = IV",
+    "to_roman(9) = IX",
+    "to_roman(40) = XL",
+    "to_roman(90) = XC",
+    "to_roman(400) = CD",
+    "to_roman(900) = CM",
+    "to_roman(1000) = M",
+    "to_roman(500) = D",
+    "to_roman(100) = C",
+    "to_roman(50) = L",
+    "to_roman(10) = X",
+    "to_roman(5) = V",
+    "to_roman(1994) = MCMXCIV",
+    "to_roman(3999) = MMMCMXCIX",
+    "to_roman(1949) = MCMXLIX"
+  ]
+}

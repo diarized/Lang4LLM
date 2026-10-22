@@ -1,0 +1,19 @@
+{
+  "spec": "BS-M-024",
+  "title": "Caesar Cipher",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "caesar_encode(Hello, 3) = Khoor",
+    "caesar_encode(xyz, 3) = abc",
+    "caesar_encode(XYZ, 3) = ABC",
+    "caesar_encode(Hello World 123, 13) = Uryyb, Jbeyq! 123",
+    "caesar_encode(Khoor, -3) = Hello",
+    "caesar_encode(NoChange, 0) = NoChange",
+    "caesar_encode(abc, 29) = def",
+    "caesar_encode(Hello, 26) = Hello",
+    "caesar_encode(, 5) = ",
+    "caesar_encode(123!?, 7) = 123!?",
+    "caesar_encode(Zebra, 2) = Bgdtc"
+  ]
+}

@@ -1,0 +1,19 @@
+// BS-S-027: Absolute Value
+// Return the absolute value of an integer without using any built-in abs function.
+
+fn my_abs(number: int) -> int {
+    if number < 0 {
+        return 0 - number;
+    };
+    return number;
+}
+
+fn main() -> unit {
+    print("my_abs(-7) = " + to_string(my_abs(-7)));
+    print("my_abs(5) = " + to_string(my_abs(5)));
+    print("my_abs(0) = " + to_string(my_abs(0)));
+    print("my_abs(-1000) = " + to_string(my_abs(-1000)));
+    print("my_abs(1000) = " + to_string(my_abs(1000)));
+    print("my_abs(-1) = " + to_string(my_abs(-1)));
+    print("my_abs(1) = " + to_string(my_abs(1)));
+}

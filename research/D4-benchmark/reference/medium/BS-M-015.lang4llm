@@ -1,0 +1,78 @@
+fn selection_sort(nums: [int]) -> [int] {
+    let n: int = len(nums);
+    if n <= 1 {
+        return nums;
+    };
+    let mut arr: [int] = nums;
+    for i in range(0, n - 1) {
+        let mut min_idx: int = i;
+        for j in range(i + 1, n) {
+            if arr[j] < arr[min_idx] {
+                min_idx = j;
+            };
+        }
+        if min_idx != i {
+            let tmp: int = arr[i];
+            arr[i] = arr[min_idx];
+            arr[min_idx] = tmp;
+        };
+    }
+    return arr;
+}
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    // Test 1: unsorted positive integers
+    let t1: [int] = [64, 25, 12, 22, 11];
+    print("sort([64,25,12,22,11]) = " + arr_to_str(selection_sort(t1)));
+
+    // Test 2: already sorted
+    let t2: [int] = [1, 2, 3, 4, 5];
+    print("sort([1,2,3,4,5]) = " + arr_to_str(selection_sort(t2)));
+
+    // Test 3: reverse sorted
+    let t3: [int] = [5, 4, 3, 2, 1];
+    print("sort([5,4,3,2,1]) = " + arr_to_str(selection_sort(t3)));
+
+    // Test 4: duplicates
+    let t4: [int] = [3, 1, 4, 1, 5, 9, 2, 6, 5];
+    print("sort([3,1,4,1,5,9,2,6,5]) = " + arr_to_str(selection_sort(t4)));
+
+    // Test 5: empty list
+    let t5: [int] = [];
+    print("sort([]) = " + arr_to_str(selection_sort(t5)));
+
+    // Test 6: single element
+    let t6: [int] = [7];
+    print("sort([7]) = " + arr_to_str(selection_sort(t6)));
+
+    // Test 7: negative integers
+    let t7: [int] = [-5, 3, -1, 0, -8, 4];
+    print("sort([-5,3,-1,0,-8,4]) = " + arr_to_str(selection_sort(t7)));
+
+    // Test 8: all identical values
+    let t8: [int] = [3, 3, 3];
+    print("sort([3,3,3]) = " + arr_to_str(selection_sort(t8)));
+
+    // Test 9: two elements sorted
+    let t9a: [int] = [1, 2];
+    print("sort([1,2]) = " + arr_to_str(selection_sort(t9a)));
+
+    // Test 10: two elements reversed
+    let t9b: [int] = [9, 3];
+    print("sort([9,3]) = " + arr_to_str(selection_sort(t9b)));
+}

@@ -1,0 +1,48 @@
+id: DR-GRM-002
+category: GRAMMAR
+name: SynCode-Compatible Grammar Structure
+description: |
+  Grammar should be compatible with SynCode and similar CFG-constrained LLM decoding tools.
+  Enables real-time syntax validation during code generation.
+
+priority: 4
+impact_score: 0.75
+
+rationale: |
+  SynCode demonstrates 96% syntax error reduction. Designing grammar for compatibility
+  with constrained decoding tools provides immediate LLM assistance benefits.
+
+research_backing:
+  - source: "P04 - SynCode Implementation"
+    finding: "CFG-based constrained decoding works with any context-free grammar"
+    confidence: HIGH
+
+  - source: "SynCode Repository (GitHub: uiuc-focal-lab/syncode)"
+    finding: "Supports Python, Go, JSON grammars; extensible to new languages"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Integrate language grammar with SynCode. Test constrained vs unconstrained generation.
+    Measure syntax error reduction and generation speed impact.
+  metrics:
+    - M-001  # Token Predictability
+    - M-002  # Parse Ambiguity
+  benchmark_specs:
+    - BS-M-010  # Grammar edge cases
+    - BS-M-025  # Complex syntax
+
+counter_examples:
+  - scenario: "Experimental grammar features"
+    reason: "May not be compatible with current SynCode implementation"
+    alternative: "Extend SynCode grammar support, or defer experimental features"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Define grammar in format compatible with SynCode (EBNF-based)"
+  - "Test with SynCode constrained generation"
+  - "Document grammar for LLM tool integration"
+  - "Provide reference parser implementation"

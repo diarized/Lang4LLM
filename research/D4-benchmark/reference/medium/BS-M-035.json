@@ -1,0 +1,24 @@
+{
+  "spec": "BS-M-035",
+  "title": "Bank Account",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "balance after deposit(50)+withdraw(30) from 100 = 120",
+    "  history[0]: deposit|50|150",
+    "  history[1]: withdrawal|30|120",
+    "balance after rejected withdraw(100) from 50 = 50",
+    "  history: []",
+    "balance after deposit(200)+withdraw(75)+withdraw_fail(200) = 125",
+    "  history[0]: deposit|200|200",
+    "  history[1]: withdrawal|75|125",
+    "balance after withdraw exact 100 from 100 = 0",
+    "  history[0]: withdrawal|100|0",
+    "balance after invalid deposits = 50",
+    "  history: []",
+    "balance after 0+deposit(100)+deposit(50)+withdraw(20) = 130",
+    "  history[0]: deposit|100|100",
+    "  history[1]: deposit|50|150",
+    "  history[2]: withdrawal|20|130"
+  ]
+}

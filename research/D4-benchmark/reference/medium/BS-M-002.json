@@ -1,0 +1,17 @@
+{
+  "spec": "BS-M-002",
+  "title": "Palindrome Checker",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "racecar: true",
+    "hello: false",
+    "A man a plan a canal Panama: true",
+    "Was it a car or a cat I saw?: true",
+    "a: true",
+    "empty: true",
+    "12321: true",
+    "A1B2B1A: true",
+    "world: false"
+  ]
+}

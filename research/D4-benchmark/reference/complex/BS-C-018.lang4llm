@@ -1,0 +1,165 @@
+// BS-C-018: Command Pattern with Undo/Redo
+// Commands encoded as "type:value" strings (type = "add" | "multiply" | "set").
+// Processor maintains bounded history [string] and redo stack [string].
+// State is a single integer counter.
+// NOTE: Functional style — all mutating functions return new Processor.
+
+struct Processor {
+    history: [string],
+    redo_stack: [string],
+    max_history: int,
+    counter: int,
+    prev_values: [int]
+}
+
+fn proc_new(max_h: int) -> Processor {
+    let h: [string] = [];
+    let r: [string] = [];
+    let pv: [int] = [];
+    return Processor { history: h, redo_stack: r, max_history: max_h, counter: 0, prev_values: pv };
+}
+
+fn apply_command(proc: Processor, cmd: string) -> Processor {
+    let parts: [string] = split(cmd, ":");
+    let kind: string = parts[0];
+    let val: int = as_int(parts[1]);
+    let mut new_counter: int = proc.counter;
+    if kind == "add" { new_counter = proc.counter + val; };
+    if kind == "multiply" { new_counter = proc.counter * val; };
+    if kind == "set" { new_counter = val; };
+    return Processor { history: proc.history, redo_stack: proc.redo_stack, max_history: proc.max_history, counter: new_counter, prev_values: proc.prev_values };
+}
+
+fn proc_execute(proc: Processor, cmd: string) -> Processor {
+    let old_val: int = proc.counter;
+    let proc2: Processor = apply_command(proc, cmd);
+    let mut new_h: [string] = proc2.history;
+    let mut new_pv: [int] = proc2.prev_values;
+    push(new_h, cmd);
+    push(new_pv, old_val);
+    // Enforce max history: drop oldest if exceeded
+    if len(new_h) > proc2.max_history {
+        let mut trimmed_h: [string] = [];
+        let mut trimmed_pv: [int] = [];
+        let mut i: int = 1;
+        while i < len(new_h) {
+            push(trimmed_h, new_h[i]);
+            push(trimmed_pv, new_pv[i]);
+            i = i + 1;
+        }
+        return Processor { history: trimmed_h, redo_stack: [], max_history: proc2.max_history, counter: proc2.counter, prev_values: trimmed_pv };
+    };
+    return Processor { history: new_h, redo_stack: [], max_history: proc2.max_history, counter: proc2.counter, prev_values: new_pv };
+}
+
+fn proc_undo(proc: Processor) -> Processor {
+    if is_empty(proc.history) { return proc; };
+    let last_idx: int = len(proc.history) - 1;
+    let last_cmd: string = proc.history[last_idx];
+    let prev_val: int = proc.prev_values[last_idx];
+    let mut new_h: [string] = [];
+    let mut new_pv: [int] = [];
+    let mut i: int = 0;
+    while i < last_idx {
+        push(new_h, proc.history[i]);
+        push(new_pv, proc.prev_values[i]);
+        i = i + 1;
+    }
+    let mut new_redo: [string] = proc.redo_stack;
+    push(new_redo, last_cmd + ":" + to_string(prev_val));
+    return Processor { history: new_h, redo_stack: new_redo, max_history: proc.max_history, counter: prev_val, prev_values: new_pv };
+}
+
+fn proc_redo(proc: Processor) -> Processor {
+    if is_empty(proc.redo_stack) { return proc; };
+    let redo_idx: int = len(proc.redo_stack) - 1;
+    let redo_entry: string = proc.redo_stack[redo_idx];
+    let mut new_redo: [string] = [];
+    let mut ri: int = 0;
+    while ri < redo_idx {
+        push(new_redo, proc.redo_stack[ri]);
+        ri = ri + 1;
+    }
+    // redo_entry format: "type:val:prev_val" — extract original command (first two parts)
+    let parts: [string] = split(redo_entry, ":");
+    let cmd: string = parts[0] + ":" + parts[1];
+    let old_val: int = proc.counter;
+    let proc2: Processor = apply_command(proc, cmd);
+    let mut new_h: [string] = proc2.history;
+    let mut new_pv: [int] = proc2.prev_values;
+    push(new_h, cmd);
+    push(new_pv, old_val);
+    return Processor { history: new_h, redo_stack: new_redo, max_history: proc2.max_history, counter: proc2.counter, prev_values: new_pv };
+}
+
+fn proc_history_size(proc: Processor) -> int {
+    return len(proc.history);
+}
+
+fn proc_redo_size(proc: Processor) -> int {
+    return len(proc.redo_stack);
+}
+
+fn print_state(proc: Processor) -> unit {
+    print("counter=" + to_string(proc.counter) + " hist=" + to_string(proc_history_size(proc)) + " redo=" + to_string(proc_redo_size(proc)));
+}
+
+fn main() -> unit {
+    // Test 1: execute, undo, redo
+    let mut p1: Processor = proc_new(10);
+    p1 = proc_execute(p1, "add:10");
+    print_state(p1);
+    p1 = proc_undo(p1);
+    print_state(p1);
+    p1 = proc_redo(p1);
+    print_state(p1);
+
+    // Test 2: undo on empty history (no-op)
+    let mut p2: Processor = proc_new(10);
+    p2 = proc_undo(p2);
+    print("undo empty: counter=" + to_string(p2.counter));
+
+    // Test 3: redo clears on new execute
+    let mut p3: Processor = proc_new(10);
+    p3 = proc_execute(p3, "add:1");
+    p3 = proc_execute(p3, "add:1");
+    p3 = proc_undo(p3);
+    p3 = proc_execute(p3, "add:5");
+    print("after new exec: counter=" + to_string(p3.counter) + " redo=" + to_string(proc_redo_size(p3)));
+
+    // Test 4: multiple undos and redos
+    let mut p4: Processor = proc_new(10);
+    p4 = proc_execute(p4, "add:1");
+    p4 = proc_execute(p4, "add:2");
+    p4 = proc_execute(p4, "add:3");
+    p4 = proc_undo(p4);
+    p4 = proc_undo(p4);
+    print("after 2 undos: counter=" + to_string(p4.counter));
+    p4 = proc_redo(p4);
+    p4 = proc_redo(p4);
+    p4 = proc_redo(p4);
+    print("after 3 redos: counter=" + to_string(p4.counter));
+
+    // Test 5: history depth limit
+    let mut p5: Processor = proc_new(3);
+    p5 = proc_execute(p5, "add:1");
+    p5 = proc_execute(p5, "add:2");
+    p5 = proc_execute(p5, "add:3");
+    p5 = proc_execute(p5, "add:4");
+    p5 = proc_execute(p5, "add:5");
+    print("hist_size after 5 cmds (max 3): " + to_string(proc_history_size(p5)));
+    print("counter after 5 adds: " + to_string(p5.counter));
+    p5 = proc_undo(p5);
+    p5 = proc_undo(p5);
+    p5 = proc_undo(p5);
+    p5 = proc_undo(p5);
+    print("counter after 4 undos (only 3 possible): " + to_string(p5.counter));
+
+    // Test 6: set command
+    let mut p6: Processor = proc_new(10);
+    p6 = proc_execute(p6, "add:10");
+    p6 = proc_execute(p6, "set:100");
+    print("after set:100: counter=" + to_string(p6.counter));
+    p6 = proc_undo(p6);
+    print("after undo set: counter=" + to_string(p6.counter));
+}

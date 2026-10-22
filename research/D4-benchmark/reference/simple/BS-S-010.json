@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-010",
+  "title": "Rotate Array Left",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "rotate_left([1,2,3,4,5], 2) = [3, 4, 5, 1, 2]",
+    "rotate_left([1,2,3], 3) = [1, 2, 3]",
+    "rotate_left([1,2,3,4], 6) = [3, 4, 1, 2]",
+    "rotate_left([7,8,9], 0) = [7, 8, 9]",
+    "rotate_left([], 5) = []",
+    "rotate_left([10], 3) = [10]"
+  ]
+}

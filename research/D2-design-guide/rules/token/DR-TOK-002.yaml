@@ -1,0 +1,57 @@
+id: DR-TOK-002
+category: TOKEN
+name: Minimal Boilerplate
+description: |
+  Reduce syntactic ceremony required for common patterns. Avoid verbose imports, class
+  declarations, and main function wrappers unless semantically necessary.
+
+priority: 16
+impact_score: 0.35
+
+rationale: |
+  Boilerplate wastes tokens and increases LLM cognitive load. Minimal syntax for common
+  patterns (like Rust's implicit returns, Go's simple imports) improves LLM efficiency.
+
+research_backing:
+  - source: "Go Language Design Rationale"
+    finding: "Minimal boilerplate improves readability and reduces errors"
+    confidence: MEDIUM
+
+  - source: "Rust Design Philosophy"
+    finding: "Expression-based syntax reduces boilerplate (implicit returns)"
+    confidence: MEDIUM
+
+  - source: "Java vs Python Verbosity Studies"
+    finding: "Java's boilerplate increases error rates for beginners"
+    confidence: LOW
+
+validation_method:
+  approach: |
+    Compare token counts for simple programs across languages. Measure boilerplate ratio
+    (setup tokens / total tokens). Target <10% boilerplate.
+  metrics:
+    - M-001  # Token Predictability (less noise)
+  benchmark_specs:
+    - BS-S-040  # Hello World variants
+    - BS-S-045  # Minimal program structure
+
+counter_examples:
+  - scenario: "Explicit program structure"
+    reason: "Java-style main() provides clear entry point"
+    alternative: "Top-level statements (Python-style) for scripts, explicit entry for libraries"
+
+  - scenario: "Import clarity"
+    reason: "Explicit imports track dependencies"
+    alternative: "Keep explicit imports but simplify syntax"
+
+related_patterns:
+  - pattern_id: EP-SEM-003
+    mitigation: REDUCES
+    note: "Less boilerplate = fewer parameter-passing errors"
+
+implementation_notes:
+  - "No `public static void main(String[] args)` wrapper for simple programs"
+  - "Top-level statements execute directly (Python/Rust-script style)"
+  - "Imports: `use std::collections::HashMap` (not `import java.util.HashMap;`)"
+  - "Expression-based returns (no explicit `return` for last expression)"
+  - "Struct literals without `new` keyword: `Point { x: 0, y: 0 }`"

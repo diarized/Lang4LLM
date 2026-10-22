@@ -1,0 +1,28 @@
+// BS-S-022: Count Words in String
+// Count whitespace-separated words, ignoring leading/trailing whitespace and multiple spaces.
+
+fn count_words(text: string) -> int {
+    let trimmed: string = trim(text);
+    if len(trimmed) == 0 {
+        return 0;
+    };
+    let parts: [string] = split(trimmed, " ");
+    let mut count: int = 0;
+    for i in range(0, len(parts)) {
+        if len(trim(parts[i])) > 0 {
+            count = count + 1;
+        };
+    }
+    return count;
+}
+
+fn main() -> unit {
+    print("count_words(\"hello world\") = " + to_string(count_words("hello world")));
+    print("count_words(\"hello   world\") = " + to_string(count_words("hello   world")));
+    print("count_words(\"  hello world  \") = " + to_string(count_words("  hello world  ")));
+    print("count_words(\"\") = " + to_string(count_words("")));
+    print("count_words(\"hello\") = " + to_string(count_words("hello")));
+    print("count_words(\"   \") = " + to_string(count_words("   ")));
+    print("count_words(\"one two three four\") = " + to_string(count_words("one two three four")));
+    print("count_words(\"  leading and trailing  \") = " + to_string(count_words("  leading and trailing  ")));
+}

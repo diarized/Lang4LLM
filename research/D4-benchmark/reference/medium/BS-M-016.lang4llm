@@ -1,0 +1,84 @@
+fn dutch_flag(nums: [int], pivot: int) -> [int] {
+    let mut less: [int] = [];
+    let mut equal: [int] = [];
+    let mut greater: [int] = [];
+    for item in nums {
+        if item < pivot {
+            push(less, item);
+        } else {
+            if item == pivot {
+                push(equal, item);
+            } else {
+                push(greater, item);
+            };
+        };
+    }
+    let mut result: [int] = [];
+    for item in less {
+        push(result, item);
+    }
+    for item in equal {
+        push(result, item);
+    }
+    for item in greater {
+        push(result, item);
+    }
+    return result;
+}
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    // Test 1: all three groups
+    let t1: [int] = [3, 1, 4, 1, 5, 9, 2, 6, 5];
+    print("flag([3,1,4,1,5,9,2,6,5], 5) = " + arr_to_str(dutch_flag(t1, 5)));
+
+    // Test 2: pivot not in list
+    let t2: [int] = [1, 3, 5, 7, 9];
+    print("flag([1,3,5,7,9], 4) = " + arr_to_str(dutch_flag(t2, 4)));
+
+    // Test 3: all equal to pivot
+    let t3: [int] = [5, 5, 5];
+    print("flag([5,5,5], 5) = " + arr_to_str(dutch_flag(t3, 5)));
+
+    // Test 4: all less than pivot
+    let t4: [int] = [1, 2, 3];
+    print("flag([1,2,3], 10) = " + arr_to_str(dutch_flag(t4, 10)));
+
+    // Test 5: all greater than pivot
+    let t5: [int] = [8, 6, 7];
+    print("flag([8,6,7], 0) = " + arr_to_str(dutch_flag(t5, 0)));
+
+    // Test 6: empty list
+    let t6: [int] = [];
+    print("flag([], 3) = " + arr_to_str(dutch_flag(t6, 3)));
+
+    // Test 7: mixed with negatives, pivot=0
+    let t7: [int] = [-2, 5, -1, 3, 0, 5];
+    print("flag([-2,5,-1,3,0,5], 0) = " + arr_to_str(dutch_flag(t7, 0)));
+
+    // Test 8: single element equal to pivot
+    let t8: [int] = [4];
+    print("flag([4], 4) = " + arr_to_str(dutch_flag(t8, 4)));
+
+    // Test 9: single element not equal to pivot
+    let t9: [int] = [2];
+    print("flag([2], 7) = " + arr_to_str(dutch_flag(t9, 7)));
+
+    // Test 10: duplicates across all groups
+    let t10: [int] = [3, 1, 3, 5, 1, 3, 5, 7];
+    print("flag([3,1,3,5,1,3,5,7], 3) = " + arr_to_str(dutch_flag(t10, 3)));
+}

@@ -1,0 +1,20 @@
+{
+  "spec": "BS-M-025",
+  "title": "String to Integer Parser",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "parse_int(42) = 42",
+    "parse_int(-91283472332) = -2147483648",
+    "parse_int(   42) = 42",
+    "parse_int(+100) = 100",
+    "parse_int(4193 with words) = 4193",
+    "parse_int(words and 987) = 0",
+    "parse_int(2147483648) = 2147483647",
+    "parse_int() = 0",
+    "parse_int(   ) = 0",
+    "parse_int(-0) = 0",
+    "parse_int(2147483647) = 2147483647",
+    "parse_int(-2147483648) = -2147483648"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-009",
+  "title": "Count Occurrences of Element",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count_occurrences([1,2,3,2,4,2], 2) = 3",
+    "count_occurrences([5,10,15,20], 15) = 1",
+    "count_occurrences([1,2,3,4], 9) = 0",
+    "count_occurrences([], 5) = 0",
+    "count_occurrences([3,3,3,3], 3) = 4",
+    "count_occurrences([-2,0,-2,1], -2) = 2"
+  ]
+}

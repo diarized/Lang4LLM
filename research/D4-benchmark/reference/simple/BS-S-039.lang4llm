@@ -1,0 +1,31 @@
+// BS-S-039: Find Index of First Occurrence
+// Return the zero-based index of the first occurrence of target in items, or -1 if not found.
+
+fn find_index(items: [int], target: int) -> int {
+    for i in range(0, len(items)) {
+        if items[i] == target {
+            return i;
+        };
+    }
+    return -1;
+}
+
+fn main() -> unit {
+    // Use separate array vars to avoid move-after-use in transpiled Rust
+    let a1: [int] = [3, 1, 4, 1, 5];
+    print("find_index([3, 1, 4, 1, 5], 3) = " + to_string(find_index(a1, 3)));
+    let a2: [int] = [3, 1, 4, 1, 5];
+    print("find_index([3, 1, 4, 1, 5], 4) = " + to_string(find_index(a2, 4)));
+    let a3: [int] = [3, 1, 4, 1, 5];
+    print("find_index([3, 1, 4, 1, 5], 7) = " + to_string(find_index(a3, 7)));
+    let a4: [int] = [3, 1, 4, 1, 5];
+    print("find_index([3, 1, 4, 1, 5], 1) = " + to_string(find_index(a4, 1)));
+    let empty: [int] = [];
+    print("find_index([], 5) = " + to_string(find_index(empty, 5)));
+    let s1: [int] = [42];
+    print("find_index([42], 42) = " + to_string(find_index(s1, 42)));
+    let s2: [int] = [42];
+    print("find_index([42], 7) = " + to_string(find_index(s2, 7)));
+    let b: [int] = [10, 20, 30, 40, 50];
+    print("find_index([10, 20, 30, 40, 50], 50) = " + to_string(find_index(b, 50)));
+}

@@ -1,0 +1,18 @@
+{
+  "spec": "BS-C-005",
+  "title": "Trie (Prefix Tree)",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "search(app) = true",
+    "search(ap) = false",
+    "search(apple) = true",
+    "search(apricot) = false",
+    "words(car) = car, card, care, careful",
+    "words(care) = care, careful",
+    "words(cat) count = 0",
+    "starts_with(car) = true",
+    "starts_with(xyz) = false",
+    "dup test count = 1"
+  ]
+}

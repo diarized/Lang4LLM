@@ -1,0 +1,57 @@
+id: DR-ERR-003
+category: ERROR_PREVENTION
+name: Explicit Null Handling via Option Types
+description: |
+  No null pointers or undefined values. Use Option<T> (Some/None) for optional values.
+  Compiler forces explicit handling of None case.
+
+priority: 18
+impact_score: 0.50
+
+rationale: |
+  Null pointer errors are eliminated by Option types. While not directly measured in D1
+  (Python/JS use None/undefined), preventing null dereference errors improves safety.
+
+research_backing:
+  - source: "Rust Language Design"
+    finding: "Option<T> eliminates null pointer exceptions (Tony Hoare's 'billion dollar mistake')"
+    confidence: HIGH
+
+  - source: "Kotlin Null Safety"
+    finding: "Explicit nullable types reduce null reference errors by 70%"
+    confidence: HIGH
+
+  - source: "P07 - LLM Code Analysis"
+    finding: "Implicit null handling contributes to semantic errors"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Compare languages with null (C/Java) vs Option types (Rust/Haskell). Measure null-related
+    errors in LLM-generated code. Test exhaustiveness checking effectiveness.
+  metrics:
+    - M-004  # Error Recovery (compile-time vs runtime null checks)
+  benchmark_specs:
+    - BS-M-022  # Optional value handling
+    - BS-M-035  # Null safety patterns
+
+counter_examples:
+  - scenario: "Interop with null-using languages (C, Java)"
+    reason: "FFI boundaries may require null handling"
+    alternative: "Explicit conversion at FFI boundary: `from_nullable(ptr) -> Option<T>`"
+
+  - scenario: "Performance overhead"
+    reason: "Option<T> adds memory overhead for tag"
+    alternative: "Compiler optimizes Option<&T> to pointer (null optimization)"
+
+related_patterns:
+  - pattern_id: EP-SEM-001
+    mitigation: REDUCES
+    note: "Explicit None handling prevents undefined variable errors"
+
+implementation_notes:
+  - "Option<T> enum: `Some(value)` or `None`"
+  - "Pattern matching forces None handling: `match opt { Some(x) => ..., None => ... }`"
+  - "Convenience methods: `unwrap()`, `unwrap_or(default)`, `map()`, `and_then()`"
+  - "No implicit null, no null keyword"
+  - "Compiler error: 'you must handle the None case'"

@@ -1,0 +1,38 @@
+fn is_alnum(c: string) -> bool {
+    let lower: string = to_lower(c);
+    return (lower >= "a" and lower <= "z") or (c >= "0" and c <= "9");
+}
+
+fn is_palindrome(text: string) -> bool {
+    let all_chars: [string] = chars(to_lower(text));
+    let mut clean: [string] = [];
+    for ch in all_chars {
+        if is_alnum(ch) {
+            push(clean, ch);
+        };
+    }
+    let n: int = len(clean);
+    let mut left: int = 0;
+    let mut right: int = n - 1;
+    let mut result: bool = true;
+    while left < right {
+        if clean[left] != clean[right] {
+            result = false;
+        };
+        left = left + 1;
+        right = right - 1;
+    }
+    return result;
+}
+
+fn main() -> unit {
+    print("racecar: " + to_string(is_palindrome("racecar")));
+    print("hello: " + to_string(is_palindrome("hello")));
+    print("A man a plan a canal Panama: " + to_string(is_palindrome("A man a plan a canal Panama")));
+    print("Was it a car or a cat I saw?: " + to_string(is_palindrome("Was it a car or a cat I saw?")));
+    print("a: " + to_string(is_palindrome("a")));
+    print("empty: " + to_string(is_palindrome("")));
+    print("12321: " + to_string(is_palindrome("12321")));
+    print("A1B2B1A: " + to_string(is_palindrome("A1B2B1A")));
+    print("world: " + to_string(is_palindrome("world")));
+}

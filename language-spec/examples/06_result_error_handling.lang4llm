@@ -1,0 +1,33 @@
+// Example 6: Result-based Error Handling
+// Demonstrates: Result type, error propagation via match
+
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+
+fn parse_positive_int(s: string) -> Result<int, string> {
+    let value: int = as_int(s);  // Simplified parsing
+
+    if value > 0 {
+        return Result::Ok(value);
+    } else {
+        return Result::Err("Value must be positive");
+    }
+}
+
+fn process_input(s: string) -> string {
+    let result: Result<int, string> = parse_positive_int(s);
+
+    let output: string = match result {
+        Result::Ok(value) => "Valid: " + value,
+        Result::Err(msg) => "Error: " + msg,
+    };
+    return output;
+}
+
+fn main() -> unit {
+    let output: string = process_input("42");
+    print(output);
+    return none;
+}

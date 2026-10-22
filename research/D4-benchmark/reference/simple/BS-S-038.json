@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-038",
+  "title": "Clamp Value",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "clamp(5, 1, 10) = 5",
+    "clamp(-3, 0, 100) = 0",
+    "clamp(150, 0, 100) = 100",
+    "clamp(0, 0, 10) = 0",
+    "clamp(10, 0, 10) = 10",
+    "clamp_float(1.5, 0.0, 1.0) = 1",
+    "clamp(-5, -10, -1) = -5"
+  ]
+}

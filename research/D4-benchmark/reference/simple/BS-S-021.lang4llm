@@ -1,0 +1,25 @@
+// BS-S-021: Capitalize First Letter
+// Transform a string so the first character is uppercase and all remaining are lowercase.
+
+fn capitalize_first(text: string) -> string {
+    if len(text) == 0 {
+        return "";
+    };
+    let ch: [string] = chars(text);
+    let first_char: string = to_upper(ch[0]);
+    let mut rest: string = "";
+    for i in range(1, len(ch)) {
+        rest = rest + to_lower(ch[i]);
+    }
+    return first_char + to_string(rest);
+}
+
+fn main() -> unit {
+    print("capitalize_first(\"hello\") = \"" + capitalize_first("hello") + "\"");
+    print("capitalize_first(\"WORLD\") = \"" + capitalize_first("WORLD") + "\"");
+    print("capitalize_first(\"hELLO wORLD\") = \"" + capitalize_first("hELLO wORLD") + "\"");
+    print("capitalize_first(\"\") = \"" + capitalize_first("") + "\"");
+    print("capitalize_first(\"a\") = \"" + capitalize_first("a") + "\"");
+    print("capitalize_first(\"123abc\") = \"" + capitalize_first("123abc") + "\"");
+    print("capitalize_first(\"!!!\") = \"" + capitalize_first("!!!") + "\"");
+}

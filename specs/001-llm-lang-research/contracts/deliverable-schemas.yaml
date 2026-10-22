@@ -1,0 +1,576 @@
+# Deliverable Schemas for LLM-Friendly Language Design Research
+# These schemas define the structure of JSON/YAML outputs for each deliverable
+
+openapi: "3.0.0"
+info:
+  title: Research Deliverable Schemas
+  version: "1.0.0"
+  description: |
+    Schema definitions for the 5 research deliverables (D1-D5).
+    Used for validation and consistency checking.
+
+components:
+  schemas:
+    # ============================================================
+    # D1: Error Pattern Schema
+    # ============================================================
+    ErrorPattern:
+      type: object
+      required:
+        - id
+        - category
+        - subcategory
+        - name
+        - description
+        - frequency
+        - root_cause
+        - trigger_conditions
+        - examples
+        - sources
+      properties:
+        id:
+          type: string
+          pattern: "^EP-(SYN|SEM|LOG)-\\d{3}$"
+          description: "Unique identifier (e.g., EP-SYN-001)"
+        category:
+          type: string
+          enum: [SYNTAX, SEMANTIC, LOGIC]
+        subcategory:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          minLength: 50
+        frequency:
+          $ref: "#/components/schemas/FrequencyData"
+        root_cause:
+          type: string
+          minLength: 20
+        trigger_conditions:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/TriggerCondition"
+        examples:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ErrorExample"
+        related_patterns:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatternReference"
+        sources:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+
+    FrequencyData:
+      type: object
+      required: [overall]
+      properties:
+        overall:
+          type: number
+          minimum: 0
+          maximum: 1
+        by_model:
+          type: object
+          properties:
+            gpt4: { type: number, minimum: 0, maximum: 1 }
+            claude: { type: number, minimum: 0, maximum: 1 }
+            deepseek: { type: number, minimum: 0, maximum: 1 }
+        by_language:
+          type: object
+          properties:
+            python: { type: number, minimum: 0, maximum: 1 }
+            rust: { type: number, minimum: 0, maximum: 1 }
+            typescript: { type: number, minimum: 0, maximum: 1 }
+            go: { type: number, minimum: 0, maximum: 1 }
+
+    TriggerCondition:
+      type: object
+      required: [feature, severity]
+      properties:
+        feature:
+          type: string
+        severity:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+
+    ErrorExample:
+      type: object
+      required: [language, incorrect, correct, explanation]
+      properties:
+        language:
+          type: string
+          enum: [python, rust, typescript, go]
+        incorrect:
+          type: string
+        correct:
+          type: string
+        explanation:
+          type: string
+
+    PatternReference:
+      type: object
+      required: [pattern_id, relationship]
+      properties:
+        pattern_id:
+          type: string
+          pattern: "^EP-(SYN|SEM|LOG)-\\d{3}$"
+        relationship:
+          type: string
+          enum: [CAUSES, CAUSED_BY, SIMILAR_TO]
+
+    SourceCitation:
+      type: object
+      required: [paper_id]
+      properties:
+        paper_id:
+          type: string
+        section:
+          type: string
+
+    # ============================================================
+    # D2: Design Rule Schema
+    # ============================================================
+    DesignRule:
+      type: object
+      required:
+        - id
+        - category
+        - name
+        - description
+        - priority
+        - rationale
+        - research_backing
+        - validation_method
+        - related_patterns
+      properties:
+        id:
+          type: string
+          pattern: "^DR-(SYN|GRM|SEM|TOK|ERR)-\\d{3}$"
+        category:
+          type: string
+          enum: [SYNTAX, GRAMMAR, SEMANTIC, TOKEN, ERROR_PREVENTION]
+        name:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+          minLength: 20
+        priority:
+          type: integer
+          minimum: 1
+        impact_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        rationale:
+          type: string
+          minLength: 50
+        research_backing:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ResearchBacking"
+        validation_method:
+          $ref: "#/components/schemas/ValidationMethod"
+        counter_examples:
+          type: array
+          items:
+            $ref: "#/components/schemas/CounterExample"
+        related_patterns:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/RulePatternLink"
+        implementation_notes:
+          type: array
+          items:
+            type: object
+            properties:
+              note: { type: string }
+
+    ResearchBacking:
+      type: object
+      required: [source, finding, confidence]
+      properties:
+        source:
+          type: string
+        finding:
+          type: string
+        confidence:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+
+    ValidationMethod:
+      type: object
+      required: [approach]
+      properties:
+        approach:
+          type: string
+        metrics:
+          type: array
+          items:
+            type: object
+            properties:
+              metric_id: { type: string }
+        benchmark_specs:
+          type: array
+          items:
+            type: object
+            properties:
+              spec_id: { type: string }
+
+    CounterExample:
+      type: object
+      required: [scenario, reason]
+      properties:
+        scenario:
+          type: string
+        reason:
+          type: string
+        alternative:
+          type: string
+
+    RulePatternLink:
+      type: object
+      required: [pattern_id, mitigation]
+      properties:
+        pattern_id:
+          type: string
+        mitigation:
+          type: string
+          enum: [PREVENTS, REDUCES, DETECTS]
+
+    # ============================================================
+    # D3: Metric Schema
+    # ============================================================
+    Metric:
+      type: object
+      required:
+        - id
+        - name
+        - abbreviation
+        - definition
+        - interpretation
+        - computation
+        - range
+        - correlation
+      properties:
+        id:
+          type: string
+          pattern: "^M-\\d{3}$"
+        name:
+          type: string
+        abbreviation:
+          type: string
+          maxLength: 10
+        definition:
+          type: string
+        interpretation:
+          type: string
+        computation:
+          $ref: "#/components/schemas/ComputationMethod"
+        range:
+          $ref: "#/components/schemas/MetricRange"
+        correlation:
+          $ref: "#/components/schemas/CorrelationData"
+        language_scores:
+          type: object
+          properties:
+            python: { type: number }
+            rust: { type: number }
+            typescript: { type: number }
+            go: { type: number }
+        limitations:
+          type: array
+          items:
+            type: object
+            properties:
+              limitation: { type: string }
+              mitigation: { type: string }
+
+    ComputationMethod:
+      type: object
+      required: [formula, algorithm]
+      properties:
+        formula:
+          type: string
+        algorithm:
+          type: string
+        complexity:
+          type: string
+        tools_required:
+          type: array
+          items:
+            type: object
+            properties:
+              tool: { type: string }
+              purpose: { type: string }
+
+    MetricRange:
+      type: object
+      required: [min, max, optimal]
+      properties:
+        min: { type: number }
+        max: { type: number }
+        optimal:
+          type: string
+          enum: [higher, lower, target]
+
+    CorrelationData:
+      type: object
+      required: [benchmark, coefficient, p_value, sample_size]
+      properties:
+        benchmark:
+          type: string
+        coefficient:
+          type: number
+          minimum: -1
+          maximum: 1
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        sample_size:
+          type: integer
+          minimum: 1
+
+    # ============================================================
+    # D4: Benchmark Specification Schema
+    # ============================================================
+    BenchmarkSpec:
+      type: object
+      required:
+        - id
+        - tier
+        - name
+        - specification
+        - features_tested
+        - reference_implementation
+        - test_cases
+        - edge_cases
+      properties:
+        id:
+          type: string
+          pattern: "^BS-(S|M|C)-\\d{3}$"
+        tier:
+          type: string
+          enum: [SIMPLE, MEDIUM, COMPLEX]
+        name:
+          type: string
+        specification:
+          $ref: "#/components/schemas/SpecificationContent"
+        features_tested:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [feature]
+            properties:
+              feature: { type: string }
+              aspect: { type: string }
+        complexity_factors:
+          type: array
+          items:
+            type: object
+            properties:
+              factor: { type: string }
+              contribution:
+                type: string
+                enum: [HIGH, MEDIUM, LOW]
+        reference_implementation:
+          $ref: "#/components/schemas/ReferenceImpl"
+        test_cases:
+          type: array
+          minItems: 3
+          items:
+            $ref: "#/components/schemas/TestCase"
+        edge_cases:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/EdgeCase"
+        related_specs:
+          type: array
+          items:
+            type: object
+            properties:
+              spec_id: { type: string }
+              relationship: { type: string }
+
+    SpecificationContent:
+      type: object
+      required: [description, inputs, outputs, examples]
+      properties:
+        description:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: object
+            required: [name, type]
+            properties:
+              name: { type: string }
+              type: { type: string }
+              constraints: { type: string }
+        outputs:
+          type: array
+          items:
+            type: object
+            required: [name, type]
+            properties:
+              name: { type: string }
+              type: { type: string }
+              constraints: { type: string }
+        examples:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            properties:
+              input: {}
+              output: {}
+              explanation: { type: string }
+
+    ReferenceImpl:
+      type: object
+      required: [language, code, verified]
+      properties:
+        language:
+          type: string
+          enum: [python]
+        code:
+          type: string
+        verified:
+          type: boolean
+
+    TestCase:
+      type: object
+      required: [name, input, expected_output, category]
+      properties:
+        name:
+          type: string
+        input: {}
+        expected_output: {}
+        category:
+          type: string
+          enum: [BASIC, EDGE, CORNER, STRESS]
+
+    EdgeCase:
+      type: object
+      required: [description, expected_behavior]
+      properties:
+        description:
+          type: string
+        input: {}
+        expected_behavior:
+          type: string
+
+    # ============================================================
+    # D5: Feature Validation Schema
+    # ============================================================
+    FeatureValidation:
+      type: object
+      required:
+        - id
+        - feature_name
+        - feature_description
+        - benchmark_results
+        - recommendation
+        - confidence
+        - rationale
+      properties:
+        id:
+          type: string
+          pattern: "^FV-.+$"
+        feature_name:
+          type: string
+        feature_description:
+          type: string
+        related_rules:
+          type: array
+          items:
+            type: object
+            properties:
+              rule_id: { type: string }
+        benchmark_results:
+          $ref: "#/components/schemas/BenchmarkResults"
+        comparison:
+          $ref: "#/components/schemas/ComparisonData"
+        failure_analysis:
+          type: array
+          items:
+            type: object
+            properties:
+              failure_mode: { type: string }
+              frequency: { type: number }
+              root_cause: { type: string }
+        recommendation:
+          type: string
+          enum: [INCLUDE, EXCLUDE, MODIFY]
+        confidence:
+          type: string
+          enum: [HIGH, MEDIUM, LOW]
+        rationale:
+          type: string
+        modification_needed:
+          type: object
+          properties:
+            current_design: { type: string }
+            proposed_change: { type: string }
+            expected_improvement: { type: string }
+        alternatives:
+          type: array
+          items:
+            type: object
+            properties:
+              design: { type: string }
+              pass_rate: { type: number }
+              why_rejected: { type: string }
+
+    BenchmarkResults:
+      type: object
+      required: [specs_tested, pass_rate]
+      properties:
+        specs_tested:
+          type: integer
+          minimum: 10
+        pass_rate:
+          type: object
+          required: [overall]
+          properties:
+            overall:
+              type: number
+              minimum: 0
+              maximum: 1
+            by_tier:
+              type: object
+              properties:
+                simple: { type: number }
+                medium: { type: number }
+                complex: { type: number }
+            by_model:
+              type: object
+              properties:
+                gpt4: { type: number }
+                claude: { type: number }
+                deepseek: { type: number }
+
+    ComparisonData:
+      type: object
+      properties:
+        baseline:
+          type: string
+        improvement:
+          type: number
+        statistical_significance:
+          type: number
+          minimum: 0
+          maximum: 1

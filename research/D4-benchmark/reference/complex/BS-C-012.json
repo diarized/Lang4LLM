@@ -1,0 +1,23 @@
+{
+  "spec": "BS-C-012",
+  "title": "Matrix Multiplication",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "multiply 2x2:",
+    "[19, 22]; [43, 50]",
+    "multiply 2x3 * 3x2:",
+    "[58, 64]; [139, 154]",
+    "mismatch: error: incompatible dimensions",
+    "transpose 2x3 -> 3x2:",
+    "T row 0: [1, 4]",
+    "T row 1: [2, 5]",
+    "T row 2: [3, 6]",
+    "det 1x1: 7",
+    "det 2x2: -2",
+    "det 3x3: 0",
+    "det non-square: error: non-square matrix",
+    "A * I:",
+    "[3, 7]; [2, 5]"
+  ]
+}

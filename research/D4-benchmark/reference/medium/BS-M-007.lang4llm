@@ -1,0 +1,84 @@
+struct Queue {
+    items: [int],
+    head: int
+}
+
+fn queue_new() -> Queue {
+    return Queue { items: [], head: 0 };
+}
+
+fn queue_enqueue(q: Queue, value: int) -> Queue {
+    let mut new_items: [int] = q.items;
+    push(new_items, value);
+    return Queue { items: new_items, head: q.head };
+}
+
+fn queue_is_empty(q: Queue) -> bool {
+    return q.head >= len(q.items);
+}
+
+fn queue_front(q: Queue) -> int {
+    if queue_is_empty(q) {
+        return -1;
+    };
+    return q.items[q.head];
+}
+
+fn queue_dequeue_val(q: Queue) -> int {
+    if queue_is_empty(q) {
+        return -1;
+    };
+    return q.items[q.head];
+}
+
+fn queue_dequeue(q: Queue) -> Queue {
+    if queue_is_empty(q) {
+        print("ERROR: dequeue on empty queue");
+        return q;
+    };
+    return Queue { items: q.items, head: q.head + 1 };
+}
+
+fn queue_size(q: Queue) -> int {
+    let total: int = len(q.items);
+    if q.head >= total {
+        return 0;
+    };
+    return total - q.head;
+}
+
+fn main() -> unit {
+    let q0: Queue = queue_new();
+    print("new is_empty: " + to_string(queue_is_empty(q0)));
+
+    let q1: Queue = queue_enqueue(q0, 10);
+    let q2: Queue = queue_enqueue(q1, 20);
+    let q3: Queue = queue_enqueue(q2, 30);
+    let d1: int = queue_dequeue_val(q3);
+    let q4: Queue = queue_dequeue(q3);
+    print("dequeue from 10,20,30: " + to_string(d1));
+
+    let q5: Queue = queue_enqueue(q0, 5);
+    let q6: Queue = queue_enqueue(q5, 9);
+    print("front 1st: " + to_string(queue_front(q6)));
+    print("front 2nd: " + to_string(queue_front(q6)));
+    let dv: int = queue_dequeue_val(q6);
+    let q7: Queue = queue_dequeue(q6);
+    print("dequeue after fronts: " + to_string(dv));
+
+    let q8: Queue = queue_enqueue(q0, 42);
+    let q9: Queue = queue_dequeue(q8);
+    print("empty after enqueue+dequeue: " + to_string(queue_is_empty(q9)));
+
+    let q10: Queue = queue_enqueue(q0, 1);
+    let q11: Queue = queue_enqueue(q10, 2);
+    let q12: Queue = queue_enqueue(q11, 3);
+    let v1: int = queue_dequeue_val(q12);
+    let q13: Queue = queue_dequeue(q12);
+    let v2: int = queue_dequeue_val(q13);
+    let q14: Queue = queue_dequeue(q13);
+    let v3: int = queue_dequeue_val(q14);
+    let q15: Queue = queue_dequeue(q14);
+    print("FIFO order: " + to_string(v1) + "," + to_string(v2) + "," + to_string(v3));
+    print("fully drained: " + to_string(queue_is_empty(q15)));
+}

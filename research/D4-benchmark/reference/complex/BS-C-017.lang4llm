@@ -1,0 +1,194 @@
+// BS-C-017: Strategy Pattern — Swappable Sort
+// Sorter struct holds strategy as string; dispatches to bubble/insertion/merge sort.
+// timed_sort: no real timer in Lang4LLM, reports elapsed=0.
+
+struct Sorter {
+    strategy: string
+}
+
+fn sorter_new(strategy: string) -> Sorter {
+    return Sorter { strategy: strategy };
+}
+
+fn sorter_set_strategy(s: Sorter, strategy: string) -> Sorter {
+    return Sorter { strategy: strategy };
+}
+
+// --- Bubble Sort ---
+fn bubble_sort(arr: [int]) -> [int] {
+    let mut res: [int] = [];
+    let mut i: int = 0;
+    while i < len(arr) {
+        push(res, arr[i]);
+        i = i + 1;
+    }
+    let n: int = len(res);
+    let mut swapped: bool = true;
+    while swapped {
+        swapped = false;
+        let mut j: int = 0;
+        while j < n - 1 {
+            if res[j] > res[j + 1] {
+                let tmp: int = res[j];
+                res[j] = res[j + 1];
+                res[j + 1] = tmp;
+                swapped = true;
+            };
+            j = j + 1;
+        }
+    }
+    return res;
+}
+
+// --- Insertion Sort ---
+fn insertion_sort(arr: [int]) -> [int] {
+    let mut res: [int] = [];
+    let mut i: int = 0;
+    while i < len(arr) {
+        push(res, arr[i]);
+        i = i + 1;
+    }
+    let n: int = len(res);
+    let mut i2: int = 1;
+    while i2 < n {
+        let key: int = res[i2];
+        let mut j: int = i2 - 1;
+        while j >= 0 and res[j] > key {
+            res[j + 1] = res[j];
+            j = j - 1;
+        }
+        res[j + 1] = key;
+        i2 = i2 + 1;
+    }
+    return res;
+}
+
+// --- Merge Sort ---
+fn merge_sorted(left: [int], right: [int]) -> [int] {
+    let mut result: [int] = [];
+    let mut li: int = 0;
+    let mut ri: int = 0;
+    while li < len(left) and ri < len(right) {
+        if left[li] <= right[ri] {
+            push(result, left[li]);
+            li = li + 1;
+        } else {
+            push(result, right[ri]);
+            ri = ri + 1;
+        };
+    }
+    while li < len(left) {
+        push(result, left[li]);
+        li = li + 1;
+    }
+    while ri < len(right) {
+        push(result, right[ri]);
+        ri = ri + 1;
+    }
+    return result;
+}
+
+fn merge_sort(arr: [int]) -> [int] {
+    if len(arr) <= 1 {
+        return arr;
+    };
+    let mid: int = len(arr) / 2;
+    let mut left: [int] = [];
+    let mut right: [int] = [];
+    let mut i: int = 0;
+    while i < mid {
+        push(left, arr[i]);
+        i = i + 1;
+    }
+    while i < len(arr) {
+        push(right, arr[i]);
+        i = i + 1;
+    }
+    let sorted_left: [int] = merge_sort(left);
+    let sorted_right: [int] = merge_sort(right);
+    return merge_sorted(sorted_left, sorted_right);
+}
+
+// --- Sorter dispatch ---
+fn sorter_sort(s: Sorter, arr: [int]) -> [int] {
+    if s.strategy == "bubble" { return bubble_sort(arr); };
+    if s.strategy == "insertion" { return insertion_sort(arr); };
+    if s.strategy == "merge" { return merge_sort(arr); };
+    return arr;
+}
+
+fn timed_sort(s: Sorter, arr: [int]) -> [int] {
+    // No real timer available; just return sorted result
+    return sorter_sort(s, arr);
+}
+
+fn arr_to_string(arr: [int]) -> string {
+    if is_empty(arr) { return "[]"; };
+    let mut s: string = "[";
+    let mut i: int = 0;
+    while i < len(arr) {
+        if i > 0 { s = s + ", "; };
+        s = s + to_string(arr[i]);
+        i = i + 1;
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    let input: [int] = [5, 2, 8, 1, 9, 3];
+
+    // Test 1: bubble sort
+    let mut sorter: Sorter = sorter_new("bubble");
+    print("bubble([5,2,8,1,9,3]) = " + arr_to_string(sorter_sort(sorter, input)));
+
+    // Test 2: insertion sort
+    sorter = sorter_set_strategy(sorter, "insertion");
+    print("insertion([5,2,8,1,9,3]) = " + arr_to_string(sorter_sort(sorter, input)));
+
+    // Test 3: merge sort
+    sorter = sorter_set_strategy(sorter, "merge");
+    print("merge([5,2,8,1,9,3]) = " + arr_to_string(sorter_sort(sorter, input)));
+
+    // Test 4: empty list all strategies
+    let empty: [int] = [];
+    sorter = sorter_set_strategy(sorter, "bubble");
+    print("bubble([]) = " + arr_to_string(sorter_sort(sorter, empty)));
+    sorter = sorter_set_strategy(sorter, "insertion");
+    print("insertion([]) = " + arr_to_string(sorter_sort(sorter, empty)));
+    sorter = sorter_set_strategy(sorter, "merge");
+    print("merge([]) = " + arr_to_string(sorter_sort(sorter, empty)));
+
+    // Test 5: single element
+    let single: [int] = [42];
+    sorter = sorter_set_strategy(sorter, "bubble");
+    print("bubble([42]) = " + arr_to_string(sorter_sort(sorter, single)));
+
+    // Test 6: already sorted
+    let sorted_in: [int] = [1, 2, 3, 4, 5];
+    sorter = sorter_set_strategy(sorter, "insertion");
+    print("insertion(sorted) = " + arr_to_string(sorter_sort(sorter, sorted_in)));
+
+    // Test 7: reverse sorted
+    let rev: [int] = [5, 4, 3, 2, 1];
+    sorter = sorter_set_strategy(sorter, "bubble");
+    print("bubble(reversed) = " + arr_to_string(sorter_sort(sorter, rev)));
+
+    // Test 8: duplicates
+    let dups: [int] = [3, 1, 4, 1, 5, 9, 2, 6, 5];
+    sorter = sorter_set_strategy(sorter, "merge");
+    print("merge(dups) = " + arr_to_string(sorter_sort(sorter, dups)));
+
+    // Test 9: original unchanged after sort
+    let orig: [int] = [7, 3, 5];
+    sorter = sorter_set_strategy(sorter, "bubble");
+    let result: [int] = sorter_sort(sorter, orig);
+    print("sorted = " + arr_to_string(result));
+    print("original = " + arr_to_string(orig));
+
+    // Test 10: timed sort
+    let tdata: [int] = [10, 5, 3, 8, 1];
+    sorter = sorter_set_strategy(sorter, "merge");
+    let tresult: [int] = timed_sort(sorter, tdata);
+    print("timed merge([10,5,3,8,1]) = " + arr_to_string(tresult));
+}

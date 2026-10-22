@@ -1,0 +1,53 @@
+fn fast_pow(base: int, exp: int) -> int {
+    if exp == 0 {
+        return 1;
+    };
+    if exp == 1 {
+        return base;
+    };
+    if exp % 2 == 0 {
+        let half: int = fast_pow(base, exp / 2);
+        return half * half;
+    } else {
+        let half2: int = fast_pow(base, (exp - 1) / 2);
+        return base * half2 * half2;
+    };
+}
+
+fn main() -> unit {
+    // Test 1: basic positive base
+    print("fast_pow(2, 10) = " + to_string(fast_pow(2, 10)));
+
+    // Test 2: exponent zero
+    print("fast_pow(7, 0) = " + to_string(fast_pow(7, 0)));
+
+    // Test 3: base zero
+    print("fast_pow(0, 5) = " + to_string(fast_pow(0, 5)));
+
+    // Test 4: base one
+    print("fast_pow(1, 30) = " + to_string(fast_pow(1, 30)));
+
+    // Test 5: base -1 even exponent
+    print("fast_pow(-1, 4) = " + to_string(fast_pow(-1, 4)));
+
+    // Test 6: base -1 odd exponent
+    print("fast_pow(-1, 7) = " + to_string(fast_pow(-1, 7)));
+
+    // Test 7: negative base even exponent
+    print("fast_pow(-3, 4) = " + to_string(fast_pow(-3, 4)));
+
+    // Test 8: negative base odd exponent
+    print("fast_pow(-3, 3) = " + to_string(fast_pow(-3, 3)));
+
+    // Test 9: exponent one
+    print("fast_pow(13, 1) = " + to_string(fast_pow(13, 1)));
+
+    // Test 10: large exponent
+    print("fast_pow(2, 20) = " + to_string(fast_pow(2, 20)));
+
+    // Test 11: base 3 exponent 5
+    print("fast_pow(3, 5) = " + to_string(fast_pow(3, 5)));
+
+    // Test 12: base 5 exponent 6
+    print("fast_pow(5, 6) = " + to_string(fast_pow(5, 6)));
+}

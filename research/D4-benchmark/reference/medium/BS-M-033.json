@@ -1,0 +1,22 @@
+{
+  "spec": "BS-M-033",
+  "title": "Simple Config Parser",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "host = localhost",
+    "port = 8080",
+    "debug = true",
+    "db_host = db.example.com",
+    "user = admin",
+    "key1 = value1",
+    "key3 = value3",
+    "url = http://example.com/path?a=1&b=2",
+    "formula = x=y+z",
+    "timeout = 60",
+    "empty_key = ''",
+    "missing = ''",
+    "valid = yes",
+    "another = ok"
+  ]
+}

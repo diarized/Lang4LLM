@@ -1,0 +1,28 @@
+// Example 8: Closures and Higher-Order Functions
+// Demonstrates: closure syntax, function as parameter
+
+fn apply<T, U>(x: T, f: fn(T) -> U) -> U {
+    return f(x);
+}
+
+fn map_array<T, U>(arr: [T], f: fn(T) -> U) -> [U] {
+    let mut result: [U] = [];
+
+    for item in arr {
+        let mapped: U = f(item);
+        push(result, mapped);
+    }
+
+    return result;
+}
+
+fn main() -> unit {
+    let double: fn(int) -> int = |x| x * 2;
+    let result: int = apply(21, double);
+
+    let numbers: [int] = [1, 2, 3, 4, 5];
+    let doubled: [int] = map_array(numbers, |x| x * 2);
+
+    print("Result: " + result);
+    return none;
+}

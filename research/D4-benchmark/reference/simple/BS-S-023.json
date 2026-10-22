@@ -1,0 +1,16 @@
+{
+  "spec": "BS-S-023",
+  "title": "Remove Leading and Trailing Whitespace",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "trim_whitespace(\"  hello  \") = \"hello\"",
+    "trim_whitespace(\"   hello\") = \"hello\"",
+    "trim_whitespace(\"hello   \") = \"hello\"",
+    "trim_whitespace(\"  hello world  \") = \"hello world\"",
+    "trim_whitespace(\"hello\") = \"hello\"",
+    "trim_whitespace(\"   \") = \"\"",
+    "trim_whitespace(\"\") = \"\"",
+    "trim_whitespace(\"  tab content  \") = \"tab content\""
+  ]
+}

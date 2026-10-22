@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-027",
+  "title": "Absolute Value",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "my_abs(-7) = 7",
+    "my_abs(5) = 5",
+    "my_abs(0) = 0",
+    "my_abs(-1000) = 1000",
+    "my_abs(1000) = 1000",
+    "my_abs(-1) = 1",
+    "my_abs(1) = 1"
+  ]
+}

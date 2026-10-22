@@ -1,0 +1,30 @@
+// Example 3: Pattern Matching with Option
+// Demonstrates: enum definition, pattern matching, exhaustive cases
+
+enum Option<T> {
+    Some(T),
+    None
+}
+
+fn unwrap_or<T>(opt: Option<T>, default: T) -> T {
+    let result: T = match opt {
+        Option::Some(value) => value,
+        Option::None => default,
+    };
+    return result;
+}
+
+fn divide(a: int, b: int) -> Option<int> {
+    if b == 0 {
+        return Option::None;
+    } else {
+        return Option::Some(a / b);
+    }
+}
+
+fn main() -> unit {
+    let result: Option<int> = divide(10, 2);
+    let value: int = unwrap_or(result, 0);
+    print("Result: " + value);
+    return none;
+}

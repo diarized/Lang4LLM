@@ -1,0 +1,30 @@
+fn is_balanced_digits(n: int) -> bool {
+    let digit_chars: [string] = chars(to_string(n));
+    let d: int = len(digit_chars);
+    // Single digit: both halves empty, always balanced
+    if d <= 1 {
+        return true;
+    };
+    let half: int = d / 2;
+    let mut left_sum: int = 0;
+    let mut right_sum: int = 0;
+    // For odd d, middle index is d/2 (integer division), skip it.
+    // First half: indices 0 .. half-1
+    // Second half: indices d-half .. d-1
+    for i in range(0, half) {
+        left_sum = left_sum + as_int(as_float(digit_chars[i]));
+    }
+    for i in range(d - half, d) {
+        right_sum = right_sum + as_int(as_float(digit_chars[i]));
+    }
+    return left_sum == right_sum;
+}
+
+fn main() -> unit {
+    print("is_balanced_digits(1230) = " + to_string(is_balanced_digits(1230)));
+    print("is_balanced_digits(1231) = " + to_string(is_balanced_digits(1231)));
+    print("is_balanced_digits(12321) = " + to_string(is_balanced_digits(12321)));
+    print("is_balanced_digits(7) = " + to_string(is_balanced_digits(7)));
+    print("is_balanced_digits(0) = " + to_string(is_balanced_digits(0)));
+    print("is_balanced_digits(13) = " + to_string(is_balanced_digits(13)));
+}

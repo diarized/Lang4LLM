@@ -1,0 +1,89 @@
+# Error Pattern: Incorrect Operator Usage
+
+id: EP-SYN-004
+category: SYNTAX
+subcategory: operator
+name: Wrong Operator (Comparison, Assignment, Logical)
+description: |
+  LLM uses incorrect operator: = instead of ==, & instead of &&, | instead of ||,
+  or confusion between comparison/assignment operators. Common in conditional
+  statements and boolean expressions.
+
+frequency:
+  overall: 0.10  # 10% of all syntax errors
+  by_model:
+    gpt4: 0.08
+    claude: 0.09
+    deepseek: 0.13
+  by_language:
+    python: 0.08
+    rust: 0.11
+    typescript: 0.10
+    go: 0.11
+
+root_cause: |
+  Operator syntax varies across languages (Python: and/or, C++: &&/||, Rust: &/&&).
+  LLMs trained on multi-language corpora confuse language-specific conventions.
+  Assignment (=) vs equality (==) is particularly error-prone due to similar syntax.
+
+trigger_conditions:
+  - feature: "Conditional expressions (if/while)"
+    severity: HIGH
+  - feature: "Boolean logic combinations"
+    severity: MEDIUM
+  - feature: "Bitwise vs logical operations"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def check_range(value, min_val, max_val):
+          if value = min_val:  # Should be ==
+              return True
+          return value < max_val & value > min_val  # Should be 'and'
+    correct: |
+      def check_range(value, min_val, max_val):
+          if value == min_val:
+              return True
+          return value < max_val and value > min_val
+    explanation: "Using assignment (=) instead of equality (==), bitwise (&) instead of logical (and)"
+
+  - language: rust
+    incorrect: |
+      fn is_valid(x: i32, y: i32) -> bool {
+          x > 0 & y > 0  // Should be &&
+      }
+    correct: |
+      fn is_valid(x: i32, y: i32) -> bool {
+          x > 0 && y > 0
+      }
+    explanation: "Using bitwise AND (&) instead of logical AND (&&)"
+
+  - language: typescript
+    incorrect: |
+      function checkAuth(user: User): boolean {
+          if (user.role = 'admin') {  // Should be === or ==
+              return true;
+          }
+          return user.permissions.length > 0 | user.isActive;  // Should be ||
+      }
+    correct: |
+      function checkAuth(user: User): boolean {
+          if (user.role === 'admin') {
+              return true;
+          }
+          return user.permissions.length > 0 || user.isActive;
+      }
+    explanation: "Assignment in condition, bitwise OR instead of logical OR"
+
+related_patterns:
+  - pattern_id: EP-SEM-002
+    relationship: CAUSES
+  - pattern_id: EP-LOG-003
+    relationship: SIMILAR_TO
+
+sources:
+  - paper_id: P01
+    section: "Incorrect condition patterns"
+  - paper_id: P07
+    section: "Operator confusion across languages"

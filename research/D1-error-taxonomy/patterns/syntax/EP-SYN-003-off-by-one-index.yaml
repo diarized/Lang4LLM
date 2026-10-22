@@ -1,0 +1,97 @@
+# Error Pattern: Off-by-One Index Error
+
+id: EP-SYN-003
+category: SYNTAX
+subcategory: boundary
+name: Off-by-One Array/List Indexing
+description: |
+  LLM generates code with incorrect array/list bounds (using n instead of n-1,
+  or starting at 1 instead of 0). Common in loops, array access, and range operations.
+  Causes IndexError, ArrayIndexOutOfBoundsException, or logic bugs.
+
+frequency:
+  overall: 0.15  # 15% of all syntax errors
+  by_model:
+    gpt4: 0.12
+    claude: 0.14
+    deepseek: 0.18
+  by_language:
+    python: 0.16
+    rust: 0.13  # Compiler catches more cases
+    typescript: 0.15
+    go: 0.14
+
+root_cause: |
+  LLMs are trained on diverse codebases with 0-indexed (Python, Rust) and 1-indexed
+  (Lua, MATLAB) languages. Cross-contamination occurs during generation. Also,
+  natural language descriptions often use 1-based counting ("first element", "last item").
+
+trigger_conditions:
+  - feature: "Loop iteration with array access"
+    severity: HIGH
+  - feature: "Range operations (slicing, subarray)"
+    severity: HIGH
+  - feature: "Boundary condition handling"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def get_last_element(arr):
+          return arr[len(arr)]  # Should be len(arr)-1
+    correct: |
+      def get_last_element(arr):
+          return arr[len(arr)-1]
+    explanation: "Accessing index len(arr) causes IndexError; arrays are 0-indexed"
+
+  - language: rust
+    incorrect: |
+      fn sum_array(nums: &[i32]) -> i32 {
+          let mut sum = 0;
+          for i in 0..nums.len() {  // Correct bound
+              sum += nums[i+1];  // Off-by-one access
+          }
+          sum
+      }
+    correct: |
+      fn sum_array(nums: &[i32]) -> i32 {
+          let mut sum = 0;
+          for i in 0..nums.len() {
+              sum += nums[i];
+          }
+          sum
+      }
+    explanation: "Accessing nums[i+1] when i reaches nums.len()-1 panics"
+
+  - language: typescript
+    incorrect: |
+      function reverseArray<T>(arr: T[]): T[] {
+          const result: T[] = [];
+          for (let i = arr.length; i >= 0; i--) {  // Should start at arr.length-1
+              result.push(arr[i]);
+          }
+          return result;
+      }
+    correct: |
+      function reverseArray<T>(arr: T[]): T[] {
+          const result: T[] = [];
+          for (let i = arr.length - 1; i >= 0; i--) {
+              result.push(arr[i]);
+          }
+          return result;
+      }
+    explanation: "Starting at arr.length accesses undefined; should start at arr.length-1"
+
+related_patterns:
+  - pattern_id: EP-LOG-001
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-003
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Common error patterns in HumanEval analysis"
+  - paper_id: P02
+    section: "Boundary condition failures"
+  - paper_id: P08
+    section: "Algorithmic mistake category"

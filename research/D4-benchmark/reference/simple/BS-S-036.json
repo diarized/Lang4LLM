@@ -1,0 +1,8 @@
+{
+  "spec": "BS-S-036",
+  "title": "Check File Exists",
+  "tier": "simple",
+  "lang4llm_compatible": false,
+  "reason": "Requires filesystem access which Lang4LLM does not support",
+  "expected": []
+}

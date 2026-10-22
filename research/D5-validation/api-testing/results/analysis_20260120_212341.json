@@ -1,0 +1,25 @@
+{
+  "iterator": {
+    "total": 12,
+    "passed": 11,
+    "pass_rate": 0.9166666666666666,
+    "boundary_errors": 8,
+    "boundary_error_rate": 0.6666666666666666,
+    "off_by_one_errors": 0,
+    "off_by_one_rate": 0.0
+  },
+  "index": {
+    "total": 12,
+    "passed": 10,
+    "pass_rate": 0.8333333333333334,
+    "boundary_errors": 12,
+    "boundary_error_rate": 1.0,
+    "off_by_one_errors": 1,
+    "off_by_one_rate": 0.08333333333333333
+  },
+  "improvement": {
+    "pass_rate_delta": 0.08333333333333326,
+    "boundary_error_reduction": 33.333333333333336,
+    "off_by_one_reduction": 100.0
+  }
+}

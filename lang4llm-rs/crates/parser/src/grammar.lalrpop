@@ -1,0 +1,1115 @@
+// LALRPOP Grammar for Lang4LLM - Full Feature Set
+//
+// Disambiguation strategies:
+// 1. Two expression chains: Expr (allows struct lit) vs ExprNS (no struct lit)
+//    - ExprNS used in if/while/for/match conditions where "{" starts a block
+// 2. Struct literal: Ident "{" fields "}" only in PrimaryExpr (not PrimaryExprNS)
+// 3. Enum variants: Ident "::" Ident, postfix "()" absorbed into variant construction
+// 4. Tuple literals: "(" Expr "," ... ")" - comma disambiguates from parenthesized
+// 5. Closures: "|" params "|" expr - parsed at Expr level (greedy body, context-delimited)
+// 6. Complex assign targets: Expr "=" Expr ";" with fallible action validation
+// 7. Patterns: Ident prefix factored by lookahead ("::" / "{" / "(" / other)
+// 8. Tuple types: "(" Type "," ... ")" - unambiguous in type context
+// 9. "self" as expression
+// 10. Range: only as range(start, end) function call (not binary operator)
+//
+// LALR conflict avoidance:
+// - No parameterized macros (manual duplication prevents state merging)
+// - CompExpr is left-associative (semantic pass rejects chaining)
+// - Closure at Expr level: "|" params "|" Expr (greedy right-recursion, no circularity)
+// - Separate list rules per type (prevents Comma<T> state merging)
+
+use crate::lexer::TokenKind;
+use lang4llm_ast::*;
+
+grammar<'src>(source_map: &'src SourceMap);
+
+// ============================================================================
+// Token Definitions
+// ============================================================================
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum TokenKind {
+        // Keywords
+        "let" => TokenKind::Let,
+        "mut" => TokenKind::Mut,
+        "fn" => TokenKind::Fn,
+        "return" => TokenKind::Return,
+        "if" => TokenKind::If,
+        "else" => TokenKind::Else,
+        "match" => TokenKind::Match,
+        "for" => TokenKind::For,
+        "in" => TokenKind::In,
+        "while" => TokenKind::While,
+        "loop" => TokenKind::Loop,
+        "break" => TokenKind::Break,
+        "continue" => TokenKind::Continue,
+        "struct" => TokenKind::Struct,
+        "enum" => TokenKind::Enum,
+        "impl" => TokenKind::Impl,
+        "trait" => TokenKind::Trait,
+        "import" => TokenKind::Import,
+        "export" => TokenKind::Export,
+        "module" => TokenKind::Module,
+        "true" => TokenKind::True,
+        "false" => TokenKind::False,
+        "none" => TokenKind::None,
+
+        // Type keywords
+        "int" => TokenKind::Int,
+        "float" => TokenKind::Float,
+        "bool" => TokenKind::Bool,
+        "string" => TokenKind::String,
+        "unit" => TokenKind::Unit,
+
+        // Logical operators
+        "and" => TokenKind::And,
+        "or" => TokenKind::Or,
+        "not" => TokenKind::Not,
+
+        // Other keywords
+        "as" => TokenKind::As,
+        "is" => TokenKind::Is,
+        "self" => TokenKind::SelfKeyword,
+        "_" => TokenKind::Underscore,
+
+        // Literals and identifiers
+        "ident" => TokenKind::Ident(<(String, Span)>),
+        "int_lit" => TokenKind::IntLit(<i64>),
+        "float_lit" => TokenKind::FloatLit(<f64>),
+        "string_lit" => TokenKind::StringLit(<String>),
+
+        // Operators
+        "+" => TokenKind::Plus,
+        "-" => TokenKind::Minus,
+        "*" => TokenKind::Star,
+        "/" => TokenKind::Slash,
+        "%" => TokenKind::Percent,
+        "==" => TokenKind::Eq,
+        "!=" => TokenKind::Ne,
+        "<" => TokenKind::Lt,
+        "<=" => TokenKind::Le,
+        ">" => TokenKind::Gt,
+        ">=" => TokenKind::Ge,
+        "=" => TokenKind::Assign,
+        ".." => TokenKind::Range,
+        "..=" => TokenKind::RangeEq,
+
+        // Delimiters
+        "{" => TokenKind::LBrace,
+        "}" => TokenKind::RBrace,
+        "(" => TokenKind::LParen,
+        ")" => TokenKind::RParen,
+        "[" => TokenKind::LBracket,
+        "]" => TokenKind::RBracket,
+        ":" => TokenKind::Colon,
+        "::" => TokenKind::ColonColon,
+        "," => TokenKind::Comma,
+        ";" => TokenKind::Semi,
+        "." => TokenKind::Dot,
+        "|" => TokenKind::Pipe,
+        "->" => TokenKind::Arrow,
+        "=>" => TokenKind::FatArrow,
+    }
+}
+
+// ============================================================================
+// Top-Level Program
+// ============================================================================
+
+pub Program: Program = {
+    <lo:@L> <module:ModuleDecl?> <imports:ImportStmt*> <items:Item*> <hi:@R> => Program {
+        module,
+        imports,
+        items,
+        span: source_map.span(lo, hi),
+    }
+};
+
+ModuleDecl: ModuleDecl = {
+    <lo:@L> "module" <name:Ident> ";" <hi:@R> => ModuleDecl {
+        name,
+        span: source_map.span(lo, hi),
+    }
+};
+
+ImportStmt: ImportStmt = {
+    <lo:@L> "import" <path:IdentDotList> ";" <hi:@R> => ImportStmt {
+        path,
+        span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Top-Level Items
+// ============================================================================
+
+Item: Item = {
+    <f:FunctionDef> => Item::Function(f),
+    <s:StructDef> => Item::Struct(s),
+    <e:EnumDef> => Item::Enum(e),
+    <t:TraitDef> => Item::Trait(t),
+    <i:ImplBlock> => Item::Impl(i),
+};
+
+// ============================================================================
+// Function Definitions (split generic/non-generic to avoid "<" ambiguity)
+// ============================================================================
+
+FunctionDef: FunctionDef = {
+    <lo:@L> "fn" <name:Ident> "<" <gparams:GenericParamDeclCommaList> ">" "(" <params:ParamCommaList> ")"
+    "->" <return_type:Type> <body:BlockExpr> <hi:@R> => FunctionDef {
+        name,
+        generics: Some(GenericParams { params: gparams, span: source_map.span(lo, hi) }),
+        params,
+        return_type,
+        body,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> "fn" <name:Ident> "(" <params:ParamCommaList> ")"
+    "->" <return_type:Type> <body:BlockExpr> <hi:@R> => FunctionDef {
+        name,
+        generics: None,
+        params,
+        return_type,
+        body,
+        span: source_map.span(lo, hi),
+    },
+};
+
+Param: Param = {
+    <lo:@L> <name:ParamName> ":" <ty:Type> <hi:@R> => Param {
+        name,
+        ty,
+        span: source_map.span(lo, hi),
+    }
+};
+
+ParamName: ParamName = {
+    "self" => ParamName::SelfParam,
+    <i:Ident> => ParamName::Ident(i),
+};
+
+// ============================================================================
+// Struct Definitions
+// ============================================================================
+
+StructDef: StructDef = {
+    <lo:@L> "struct" <name:Ident> "<" <gparams:IdentCommaList> ">" "{" <fields:FieldDefCommaList> "}" <hi:@R> => StructDef {
+        name,
+        generics: Some(GenericParams { params: gparams.into_iter().map(|i| GenericParamDef { name: i, bound: None }).collect(), span: source_map.span(lo, hi) }),
+        fields,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> "struct" <name:Ident> "{" <fields:FieldDefCommaList> "}" <hi:@R> => StructDef {
+        name,
+        generics: None,
+        fields,
+        span: source_map.span(lo, hi),
+    },
+};
+
+FieldDef: FieldDef = {
+    <lo:@L> <name:Ident> ":" <ty:Type> <hi:@R> => FieldDef {
+        name,
+        ty,
+        span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Enum Definitions
+// ============================================================================
+
+EnumDef: EnumDef = {
+    <lo:@L> "enum" <name:Ident> "<" <gparams:IdentCommaList> ">" "{" <variants:VariantCommaList> "}" <hi:@R> => EnumDef {
+        name,
+        generics: Some(GenericParams { params: gparams.into_iter().map(|i| GenericParamDef { name: i, bound: None }).collect(), span: source_map.span(lo, hi) }),
+        variants,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> "enum" <name:Ident> "{" <variants:VariantCommaList> "}" <hi:@R> => EnumDef {
+        name,
+        generics: None,
+        variants,
+        span: source_map.span(lo, hi),
+    },
+};
+
+EnumVariantDef: Variant = {
+    <lo:@L> <name:Ident> "(" <types:TypeCommaList> ")" <hi:@R> => Variant {
+        name,
+        data: Some(types),
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> <name:Ident> <hi:@R> => Variant {
+        name,
+        data: None,
+        span: source_map.span(lo, hi),
+    },
+};
+
+// ============================================================================
+// Trait Definitions
+// ============================================================================
+
+TraitDef: TraitDef = {
+    <lo:@L> "trait" <name:Ident> "<" <gparams:IdentCommaList> ">" "{" <items:TraitItem*> "}" <hi:@R> => TraitDef {
+        name,
+        generics: Some(GenericParams { params: gparams.into_iter().map(|i| GenericParamDef { name: i, bound: None }).collect(), span: source_map.span(lo, hi) }),
+        items,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> "trait" <name:Ident> "{" <items:TraitItem*> "}" <hi:@R> => TraitDef {
+        name,
+        generics: None,
+        items,
+        span: source_map.span(lo, hi),
+    },
+};
+
+TraitItem: FunctionSig = {
+    <lo:@L> "fn" <name:Ident> "(" <params:ParamCommaList> ")"
+    "->" <return_type:Type> ";" <hi:@R> => FunctionSig {
+        name,
+        generics: None,
+        params,
+        return_type,
+        span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Impl Blocks
+// ============================================================================
+
+ImplBlock: ImplBlock = {
+    <lo:@L> // impl TraitName for TypeName { ... }
+    "impl" <trait_name:Ident> "for" <type_name:Ident> "{" <items:FunctionDef*> "}" <hi:@R> => ImplBlock {
+        generics: None,
+        trait_name: Some(TraitName {
+            name: trait_name,
+            generics: None,
+            span: source_map.span(lo, hi),
+        }),
+        type_name: TypeName {
+            name: type_name,
+            generics: None,
+            span: source_map.span(lo, hi),
+        },
+        items,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> // impl<T, U> TypeName<T, U> { ... }
+    "impl" "<" <gparams:IdentCommaList> ">" <type_name:Ident> "<" <targs:TypeCommaList> ">" "{" <items:FunctionDef*> "}" <hi:@R> => ImplBlock {
+        generics: Some(GenericParams { params: gparams.into_iter().map(|i| GenericParamDef { name: i, bound: None }).collect(), span: source_map.span(lo, hi) }),
+        trait_name: None,
+        type_name: TypeName {
+            name: type_name,
+            generics: Some(GenericArgs { args: targs, span: source_map.span(lo, hi) }),
+            span: source_map.span(lo, hi),
+        },
+        items,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> // impl TypeName { ... }
+    "impl" <type_name:Ident> "{" <items:FunctionDef*> "}" <hi:@R> => ImplBlock {
+        generics: None,
+        trait_name: None,
+        type_name: TypeName {
+            name: type_name,
+            generics: None,
+            span: source_map.span(lo, hi),
+        },
+        items,
+        span: source_map.span(lo, hi),
+    },
+};
+
+// ============================================================================
+// Types
+// ============================================================================
+
+Type: Type = {
+    PrimitiveType,
+    ArrayType,
+    TupleType,
+    FunctionType,
+    <lo:@L> <name:Ident> "<" <args:TypeCommaList> ">" <hi:@R> => Type::Generic(
+        name,
+        Some(GenericArgs { args, span: source_map.span(lo, hi) }),
+        source_map.span(lo, hi),
+    ),
+    <lo:@L> <name:Ident> <hi:@R> => Type::Generic(name, None, source_map.span(lo, hi)),
+};
+
+PrimitiveType: Type = {
+    <lo:@L> "int" <hi:@R> => Type::Primitive(PrimitiveType::Int, source_map.span(lo, hi)),
+    <lo:@L> "float" <hi:@R> => Type::Primitive(PrimitiveType::Float, source_map.span(lo, hi)),
+    <lo:@L> "bool" <hi:@R> => Type::Primitive(PrimitiveType::Bool, source_map.span(lo, hi)),
+    <lo:@L> "string" <hi:@R> => Type::Primitive(PrimitiveType::String, source_map.span(lo, hi)),
+    <lo:@L> "unit" <hi:@R> => Type::Primitive(PrimitiveType::Unit, source_map.span(lo, hi)),
+};
+
+ArrayType: Type = {
+    <lo:@L> "[" <t:Type> "]" <hi:@R> => Type::Array(Box::new(t), source_map.span(lo, hi)),
+};
+
+// Tuple type: at least 2 types, disambiguated by comma after first
+TupleType: Type = {
+    <lo:@L> "(" <first:Type> "," <rest:TypeCommaListNonEmpty> ")" <hi:@R> => {
+        let mut types = vec![first];
+        types.extend(rest);
+        Type::Tuple(types, source_map.span(lo, hi))
+    },
+};
+
+FunctionType: Type = {
+    <lo:@L> "fn" "(" <params:TypeCommaList> ")" "->" <ret:Type> <hi:@R> => Type::Function(FunctionType {
+        params,
+        return_type: Box::new(ret),
+        span: source_map.span(lo, hi),
+    }),
+};
+
+// ============================================================================
+// Statements
+// ============================================================================
+
+Stmt: Stmt = {
+    LetStmt,
+    <lo:@L> // Single-arm `if` as a statement (must end with `;` to distinguish from `if/else` expression).
+    // Avoids the dangling-else ambiguity: the `;` lookahead uniquely identifies this production.
+    "if" <cond:ExprNS> <then_block:BlockExpr> ";" <hi:@R> => Stmt::Expr(ExprStmt {
+        expr: Box::new(Expr::If(IfExpr {
+            condition: Box::new(cond),
+            then_branch: then_block,
+            else_branch: None,
+            span: source_map.span(lo, hi),
+        })),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Assignment: Expr "=" Expr ";" with fallible LHS validation
+    <lhs:Expr> "=" <rhs:Expr> ";" <hi:@R> =>? {
+        let target = match lhs {
+            Expr::Variable(ident, _) => AssignTarget::Var(ident),
+            Expr::ArrayAccess(aa) => AssignTarget::ArrayAccess(aa.array, aa.index, aa.span),
+            Expr::FieldAccess(fa) => AssignTarget::FieldAccess(fa.object, fa.field, fa.span),
+            _ => return Err(lalrpop_util::ParseError::User {
+                error: "invalid assignment target: expected variable, array access, or field access".to_string(),
+            }),
+        };
+        Ok(Stmt::Assign(AssignStmt {
+            lhs: target,
+            rhs: Box::new(rhs),
+            span: source_map.span(lo, hi),
+        }))
+    },
+    <lo:@L> // Expression statement
+    <e:Expr> ";" <hi:@R> => Stmt::Expr(ExprStmt {
+        expr: Box::new(e),
+        span: source_map.span(lo, hi),
+    }),
+    ReturnStmt,
+    BreakStmt,
+    ContinueStmt,
+    WhileStmt,
+    ForStmt,
+    LoopStmt,
+    <lo:@L> ";" <hi:@R> => Stmt::Empty(source_map.span(lo, hi)),
+};
+
+LetStmt: Stmt = {
+    <lo:@L> "let" <mutable:"mut"?> <name:Ident> ":" <ty:Type> "=" <value:Expr> ";" <hi:@R> => Stmt::Let(LetStmt {
+        mutable: mutable.is_some(),
+        name,
+        ty,
+        init: Some(Box::new(value)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> "let" <mutable:"mut"?> <name:Ident> ":" <ty:Type> ";" <hi:@R> => Stmt::Let(LetStmt {
+        mutable: mutable.is_some(),
+        name,
+        ty,
+        init: None,
+        span: source_map.span(lo, hi),
+    }),
+};
+
+ReturnStmt: Stmt = {
+    <lo:@L> "return" <e:Expr?> ";" <hi:@R> => Stmt::Return(ReturnStmt {
+        value: e.map(Box::new),
+        span: source_map.span(lo, hi),
+    }),
+};
+
+BreakStmt: Stmt = {
+    <lo:@L> "break" ";" <hi:@R> => Stmt::Break(BreakStmt { span: source_map.span(lo, hi) }),
+};
+
+ContinueStmt: Stmt = {
+    <lo:@L> "continue" ";" <hi:@R> => Stmt::Continue(ContinueStmt { span: source_map.span(lo, hi) }),
+};
+
+// Conditions use ExprNS (no struct literal) to avoid "{" ambiguity
+WhileStmt: Stmt = {
+    <lo:@L> "while" <cond:ExprNS> <body:BlockExpr> <hi:@R> => Stmt::While(WhileStmt {
+        condition: Box::new(cond),
+        body,
+        span: source_map.span(lo, hi),
+    })
+};
+
+ForStmt: Stmt = {
+    <lo:@L> "for" <var:Ident> "in" <iter:ExprNS> <body:BlockExpr> <hi:@R> => Stmt::For(ForStmt {
+        var,
+        iter: Box::new(iter),
+        body,
+        span: source_map.span(lo, hi),
+    })
+};
+
+LoopStmt: Stmt = {
+    <lo:@L> "loop" <body:BlockExpr> <hi:@R> => Stmt::Loop(LoopStmt {
+        body,
+        span: source_map.span(lo, hi),
+    })
+};
+
+// ============================================================================
+// Expression Chain 1: FULL (allows struct literals)
+// Used in: most contexts (function args, let init, return, array elements, etc.)
+// ============================================================================
+
+// Closures parsed at Expr level: greedy body consumes all to the right
+// Terminated by context: ";", ",", ")", "]", "}", etc.
+// Examples: |x| x * 2    |x| { x + 1 }    |x, y| x + y
+pub Expr: Expr = {
+    <lo:@L> "|" <params:ClosureParamCommaList> "|" <body:Expr> <hi:@R> => Expr::Closure(ClosureExpr {
+        params,
+        body: Box::new(body),
+        span: source_map.span(lo, hi),
+    }),
+    OrExpr,
+};
+
+OrExpr: Expr = {
+    <lo:@L> <l:OrExpr> "or" <r:AndExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Or, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    AndExpr,
+};
+
+AndExpr: Expr = {
+    <lo:@L> <l:AndExpr> "and" <r:CompExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::And, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    CompExpr,
+};
+
+// Left-associative comparison (semantic pass rejects chaining like a < b < c)
+CompExpr: Expr = {
+    <lo:@L> <l:CompExpr> "==" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Eq, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExpr> "!=" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Ne, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExpr> "<" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Lt, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExpr> "<=" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Le, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExpr> ">" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Gt, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExpr> ">=" <r:AddExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Ge, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    AddExpr,
+};
+
+AddExpr: Expr = {
+    <lo:@L> <l:AddExpr> "+" <r:MulExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Add, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:AddExpr> "-" <r:MulExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Sub, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    MulExpr,
+};
+
+MulExpr: Expr = {
+    <lo:@L> <l:MulExpr> "*" <r:UnaryExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Mul, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:MulExpr> "/" <r:UnaryExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Div, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:MulExpr> "%" <r:UnaryExpr> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Mod, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    UnaryExpr,
+};
+
+UnaryExpr: Expr = {
+    <lo:@L> "not" <e:UnaryExpr> <hi:@R> => Expr::Unary(UnaryExpr {
+        op: UnOp::Not, operand: Box::new(e), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> "-" <e:UnaryExpr> <hi:@R> => Expr::Unary(UnaryExpr {
+        op: UnOp::Neg, operand: Box::new(e), span: source_map.span(lo, hi),
+    }),
+    PostfixExpr,
+};
+
+// Postfix: call, index, field access (left-recursive)
+// Special: if base is EnumVariant, "()" becomes construction args
+PostfixExpr: Expr = {
+    <lo:@L> <base:PostfixExpr> "(" <args:ExprCommaList> ")" <hi:@R> => {
+        match base {
+            Expr::EnumVariant(mut ev) => {
+                ev.args = Some(args);
+                Expr::EnumVariant(ev)
+            },
+            _ => Expr::Call(CallExpr {
+                func: Box::new(base), args, span: source_map.span(lo, hi),
+            })
+        }
+    },
+    <lo:@L> // Array indexing/slicing - Priority 3: support ranges in [] context only
+    <base:PostfixExpr> "[" <index:IndexExpr> "]" <hi:@R> => Expr::ArrayAccess(ArrayAccess {
+        array: Box::new(base), index: Box::new(index), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <base:PostfixExpr> "." <field:Ident> <hi:@R> => Expr::FieldAccess(FieldAccess {
+        object: Box::new(base), field, span: source_map.span(lo, hi),
+    }),
+    PrimaryExpr,
+};
+
+// Index expressions: used in arr[...] context
+// Allows both regular expressions and range expressions
+// Range operators ONLY valid in this context (avoids precedence conflicts)
+IndexExpr: Expr = {
+    <lo:@L> // Bounded exclusive range: arr[start..end]
+    <start:Expr> ".." <end:Expr> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Bounded inclusive range: arr[start..=end]
+    <start:Expr> "..=" <end:Expr> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Inclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded end: arr[start..]
+    <start:Expr> ".." <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: None,
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded start exclusive: arr[..end]
+    ".." <end:Expr> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: None,
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded start inclusive: arr[..=end]
+    "..=" <end:Expr> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: None,
+        op: lang4llm_ast::RangeOp::Inclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    // Regular expression (single element access)
+    Expr,
+};
+
+// Primary: atoms + Ident-started (struct lit, enum variant, variable)
+PrimaryExpr: Expr = {
+    PrimaryExprCommon,
+    <lo:@L> // Ident "::" Ident → enum variant reference
+    <enum_name:Ident> "::" <variant_name:Ident> <hi:@R> => Expr::EnumVariant(EnumVariantLiteral {
+        enum_name, variant_name, args: None, span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Ident "{" fields "}" → struct literal (ONLY in full Expr, not ExprNS)
+    <name:Ident> "{" <fields:FieldInitCommaList> "}" <hi:@R> => Expr::Struct(StructLiteral {
+        name, fields, span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Ident → variable
+    <i:Ident> <hi:@R> => Expr::Variable(i, source_map.span(lo, hi)),
+};
+
+// ============================================================================
+// Expression Chain 2: NO-STRUCT (excludes struct literals)
+// Used in: if/while/for/match conditions where "{" must start a block
+// ============================================================================
+
+// Closures in no-struct context (conditions)
+pub ExprNS: Expr = {
+    <lo:@L> "|" <params:ClosureParamCommaList> "|" <body:ExprNS> <hi:@R> => Expr::Closure(ClosureExpr {
+        params,
+        body: Box::new(body),
+        span: source_map.span(lo, hi),
+    }),
+    OrExprNS,
+};
+
+OrExprNS: Expr = {
+    <lo:@L> <l:OrExprNS> "or" <r:AndExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Or, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    AndExprNS,
+};
+
+AndExprNS: Expr = {
+    <lo:@L> <l:AndExprNS> "and" <r:CompExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::And, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    CompExprNS,
+};
+
+CompExprNS: Expr = {
+    <lo:@L> <l:CompExprNS> "==" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Eq, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExprNS> "!=" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Ne, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExprNS> "<" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Lt, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExprNS> "<=" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Le, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExprNS> ">" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Gt, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:CompExprNS> ">=" <r:AddExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Ge, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    AddExprNS,
+};
+
+AddExprNS: Expr = {
+    <lo:@L> <l:AddExprNS> "+" <r:MulExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Add, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:AddExprNS> "-" <r:MulExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Sub, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    MulExprNS,
+};
+
+MulExprNS: Expr = {
+    <lo:@L> <l:MulExprNS> "*" <r:UnaryExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Mul, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:MulExprNS> "/" <r:UnaryExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Div, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <l:MulExprNS> "%" <r:UnaryExprNS> <hi:@R> => Expr::Binary(BinaryExpr {
+        lhs: Box::new(l), op: BinOp::Mod, rhs: Box::new(r), span: source_map.span(lo, hi),
+    }),
+    UnaryExprNS,
+};
+
+UnaryExprNS: Expr = {
+    <lo:@L> "not" <e:UnaryExprNS> <hi:@R> => Expr::Unary(UnaryExpr {
+        op: UnOp::Not, operand: Box::new(e), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> "-" <e:UnaryExprNS> <hi:@R> => Expr::Unary(UnaryExpr {
+        op: UnOp::Neg, operand: Box::new(e), span: source_map.span(lo, hi),
+    }),
+    PostfixExprNS,
+};
+
+PostfixExprNS: Expr = {
+    <lo:@L> <base:PostfixExprNS> "(" <args:ExprCommaList> ")" <hi:@R> => {
+        match base {
+            Expr::EnumVariant(mut ev) => {
+                ev.args = Some(args);
+                Expr::EnumVariant(ev)
+            },
+            _ => Expr::Call(CallExpr {
+                func: Box::new(base), args, span: source_map.span(lo, hi),
+            })
+        }
+    },
+    <lo:@L> // Array indexing/slicing - Priority 3: support ranges in [] context only
+    <base:PostfixExprNS> "[" <index:IndexExprNS> "]" <hi:@R> => Expr::ArrayAccess(ArrayAccess {
+        array: Box::new(base), index: Box::new(index), span: source_map.span(lo, hi),
+    }),
+    <lo:@L> <base:PostfixExprNS> "." <field:Ident> <hi:@R> => Expr::FieldAccess(FieldAccess {
+        object: Box::new(base), field, span: source_map.span(lo, hi),
+    }),
+    PrimaryExprNS,
+};
+
+// Index expressions (no-struct version): used in arr[...] context within conditions
+IndexExprNS: Expr = {
+    <lo:@L> // Bounded exclusive range: arr[start..end]
+    <start:ExprNS> ".." <end:ExprNS> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Bounded inclusive range: arr[start..=end]
+    <start:ExprNS> "..=" <end:ExprNS> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Inclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded end: arr[start..]
+    <start:ExprNS> ".." <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: Some(Box::new(start)),
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: None,
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded start exclusive: arr[..end]
+    ".." <end:ExprNS> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: None,
+        op: lang4llm_ast::RangeOp::Exclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Unbounded start inclusive: arr[..=end]
+    "..=" <end:ExprNS> <hi:@R> => Expr::Range(lang4llm_ast::RangeExpr {
+        start: None,
+        op: lang4llm_ast::RangeOp::Inclusive,
+        end: Some(Box::new(end)),
+        span: source_map.span(lo, hi),
+    }),
+    // Regular expression (single element access)
+    ExprNS,
+};
+
+// Primary NO-STRUCT: same as PrimaryExpr but without struct literal
+PrimaryExprNS: Expr = {
+    PrimaryExprCommon,
+    <lo:@L> // Enum variant (still allowed)
+    <enum_name:Ident> "::" <variant_name:Ident> <hi:@R> => Expr::EnumVariant(EnumVariantLiteral {
+        enum_name, variant_name, args: None, span: source_map.span(lo, hi),
+    }),
+    <lo:@L> // Variable only (NO struct literal - "{" will be parsed as block start)
+    <i:Ident> <hi:@R> => Expr::Variable(i, source_map.span(lo, hi)),
+};
+
+// ============================================================================
+// Shared Primary Expressions (used by both chains)
+// ============================================================================
+
+// NOTE: Closures removed from here — now parsed at Expr/ExprNS level
+// This prevents circular grammar (PrimaryExprCommon → ClosureExpr → Expr → ... → PrimaryExprCommon)
+PrimaryExprCommon: Expr = {
+    LiteralExpr,
+    TupleLitOrParen,
+    ArrayLit,
+    IfExpr,
+    MatchExpr,
+    BlockExprAsExpr,
+    <lo:@L> "self" <hi:@R> => Expr::Variable(
+        Ident { name: "self".to_string(), span: source_map.span(lo, hi) },
+        source_map.span(lo, hi),
+    ),
+};
+
+LiteralExpr: Expr = {
+    <lo:@L> <n:"int_lit"> <hi:@R> => Expr::Literal(Literal::Int(n), source_map.span(lo, hi)),
+    <lo:@L> <f:"float_lit"> <hi:@R> => Expr::Literal(Literal::Float(f), source_map.span(lo, hi)),
+    <lo:@L> <s:"string_lit"> <hi:@R> => Expr::Literal(Literal::String(s), source_map.span(lo, hi)),
+    <lo:@L> "true" <hi:@R> => Expr::Literal(Literal::Bool(true), source_map.span(lo, hi)),
+    <lo:@L> "false" <hi:@R> => Expr::Literal(Literal::Bool(false), source_map.span(lo, hi)),
+    <lo:@L> "none" <hi:@R> => Expr::Literal(Literal::None, source_map.span(lo, hi)),
+};
+
+ArrayLit: Expr = {
+    <lo:@L> "[" <elems:ExprCommaList> "]" <hi:@R> => Expr::Array(ArrayLiteral {
+        elements: elems, span: source_map.span(lo, hi),
+    }),
+};
+
+// Parenthesized or tuple: "(" Expr ")" vs "(" Expr "," Expr+ ")"
+TupleLitOrParen: Expr = {
+    "(" <e:Expr> ")" => e,
+    <lo:@L> "(" <first:Expr> "," <second:Expr> <rest:("," <Expr>)*> ")" <hi:@R> => {
+        let mut elements = vec![first, second];
+        elements.extend(rest);
+        Expr::Tuple(TupleLiteral { elements, span: source_map.span(lo, hi) })
+    },
+};
+
+// NOTE: ClosureExpr rule removed — closures now parsed at Expr/ExprNS level
+// See "pub Expr" and "pub ExprNS" rules above
+
+// Struct field initializer
+FieldInitExpr: FieldInit = {
+    <lo:@L> <name:Ident> ":" <value:Expr> <hi:@R> => FieldInit {
+        name, value: Box::new(value), span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Control Flow Expressions (conditions use ExprNS)
+// ============================================================================
+
+IfExpr: Expr = {
+    <lo:@L> "if" <cond:ExprNS> <then_block:BlockExpr> "else" <else_block:BlockExpr> <hi:@R> => Expr::If(IfExpr {
+        condition: Box::new(cond),
+        then_branch: then_block,
+        else_branch: Some(else_block),
+        span: source_map.span(lo, hi),
+    }),
+};
+
+MatchExpr: Expr = {
+    <lo:@L> "match" <scrutinee:ExprNS> "{" <arms:MatchArm+> "}" <hi:@R> => Expr::Match(MatchExpr {
+        expr: Box::new(scrutinee),
+        arms,
+        span: source_map.span(lo, hi),
+    })
+};
+
+MatchArm: MatchArm = {
+    <lo:@L> <pat:Pattern> "=>" <body:Expr> "," <hi:@R> => MatchArm {
+        pattern: pat,
+        body: Box::new(body),
+        span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Patterns
+// ============================================================================
+
+Pattern: Pattern = {
+    LitPattern,
+    <lo:@L> "_" <hi:@R> => Pattern::Wildcard(source_map.span(lo, hi)),
+    TuplePattern,
+    IdentPattern,
+};
+
+// Ident-started patterns factored by lookahead after Ident:
+// "::" → enum with qualifier, "{" → struct, "(" → enum without qualifier, other → ident
+IdentPattern: Pattern = {
+    <lo:@L> <enum_name:Ident> "::" <variant_name:Ident> "(" <pats:PatternCommaList> ")" <hi:@R> =>
+        Pattern::Enum(EnumPattern {
+            enum_name: Some(enum_name), variant_name,
+            patterns: Some(pats), span: source_map.span(lo, hi),
+        }),
+    <lo:@L> <enum_name:Ident> "::" <variant_name:Ident> <hi:@R> =>
+        Pattern::Enum(EnumPattern {
+            enum_name: Some(enum_name), variant_name,
+            patterns: None, span: source_map.span(lo, hi),
+        }),
+    <lo:@L> <name:Ident> "{" <fields:FieldPatternCommaList> "}" <hi:@R> =>
+        Pattern::Struct(StructPattern {
+            name, fields, span: source_map.span(lo, hi),
+        }),
+    <lo:@L> <variant_name:Ident> "(" <pats:PatternCommaList> ")" <hi:@R> =>
+        Pattern::Enum(EnumPattern {
+            enum_name: None, variant_name,
+            patterns: Some(pats), span: source_map.span(lo, hi),
+        }),
+    <lo:@L> <i:Ident> <hi:@R> => Pattern::Ident(i, source_map.span(lo, hi)),
+};
+
+TuplePattern: Pattern = {
+    <lo:@L> "(" <first:Pattern> "," <rest:PatternCommaListNonEmpty> ")" <hi:@R> => {
+        let mut pats = vec![first];
+        pats.extend(rest);
+        Pattern::Tuple(pats, source_map.span(lo, hi))
+    },
+};
+
+LitPattern: Pattern = {
+    <lo:@L> <n:"int_lit"> <hi:@R> => Pattern::Literal(Literal::Int(n), source_map.span(lo, hi)),
+    <lo:@L> <f:"float_lit"> <hi:@R> => Pattern::Literal(Literal::Float(f), source_map.span(lo, hi)),
+    <lo:@L> <s:"string_lit"> <hi:@R> => Pattern::Literal(Literal::String(s), source_map.span(lo, hi)),
+    <lo:@L> "true" <hi:@R> => Pattern::Literal(Literal::Bool(true), source_map.span(lo, hi)),
+    <lo:@L> "false" <hi:@R> => Pattern::Literal(Literal::Bool(false), source_map.span(lo, hi)),
+    <lo:@L> "none" <hi:@R> => Pattern::Literal(Literal::None, source_map.span(lo, hi)),
+};
+
+FieldPatternExpr: FieldPattern = {
+    <lo:@L> <name:Ident> ":" <pattern:Pattern> <hi:@R> => FieldPattern {
+        name, pattern: Box::new(pattern), span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Block Expression
+// ============================================================================
+
+BlockExprAsExpr: Expr = {
+    <b:BlockExpr> => Expr::Block(b),
+};
+
+BlockExpr: BlockExpr = {
+    <lo:@L> "{" <stmts:Stmt*> <expr:Expr?> "}" <hi:@R> => BlockExpr {
+        stmts,
+        expr: expr.map(Box::new),
+        span: source_map.span(lo, hi),
+    }
+};
+
+// ============================================================================
+// Type-Specific Comma-Separated Lists (avoids LALR state merging)
+// ============================================================================
+
+// Expr list (for function call args, array elements)
+ExprCommaList: Vec<Expr> = {
+    <v:(<Expr> ",")*> <e:Expr?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Type list
+TypeCommaList: Vec<Type> = {
+    <v:(<Type> ",")*> <e:Type?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Non-empty type list (for tuple types, needs at least 1)
+TypeCommaListNonEmpty: Vec<Type> = {
+    <v:(<Type> ",")*> <e:Type> => {
+        let mut v = v;
+        v.push(e);
+        v
+    }
+};
+
+// Generic parameter declaration: Ident or Ident ":" BoundIdent
+// Bounds are preserved in GenericParamDef
+GenericParamDecl: GenericParamDef = {
+    <i:Ident> ":" <bound:Ident> => GenericParamDef { name: i, bound: Some(bound) },
+    <i:Ident> => GenericParamDef { name: i, bound: None },
+};
+
+// Generic parameter declaration list
+GenericParamDeclCommaList: Vec<GenericParamDef> = {
+    <v:(<GenericParamDecl> ",")*> <e:GenericParamDecl?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Ident list
+IdentCommaList: Vec<Ident> = {
+    <v:(<Ident> ",")*> <e:Ident?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Param list
+ParamCommaList: Vec<Param> = {
+    <v:(<Param> ",")*> <e:Param?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Closure params: type annotation is optional (supports |x| and |x: int|)
+ClosureParam: Param = {
+    <lo:@L> <name:ParamName> ":" <ty:Type> <hi:@R> => Param {
+        name,
+        ty,
+        span: source_map.span(lo, hi),
+    },
+    <lo:@L> <name:ParamName> <hi:@R> => Param {
+        name,
+        ty: Type::Inferred(source_map.span(lo, hi)),
+        span: source_map.span(lo, hi),
+    },
+};
+
+ClosureParamCommaList: Vec<Param> = {
+    <v:(<ClosureParam> ",")*> <e:ClosureParam?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// FieldDef list
+FieldDefCommaList: Vec<FieldDef> = {
+    <v:(<FieldDef> ",")*> <e:FieldDef?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Variant list
+VariantCommaList: Vec<Variant> = {
+    <v:(<EnumVariantDef> ",")*> <e:EnumVariantDef?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// FieldInit list (struct literals)
+FieldInitCommaList: Vec<FieldInit> = {
+    <v:(<FieldInitExpr> ",")*> <e:FieldInitExpr?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Pattern list
+PatternCommaList: Vec<Pattern> = {
+    <v:(<Pattern> ",")*> <e:Pattern?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Non-empty pattern list (for tuple patterns)
+PatternCommaListNonEmpty: Vec<Pattern> = {
+    <v:(<Pattern> ",")*> <e:Pattern> => {
+        let mut v = v;
+        v.push(e);
+        v
+    }
+};
+
+// FieldPattern list (struct patterns)
+FieldPatternCommaList: Vec<FieldPattern> = {
+    <v:(<FieldPatternExpr> ",")*> <e:FieldPatternExpr?> => match e {
+        None => v,
+        Some(e) => { let mut v = v; v.push(e); v }
+    }
+};
+
+// Dot-separated ident list (for imports: std.io.File)
+IdentDotList: Vec<Ident> = {
+    <v:(<Ident> ".")*> <e:Ident> => {
+        let mut v = v;
+        v.push(e);
+        v
+    }
+};
+
+// ============================================================================
+// Identifier
+// ============================================================================
+
+Ident: Ident = {
+    <tok:"ident"> => Ident {
+        name: tok.0,
+        span: tok.1,
+    }
+};

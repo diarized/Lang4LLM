@@ -1,0 +1,29 @@
+fn count_greater_than(numbers: [int], threshold: int) -> int {
+    let mut count: int = 0;
+    for i in range(0, len(numbers)) {
+        if numbers[i] > threshold {
+            count = count + 1;
+        };
+    }
+    return count;
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 5, 3, 8, 2, 7];
+    print("count_greater_than([1,5,3,8,2,7], 4) = " + to_string(count_greater_than(a, 4)));
+
+    let b: [int] = [1, 2, 3];
+    print("count_greater_than([1,2,3], 5) = " + to_string(count_greater_than(b, 5)));
+
+    let c: [int] = [3, 5, 7];
+    print("count_greater_than([3,5,7], 5) = " + to_string(count_greater_than(c, 5)));
+
+    let d: [int] = [];
+    print("count_greater_than([], 10) = " + to_string(count_greater_than(d, 10)));
+
+    let e: [int] = [-3, -1, 0, 2];
+    print("count_greater_than([-3,-1,0,2], -2) = " + to_string(count_greater_than(e, -2)));
+
+    let f: [int] = [10, 20, 30];
+    print("count_greater_than([10,20,30], 5) = " + to_string(count_greater_than(f, 5)));
+}

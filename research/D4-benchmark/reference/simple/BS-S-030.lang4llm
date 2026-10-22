@@ -1,0 +1,18 @@
+// BS-S-030: Convert Celsius to Fahrenheit
+// Apply the formula: Fahrenheit = Celsius * 9.0 / 5.0 + 32.0
+
+fn celsius_to_fahrenheit(celsius: float) -> float {
+    return celsius * 9.0 / 5.0 + 32.0;
+}
+
+fn main() -> unit {
+    // Note: to_string(f64) uses Rust's Display which omits trailing .0 for whole numbers.
+    // E.g. 32.0 → "32", 98.6 → "98.6". JSON expected strings match actual Rust output.
+    print("celsius_to_fahrenheit(0.0) = " + to_string(celsius_to_fahrenheit(0.0)));
+    print("celsius_to_fahrenheit(100.0) = " + to_string(celsius_to_fahrenheit(100.0)));
+    print("celsius_to_fahrenheit(37.0) = " + to_string(celsius_to_fahrenheit(37.0)));
+    print("celsius_to_fahrenheit(-40.0) = " + to_string(celsius_to_fahrenheit(-40.0)));
+    print("celsius_to_fahrenheit(-40.0) = " + to_string(celsius_to_fahrenheit(-40.0)));
+    print("celsius_to_fahrenheit(20.0) = " + to_string(celsius_to_fahrenheit(20.0)));
+    print("celsius_to_fahrenheit(-10.0) = " + to_string(celsius_to_fahrenheit(-10.0)));
+}

@@ -1,0 +1,56 @@
+id: DR-SEM-004
+category: SEMANTIC
+name: Exhaustive Return Checking
+description: |
+  Every function code path must return a value or explicitly diverge (panic/throw).
+  Compiler enforces return completeness via control flow analysis.
+
+priority: 11
+impact_score: 0.60
+
+rationale: |
+  Missing return statements (EP-SEM-004) account for 12% of semantic errors. Compiler-enforced
+  returns eliminate this entire error class (Rust model).
+
+research_backing:
+  - source: "Rust Compiler Design"
+    finding: "Control flow analysis catches 100% of missing returns at compile time"
+    confidence: HIGH
+
+  - source: "D1 Cross-Language Analysis"
+    finding: "Python allows missing returns (12% errors), Rust prevents them (0%)"
+    confidence: HIGH
+
+  - source: "P07 - LLM Code Analysis"
+    finding: "Missing returns often result from incomplete conditionals"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Compare languages with/without return checking. Measure EP-SEM-004 frequency.
+    Test LLM generation on multi-path functions.
+  metrics:
+    - M-004  # Error Recovery (compile-time vs runtime)
+  benchmark_specs:
+    - BS-M-015  # Conditional returns
+    - BS-M-040  # Complex control flow
+
+counter_examples:
+  - scenario: "Void/unit functions"
+    reason: "Functions with side effects don't need return values"
+    alternative: "Use explicit `()` (unit type) return, still checked"
+
+  - scenario: "Diverging functions (infinite loops)"
+    reason: "Never-returning functions can't return"
+    alternative: "Require explicit `never` return type annotation"
+
+related_patterns:
+  - pattern_id: EP-SEM-004
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Control flow analysis tracks all code paths"
+  - "Every path must `return value`, `panic`, or `throw`"
+  - "Expression-based returns: last expression is implicit return (Rust-style)"
+  - "Diverging functions annotated with `-> !` (never type)"
+  - "Compiler error: 'not all code paths return a value'"

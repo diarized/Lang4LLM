@@ -1,0 +1,156 @@
+struct Deque {
+    items: [int]
+}
+
+fn deque_new() -> Deque {
+    return Deque { items: [] };
+}
+
+fn deque_is_empty(d: Deque) -> bool {
+    return is_empty(d.items);
+}
+
+fn deque_size(d: Deque) -> int {
+    return len(d.items);
+}
+
+fn deque_push_back(d: Deque, val: int) -> Deque {
+    let mut new_items: [int] = d.items;
+    push(new_items, val);
+    return Deque { items: new_items };
+}
+
+fn deque_push_front(d: Deque, val: int) -> Deque {
+    let mut new_items: [int] = [];
+    push(new_items, val);
+    for item in d.items {
+        push(new_items, item);
+    }
+    return Deque { items: new_items };
+}
+
+fn deque_pop_back_val(d: Deque) -> int {
+    if is_empty(d.items) {
+        return -1;
+    };
+    let n: int = len(d.items);
+    return d.items[n - 1];
+}
+
+fn deque_pop_back(d: Deque) -> Deque {
+    if is_empty(d.items) {
+        print("ERROR: pop_back on empty deque");
+        return d;
+    };
+    let mut new_items: [int] = d.items;
+    pop(new_items);
+    return Deque { items: new_items };
+}
+
+fn deque_pop_front_val(d: Deque) -> int {
+    if is_empty(d.items) {
+        return -1;
+    };
+    return d.items[0];
+}
+
+fn deque_pop_front(d: Deque) -> Deque {
+    if is_empty(d.items) {
+        print("ERROR: pop_front on empty deque");
+        return d;
+    };
+    let n: int = len(d.items);
+    let mut new_items: [int] = [];
+    for i in range(1, n) {
+        push(new_items, d.items[i]);
+    }
+    return Deque { items: new_items };
+}
+
+fn deque_peek_front(d: Deque) -> int {
+    if is_empty(d.items) {
+        return -1;
+    };
+    return d.items[0];
+}
+
+fn deque_peek_back(d: Deque) -> int {
+    if is_empty(d.items) {
+        return -1;
+    };
+    let n: int = len(d.items);
+    return d.items[n - 1];
+}
+
+fn main() -> unit {
+    let d0: Deque = deque_new();
+
+    // Test 1: empty deque
+    print("new is_empty: " + to_string(deque_is_empty(d0)));
+
+    // Test 2: queue behavior push_back + pop_front
+    let q1: Deque = deque_push_back(d0, 1);
+    let q2: Deque = deque_push_back(q1, 2);
+    let q3: Deque = deque_push_back(q2, 3);
+    let qv1: int = deque_pop_front_val(q3);
+    let q4: Deque = deque_pop_front(q3);
+    let qv2: int = deque_pop_front_val(q4);
+    let q5: Deque = deque_pop_front(q4);
+    print("queue pop1: " + to_string(qv1));
+    print("queue pop2: " + to_string(qv2));
+
+    // Test 3: stack behavior push_back + pop_back
+    let s1: Deque = deque_push_back(d0, 1);
+    let s2: Deque = deque_push_back(s1, 2);
+    let s3: Deque = deque_push_back(s2, 3);
+    let sv1: int = deque_pop_back_val(s3);
+    let s4: Deque = deque_pop_back(s3);
+    let sv2: int = deque_pop_back_val(s4);
+    let s5: Deque = deque_pop_back(s4);
+    print("stack pop1: " + to_string(sv1));
+    print("stack pop2: " + to_string(sv2));
+
+    // Test 4: push_front reverses insertion order
+    let f1: Deque = deque_push_front(d0, 1);
+    let f2: Deque = deque_push_front(f1, 2);
+    let f3: Deque = deque_push_front(f2, 3);
+    let fv1: int = deque_pop_front_val(f3);
+    let f4: Deque = deque_pop_front(f3);
+    let fv2: int = deque_pop_front_val(f4);
+    let f5: Deque = deque_pop_front(f4);
+    let fv3: int = deque_pop_front_val(f5);
+    print("push_front order: " + to_string(fv1) + "," + to_string(fv2) + "," + to_string(fv3));
+
+    // Test 5: mixed push_front and push_back
+    let m1: Deque = deque_push_back(d0, 10);
+    let m2: Deque = deque_push_front(m1, 5);
+    let m3: Deque = deque_push_back(m2, 20);
+    let m4: Deque = deque_push_front(m3, 1);
+    print("mixed peek_front: " + to_string(deque_peek_front(m4)));
+    print("mixed peek_back: " + to_string(deque_peek_back(m4)));
+
+    // Test 6: peek does not remove
+    let pk1: Deque = deque_push_back(d0, 4);
+    let pk2: Deque = deque_push_back(pk1, 8);
+    print("peek_front: " + to_string(deque_peek_front(pk2)));
+    print("peek_back: " + to_string(deque_peek_back(pk2)));
+    print("size after peeks: " + to_string(deque_size(pk2)));
+
+    // Test 7: pop_front on empty
+    print("pop_front empty: " + to_string(deque_pop_front_val(d0)));
+
+    // Test 8: pop_back on empty
+    print("pop_back empty: " + to_string(deque_pop_back_val(d0)));
+
+    // Test 9: is_empty transitions
+    let ie1: Deque = deque_push_back(d0, 7);
+    print("after push is_empty: " + to_string(deque_is_empty(ie1)));
+    let ie2: Deque = deque_pop_front(ie1);
+    print("after drain is_empty: " + to_string(deque_is_empty(ie2)));
+
+    // Test 10: push_front + pop_back
+    let pf1: Deque = deque_push_front(d0, 10);
+    let pf2: Deque = deque_push_front(pf1, 20);
+    let pfv: int = deque_pop_back_val(pf2);
+    print("push_front pop_back: " + to_string(pfv));
+}

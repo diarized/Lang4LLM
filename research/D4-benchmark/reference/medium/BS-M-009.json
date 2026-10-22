@@ -1,0 +1,14 @@
+{
+  "spec": "BS-M-009",
+  "title": "Word Frequency Counter",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "repeated: [the:3, cat:2, mat:1, on:1, sat:1]",
+    "mixed case: [hello:3, world:1]",
+    "trailing punct: [morning:3, good:1, is:1, it:1]",
+    "tiebreaker: [bird:2, cat:2, dog:2]",
+    "empty: []",
+    "single: [hello:1]"
+  ]
+}

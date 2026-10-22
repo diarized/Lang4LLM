@@ -1,0 +1,51 @@
+id: DR-ERR-002
+category: ERROR_PREVENTION
+name: Prefer Bounded Iteration
+description: |
+  Encourage finite iteration over unbounded loops. Compiler warnings for `while true`
+  without clear termination. Provide iteration limits for potentially infinite loops.
+
+priority: 17
+impact_score: 0.30
+
+rationale: |
+  Infinite loop errors (EP-LOG-004) account for 15% of logic errors. While not always preventable,
+  encouraging bounded iteration and detecting suspicious loops reduces this error class.
+
+research_backing:
+  - source: "P09 - LLM Code Generation Error Characteristics"
+    finding: "Infinite loops often result from unbounded `while` constructs"
+    confidence: MEDIUM
+
+  - source: "D1 Error Analysis"
+    finding: "Iterator-based loops eliminate 40% of termination errors"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Analyze loop patterns in generated code. Measure frequency of `while true` vs
+    bounded loops. Test compiler warnings effectiveness.
+  metrics:
+    - M-004  # Error Recovery (detect non-terminating patterns)
+  benchmark_specs:
+    - BS-M-048  # Loop termination
+    - BS-C-012  # Complex loop conditions
+
+counter_examples:
+  - scenario: "Event loops (servers, GUIs)"
+    reason: "Intentionally infinite loops for request handling"
+    alternative: "Allow `loop { ... }` with explicit `break`, suppress warning with annotation"
+
+  - scenario: "Iterative algorithms (convergence)"
+    reason: "Unknown iteration count until convergence"
+    alternative: "Provide `iter().take_while(condition)` for bounded convergence"
+
+related_patterns:
+  - pattern_id: EP-LOG-004
+    mitigation: REDUCES
+
+implementation_notes:
+  - "Prefer `for item in collection` over `while condition`"
+  - "For unbounded loops: `loop { ... break ... }` (explicit infinite loop keyword)"
+  - "Compiler warning: `while true` without `break` in first 10 lines"
+  - "Suggest alternatives: `iter().take(max_iterations).take_while(condition)`"

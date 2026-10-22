@@ -1,0 +1,8 @@
+{
+  "spec": "BS-C-019",
+  "title": "Thread Pool",
+  "tier": "complex",
+  "lang4llm_compatible": false,
+  "reason": "Requires concurrency (mutex, threads) — not supported in Lang4LLM",
+  "expected": []
+}

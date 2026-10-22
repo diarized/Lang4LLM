@@ -1,0 +1,55 @@
+id: DR-SEM-003
+category: SEMANTIC
+name: Limited Positional Parameters (Maximum 3-4)
+description: |
+  Functions should have at most 3-4 positional parameters. For more, use a struct/record
+  or named parameters. Reduces argument confusion and improves code clarity.
+
+priority: 12
+impact_score: 0.50
+
+rationale: |
+  Incorrect function arguments (EP-SEM-003) account for 14% of errors. Functions with >4
+  parameters have exponentially higher error rates due to argument order confusion.
+
+research_backing:
+  - source: "Clean Code (Robert C. Martin)"
+    finding: "Ideal function has 0-2 args, 3 is acceptable, >3 requires refactoring"
+    confidence: MEDIUM
+
+  - source: "D1 Frequency Analysis"
+    finding: "EP-SEM-003 correlates with parameter count (r=0.72)"
+    confidence: MEDIUM
+
+  - source: "Python Enhancement Proposal (PEP 3102)"
+    finding: "Keyword-only arguments reduce errors"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Test LLM generation on functions with 2, 4, 6, 8 parameters. Measure EP-SEM-003
+    frequency and argument order errors.
+  metrics:
+    - M-001  # Token Predictability (fewer params = simpler)
+  benchmark_specs:
+    - BS-S-030  # Multi-param functions
+    - BS-M-045  # Complex signatures
+
+counter_examples:
+  - scenario: "Mathematical functions"
+    reason: "Matrix operations naturally have many parameters"
+    alternative: "Use matrix types or tuples to group related parameters"
+
+  - scenario: "Builder patterns"
+    reason: "Configuration functions need many options"
+    alternative: "Use builder object or configuration struct"
+
+related_patterns:
+  - pattern_id: EP-SEM-003
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Compiler warning for >3 positional parameters"
+  - "Encourage struct/record for >4 parameters: `fn process(config: Config)`"
+  - "Support named arguments: `process(timeout=30, retries=3)`"
+  - "Consider builder pattern for complex initialization"

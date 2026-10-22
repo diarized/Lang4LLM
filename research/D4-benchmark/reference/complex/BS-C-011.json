@@ -1,0 +1,22 @@
+{
+  "spec": "BS-C-011",
+  "title": "Balanced Bracket Validator with Error Location",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "check('') = balanced",
+    "check('()') = balanced",
+    "check('([{}])') = balanced",
+    "check('a(b[c]d)e') = balanced",
+    "check(')') = error at 0: UNMATCHED_CLOSE",
+    "check('abc]def') = error at 3: UNMATCHED_CLOSE",
+    "check('(]') = error at 1: MISMATCH",
+    "check('([)]') = error at 2: MISMATCH",
+    "check('(') = error at 0: UNMATCHED_OPEN",
+    "check('(((') = error at 0: UNMATCHED_OPEN",
+    "check('()[]{') = error at 4: UNMATCHED_OPEN",
+    "check('hello (world [!])') = balanced",
+    "check('hi (there]') = error at 9: MISMATCH",
+    "check('(()(') = error at 0: UNMATCHED_OPEN"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "spec": "BS-M-005",
+  "title": "Email Validation",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "user@example.com: true",
+    "john.doe123@mail.company.com: true",
+    "userexample.com: false",
+    "user@@example.com: false",
+    "user@: false",
+    "user@example: false",
+    ".user@example.com: false",
+    "user..name@example.com: false",
+    "user@example.c: false",
+    "user_name@example.com: true"
+  ]
+}

@@ -1,0 +1,109 @@
+fn is_digit(c: string) -> bool {
+    return c == "0" or c == "1" or c == "2" or c == "3" or c == "4" or c == "5" or c == "6" or c == "7" or c == "8" or c == "9";
+}
+
+fn char_to_digit(c: string) -> int {
+    if c == "0" { return 0; };
+    if c == "1" { return 1; };
+    if c == "2" { return 2; };
+    if c == "3" { return 3; };
+    if c == "4" { return 4; };
+    if c == "5" { return 5; };
+    if c == "6" { return 6; };
+    if c == "7" { return 7; };
+    if c == "8" { return 8; };
+    return 9;
+}
+
+fn encode(text: string) -> string {
+    let char_arr: [string] = chars(text);
+    let n: int = len(char_arr);
+    if n == 0 {
+        return "";
+    };
+    let mut result: string = "";
+    let mut cur_char: string = char_arr[0];
+    let mut count: int = 1;
+    for i in range(1, n) {
+        if char_arr[i] == cur_char {
+            count = count + 1;
+        } else {
+            result = result + to_string(count) + cur_char;
+            cur_char = char_arr[i];
+            count = 1;
+        };
+    }
+    result = result + to_string(count) + cur_char;
+    return result;
+}
+
+fn decode(encoded: string) -> string {
+    let char_arr: [string] = chars(encoded);
+    let n: int = len(char_arr);
+    if n == 0 {
+        return "";
+    };
+    let mut result: string = "";
+    let mut pos: int = 0;
+    while pos < n {
+        // Collect digits starting at pos
+        let mut count: int = 0;
+        let mut dig_end: int = pos;
+        let mut scanning: bool = true;
+        while scanning {
+            if dig_end < n {
+                if is_digit(char_arr[dig_end]) {
+                    count = count * 10 + char_to_digit(char_arr[dig_end]);
+                    dig_end = dig_end + 1;
+                } else {
+                    scanning = false;
+                };
+            } else {
+                scanning = false;
+            };
+        }
+        // char_arr[dig_end] is the character to repeat
+        let ch: string = char_arr[dig_end];
+        for k in range(0, count) {
+            result = result + to_string(ch);
+        }
+        pos = dig_end + 1;
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: basic encoding with runs
+    print("encode(\"aaabbc\") = \"" + encode("aaabbc") + "\"");
+
+    // Test 2: no runs (all distinct)
+    print("encode(\"abcde\") = \"" + encode("abcde") + "\"");
+
+    // Test 3: all same character
+    print("encode(\"aaaaaaa\") = \"" + encode("aaaaaaa") + "\"");
+
+    // Test 4: basic decoding
+    print("decode(\"3a2b1c\") = \"" + decode("3a2b1c") + "\"");
+
+    // Test 5: decoding all single chars
+    print("decode(\"1a1b1c1d1e\") = \"" + decode("1a1b1c1d1e") + "\"");
+
+    // Test 6: round trip
+    let original: string = "aabbccddee";
+    let encoded_rt: string = encode(original);
+    print("encode(\"aabbccddee\") = \"" + encoded_rt + "\"");
+    print("decode(encode(\"aabbccddee\")) = \"" + decode(encoded_rt) + "\"");
+
+    // Test 7: empty string
+    print("encode(\"\") = \"" + encode("") + "\"");
+    print("decode(\"\") = \"" + decode("") + "\"");
+
+    // Test 8: single character
+    print("encode(\"z\") = \"" + encode("z") + "\"");
+
+    // Test 9: digit characters in input
+    print("encode(\"111222\") = \"" + encode("111222") + "\"");
+
+    // Test 10: decode with multi-digit count
+    print("decode(\"12a3b\") = \"" + decode("12a3b") + "\"");
+}

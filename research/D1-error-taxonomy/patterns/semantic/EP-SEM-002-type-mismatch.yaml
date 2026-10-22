@@ -1,0 +1,99 @@
+# Error Pattern: Type Mismatch
+
+id: EP-SEM-002
+category: SEMANTIC
+subcategory: type-error
+name: Type Mismatch in Assignment or Function Call
+description: |
+  LLM generates code where assigned value type doesn't match variable type,
+  or function argument type doesn't match parameter type. Common in statically-typed
+  languages (Rust, TypeScript) but also occurs in Python with type hints.
+
+frequency:
+  overall: 0.16  # 16% of all semantic errors
+  by_model:
+    gpt4: 0.12
+    claude: 0.14
+    deepseek: 0.20
+  by_language:
+    python: 0.10  # Dynamic typing masks many cases
+    rust: 0.25   # Strict type checking reveals more
+    typescript: 0.18
+    go: 0.16
+
+root_cause: |
+  LLMs learn type patterns from training data but don't perform type inference during
+  generation. Cross-language contamination causes confusion between strict (Rust) and
+  loose (Python) type systems. Implicit type conversions assumed incorrectly.
+
+trigger_conditions:
+  - feature: "Generic/template types"
+    severity: HIGH
+  - feature: "Optional/nullable types"
+    severity: HIGH
+  - feature: "Collection types (arrays, maps)"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def calculate_total(prices: list[float]) -> str:
+          total = sum(prices)
+          return total  # Should return str, returns float
+    correct: |
+      def calculate_total(prices: list[float]) -> str:
+          total = sum(prices)
+          return str(total)
+    explanation: "Return type annotation says str, but returning float"
+
+  - language: rust
+    incorrect: |
+      fn process_data(items: Vec<String>) -> i32 {
+          let count = items.len();  // len() returns usize
+          count  // Type mismatch: expected i32, found usize
+      }
+    correct: |
+      fn process_data(items: Vec<String>) -> i32 {
+          let count = items.len();
+          count as i32
+      }
+    explanation: "Need explicit cast from usize to i32"
+
+  - language: typescript
+    incorrect: |
+      function getUserAge(user: User): number {
+          return user.birthDate;  // birthDate is Date, not number
+      }
+    correct: |
+      function getUserAge(user: User): number {
+          const now = new Date();
+          return now.getFullYear() - user.birthDate.getFullYear();
+      }
+    explanation: "Must calculate age from Date, not return Date directly"
+
+  - language: go
+    incorrect: |
+      func convertToInt(value string) int {
+          result, _ := strconv.Atoi(value)
+          return result  // 'result' is 0 if error, no indication
+      }
+    correct: |
+      func convertToInt(value string) (int, error) {
+          result, err := strconv.Atoi(value)
+          return result, err
+      }
+    explanation: "Should return error instead of silently ignoring it"
+
+related_patterns:
+  - pattern_id: EP-SEM-001
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-003
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Incorrect function arguments"
+  - paper_id: P06
+    section: "Type-constrained code generation benefits"
+  - paper_id: P07
+    section: "Type confusion patterns"

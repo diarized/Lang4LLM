@@ -1,0 +1,32 @@
+fn is_sorted(numbers: [int]) -> bool {
+    let n: int = len(numbers);
+    if n <= 1 {
+        return true;
+    };
+    for i in range(0, n - 1) {
+        if numbers[i] > numbers[i + 1] {
+            return false;
+        };
+    }
+    return true;
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 3, 4, 5];
+    print("is_sorted([1,2,3,4,5]) = " + to_string(is_sorted(a)));
+
+    let b: [int] = [1, 3, 2, 4];
+    print("is_sorted([1,3,2,4]) = " + to_string(is_sorted(b)));
+
+    let c: [int] = [1, 2, 2, 3];
+    print("is_sorted([1,2,2,3]) = " + to_string(is_sorted(c)));
+
+    let d: [int] = [7];
+    print("is_sorted([7]) = " + to_string(is_sorted(d)));
+
+    let e: [int] = [];
+    print("is_sorted([]) = " + to_string(is_sorted(e)));
+
+    let f: [int] = [5, 5, 5, 5];
+    print("is_sorted([5,5,5,5]) = " + to_string(is_sorted(f)));
+}

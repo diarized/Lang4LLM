@@ -1,0 +1,12 @@
+[package]
+name = "lang4llm-formatter"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Source code formatter for the Lang4LLM programming language"
+
+[dependencies]
+lang4llm-ast = { workspace = true }
+lang4llm-parser = { workspace = true }
+thiserror = { workspace = true }

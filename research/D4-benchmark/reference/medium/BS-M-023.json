@@ -1,0 +1,17 @@
+{
+  "spec": "BS-M-023",
+  "title": "Longest Common Prefix",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "lcp([flower,flow,flight]) = fl",
+    "lcp([dog,racecar,car]) = ",
+    "lcp([test,test,test]) = test",
+    "lcp([ab,abc,abcd]) = ab",
+    "lcp([onlyone]) = onlyone",
+    "lcp([]) = ",
+    "lcp([abc,,abcd]) = ",
+    "lcp([interview,interact,interface,internal]) = inter",
+    "lcp([apple,ant,azure]) = a"
+  ]
+}

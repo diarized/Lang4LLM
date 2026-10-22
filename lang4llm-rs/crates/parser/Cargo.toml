@@ -1,0 +1,18 @@
+[package]
+name = "lang4llm-parser"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+lang4llm-ast = { workspace = true }
+lalrpop-util = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+
+[build-dependencies]
+lalrpop = { workspace = true }
+
+[dev-dependencies]

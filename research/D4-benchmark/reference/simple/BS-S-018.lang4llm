@@ -1,0 +1,46 @@
+fn move_zeros_to_end(numbers: [int]) -> [int] {
+    let mut non_zeros: [int] = [];
+    let mut zero_count: int = 0;
+    for i in range(0, len(numbers)) {
+        if numbers[i] != 0 {
+            push(non_zeros, numbers[i]);
+        } else {
+            zero_count = zero_count + 1;
+        };
+    }
+    for i in range(0, zero_count) {
+        push(non_zeros, 0);
+    }
+    return non_zeros;
+}
+
+fn print_int_arr(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut parts: [string] = [];
+    for i in range(0, len(arr)) {
+        push(parts, to_string(arr[i]));
+    }
+    return "[" + join(parts, ", ") + "]";
+}
+
+fn main() -> unit {
+    let a: [int] = [0, 1, 0, 3, 12];
+    print("move_zeros_to_end([0,1,0,3,12]) = " + print_int_arr(move_zeros_to_end(a)));
+
+    let b: [int] = [1, 2, 3];
+    print("move_zeros_to_end([1,2,3]) = " + print_int_arr(move_zeros_to_end(b)));
+
+    let c: [int] = [0, 0, 0];
+    print("move_zeros_to_end([0,0,0]) = " + print_int_arr(move_zeros_to_end(c)));
+
+    let d: [int] = [5, 6, 0];
+    print("move_zeros_to_end([5,6,0]) = " + print_int_arr(move_zeros_to_end(d)));
+
+    let e: [int] = [0, -3, 0, 5, -1, 0];
+    print("move_zeros_to_end([0,-3,0,5,-1,0]) = " + print_int_arr(move_zeros_to_end(e)));
+
+    let f: [int] = [];
+    print("move_zeros_to_end([]) = " + print_int_arr(move_zeros_to_end(f)));
+}

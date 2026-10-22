@@ -1,0 +1,53 @@
+fn two_sum(nums: [int], target: int) -> [int] {
+    let n: int = len(nums);
+    for i in range(0, n - 1) {
+        for j in range(i + 1, n) {
+            if nums[i] + nums[j] == target {
+                let mut result: [int] = [];
+                push(result, i);
+                push(result, j);
+                return result;
+            };
+        }
+    }
+    let mut empty: [int] = [];
+    return empty;
+}
+
+fn main() -> unit {
+    // Test 1: solution at start
+    let r1: [int] = two_sum([2, 7, 11, 15], 9);
+    print("two_sum([2,7,11,15], 9) = [" + to_string(r1[0]) + ", " + to_string(r1[1]) + "]");
+
+    // Test 2: solution not at start
+    let r2: [int] = two_sum([3, 2, 4], 6);
+    print("two_sum([3,2,4], 6) = [" + to_string(r2[0]) + ", " + to_string(r2[1]) + "]");
+
+    // Test 3: duplicate values as pair
+    let r3: [int] = two_sum([3, 3], 6);
+    print("two_sum([3,3], 6) = [" + to_string(r3[0]) + ", " + to_string(r3[1]) + "]");
+
+    // Test 4: negative numbers
+    let r4: [int] = two_sum([-1, -2, -3, -4, -5], -8);
+    print("two_sum([-1,-2,-3,-4,-5], -8) = [" + to_string(r4[0]) + ", " + to_string(r4[1]) + "]");
+
+    // Test 5: mixed positive and negative
+    let r5: [int] = two_sum([-3, 4, 3, 90], 0);
+    print("two_sum([-3,4,3,90], 0) = [" + to_string(r5[0]) + ", " + to_string(r5[1]) + "]");
+
+    // Test 6: target zero with symmetric values
+    let r6: [int] = two_sum([1, 5, -5, 2], 0);
+    print("two_sum([1,5,-5,2], 0) = [" + to_string(r6[0]) + ", " + to_string(r6[1]) + "]");
+
+    // Test 7: solution at end
+    let r7: [int] = two_sum([1, 2, 3, 4, 5, 6], 11);
+    print("two_sum([1,2,3,4,5,6], 11) = [" + to_string(r7[0]) + ", " + to_string(r7[1]) + "]");
+
+    // Test 8: non-adjacent pair in longer list
+    let r8: [int] = two_sum([10, 3, 7, 4, 1, 8, 2], 15);
+    print("two_sum([10,3,7,4,1,8,2], 15) = [" + to_string(r8[0]) + ", " + to_string(r8[1]) + "]");
+
+    // Test 9: target is large
+    let r9: [int] = two_sum([100, 50, 75, 25], 125);
+    print("two_sum([100,50,75,25], 125) = [" + to_string(r9[0]) + ", " + to_string(r9[1]) + "]");
+}

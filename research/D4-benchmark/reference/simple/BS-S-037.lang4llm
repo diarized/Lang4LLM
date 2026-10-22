@@ -1,0 +1,33 @@
+// BS-S-037: FizzBuzz
+// Produce a list of n strings following FizzBuzz rules for integers 1 to n.
+
+fn fizzbuzz(n: int) -> [string] {
+    let mut result: [string] = [];
+    for i in range(1, n + 1) {
+        if i % 15 == 0 {
+            push(result, "FizzBuzz");
+        } else {
+            if i % 3 == 0 {
+                push(result, "Fizz");
+            } else {
+                if i % 5 == 0 {
+                    push(result, "Buzz");
+                } else {
+                    push(result, to_string(i));
+                };
+            };
+        };
+    }
+    return result;
+}
+
+fn main() -> unit {
+    let r1: [string] = fizzbuzz(1);
+    print("fizzbuzz(1) = " + join(r1, ", "));
+    let r3: [string] = fizzbuzz(3);
+    print("fizzbuzz(3) = " + join(r3, ", "));
+    let r5: [string] = fizzbuzz(5);
+    print("fizzbuzz(5) = " + join(r5, ", "));
+    let r15: [string] = fizzbuzz(15);
+    print("fizzbuzz(15) = " + join(r15, ", "));
+}

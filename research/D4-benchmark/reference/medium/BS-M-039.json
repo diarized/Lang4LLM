@@ -1,0 +1,7 @@
+{
+  "spec": "BS-M-039",
+  "title": "Thread-Safe Counter",
+  "tier": "medium",
+  "lang4llm_compatible": false,
+  "expected": []
+}

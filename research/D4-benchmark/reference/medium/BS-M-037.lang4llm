@@ -1,0 +1,109 @@
+// BS-M-037: Simple Iterator
+// RangeIter over [start, end_val) with step.
+// current: next value to yield.
+// iter_next advances current; iter_value returns last yielded (current - step).
+
+struct RangeIter {
+    current: int,
+    start: int,
+    end_val: int,
+    step: int
+}
+
+fn iter_new(start: int, end_val: int, step: int) -> RangeIter {
+    return RangeIter { current: start, start: start, end_val: end_val, step: step };
+}
+
+fn iter_has_next(it: RangeIter) -> bool {
+    return it.current < it.end_val;
+}
+
+// Advance iterator; returns new iterator with current advanced by step.
+// Call iter_value(result) to get the value just yielded.
+fn iter_next(it: RangeIter) -> RangeIter {
+    return RangeIter { current: it.current + it.step, start: it.start, end_val: it.end_val, step: it.step };
+}
+
+// Returns the value yielded by the last iter_next call (current - step).
+fn iter_value(it: RangeIter) -> int {
+    return it.current - it.step;
+}
+
+fn iter_reset(it: RangeIter) -> RangeIter {
+    return RangeIter { current: it.start, start: it.start, end_val: it.end_val, step: it.step };
+}
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn collect_iter(start: int, end_val: int, step: int) -> [int] {
+    let mut it: RangeIter = iter_new(start, end_val, step);
+    let mut result: [int] = [];
+    while iter_has_next(it) {
+        it = iter_next(it);
+        push(result, iter_value(it));
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: basic range [0, 5) step 1
+    let r1: [int] = collect_iter(0, 5, 1);
+    print("range(0, 5, 1) = " + arr_to_str(r1));
+
+    // Test 2: step > 1
+    let r2: [int] = collect_iter(0, 10, 3);
+    print("range(0, 10, 3) = " + arr_to_str(r2));
+
+    // Test 3: step that skips past end
+    let r3: [int] = collect_iter(0, 7, 4);
+    print("range(0, 7, 4) = " + arr_to_str(r3));
+
+    // Test 4: empty range (end <= start)
+    let it4: RangeIter = iter_new(5, 3, 1);
+    print("has_next(5, 3) = " + to_string(iter_has_next(it4)));
+
+    // Test 5: single value range
+    let it5: RangeIter = iter_new(7, 8, 1);
+    print("has_next(7, 8) before = " + to_string(iter_has_next(it5)));
+    let it5b: RangeIter = iter_next(it5);
+    print("next_value(7, 8) = " + to_string(iter_value(it5b)));
+    print("has_next(7, 8) after = " + to_string(iter_has_next(it5b)));
+
+    // Test 6: reset restores iteration
+    let it6a: RangeIter = iter_new(1, 4, 1);
+    let it6b: RangeIter = iter_next(it6a);
+    let it6c: RangeIter = iter_next(it6b);
+    let it6r: RangeIter = iter_reset(it6c);
+    let mut it6d: RangeIter = it6r;
+    let mut vals6_m: [int] = [];
+    while iter_has_next(it6d) {
+        it6d = iter_next(it6d);
+        push(vals6_m, iter_value(it6d));
+    }
+    print("reset and collect [1,4) = " + arr_to_str(vals6_m));
+
+    // Test 7: negative start
+    let r7: [int] = collect_iter(-3, 1, 1);
+    print("range(-3, 1, 1) = " + arr_to_str(r7));
+
+    // Test 8: start equals end (empty)
+    let it8: RangeIter = iter_new(5, 5, 1);
+    print("has_next(5, 5) = " + to_string(iter_has_next(it8)));
+
+    // Test 9: step 2
+    let r9: [int] = collect_iter(0, 8, 2);
+    print("range(0, 8, 2) = " + arr_to_str(r9));
+}

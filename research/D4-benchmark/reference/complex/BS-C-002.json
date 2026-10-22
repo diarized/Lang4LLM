@@ -1,0 +1,30 @@
+{
+  "spec": "BS-C-002",
+  "title": "Graph Shortest Path (Dijkstra's Algorithm)",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "--- Graph 1: simple connected ---",
+    "dist[0] = 0",
+    "dist[1] = 1",
+    "dist[2] = 3",
+    "dist[3] = 4",
+    "--- Graph 2: multiple paths ---",
+    "dist[0] = 0",
+    "dist[1] = 3",
+    "dist[2] = 2",
+    "dist[3] = 4",
+    "--- Graph 3: disconnected ---",
+    "dist[0] = 0",
+    "dist[1] = 1",
+    "dist[2] = 999999",
+    "dist[3] = 999999",
+    "--- Graph 4: single node ---",
+    "dist[0] = 0",
+    "--- Graph 5: linear chain ---",
+    "dist[0] = 0",
+    "dist[1] = 3",
+    "dist[2] = 5",
+    "dist[3] = 6"
+  ]
+}

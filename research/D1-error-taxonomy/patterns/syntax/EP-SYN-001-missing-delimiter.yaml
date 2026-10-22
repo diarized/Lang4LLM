@@ -1,0 +1,93 @@
+# Error Pattern: Missing Delimiter
+
+id: EP-SYN-001
+category: SYNTAX
+subcategory: delimiter
+name: Missing Delimiter (Parenthesis, Bracket, Brace)
+description: |
+  LLM generates code with missing closing delimiters (parentheses, brackets, braces).
+  Common in multi-line expressions, nested structures, and complex function calls.
+  Often occurs when LLM loses track of nesting depth during generation.
+
+frequency:
+  overall: 0.12  # 12% of all syntax errors
+  by_model:
+    gpt4: 0.08
+    claude: 0.10
+    deepseek: 0.15
+  by_language:
+    python: 0.12
+    rust: 0.14
+    typescript: 0.11
+    go: 0.09
+
+root_cause: |
+  LLMs struggle with long-range dependencies in token sequences. Closing delimiters
+  require remembering opening delimiters across many intervening tokens. Transformer
+  attention mechanisms weaken over distance, leading to forgotten closures.
+
+trigger_conditions:
+  - feature: "Nested structures (>3 levels)"
+    severity: HIGH
+  - feature: "Multi-line expressions"
+    severity: MEDIUM
+  - feature: "Complex function call chains"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def process_data(items):
+          result = [
+              transform(x) for x in items
+              if validate(x)
+          # Missing closing ]
+          return result
+    correct: |
+      def process_data(items):
+          result = [
+              transform(x) for x in items
+              if validate(x)
+          ]
+          return result
+    explanation: "Missing closing bracket for list comprehension"
+
+  - language: rust
+    incorrect: |
+      fn calculate(nums: Vec<i32>) -> i32 {
+          nums.iter()
+              .filter(|&x| x > 0)
+              .sum()
+      // Missing closing }
+    correct: |
+      fn calculate(nums: Vec<i32>) -> i32 {
+          nums.iter()
+              .filter(|&x| x > 0)
+              .sum()
+      }
+    explanation: "Missing closing brace for function body"
+
+  - language: typescript
+    incorrect: |
+      const data = users.map(user => ({
+          id: user.id,
+          name: user.name
+      );  // Should be })
+    correct: |
+      const data = users.map(user => ({
+          id: user.id,
+          name: user.name
+      }));
+    explanation: "Missing closing brace and parenthesis for arrow function"
+
+related_patterns:
+  - pattern_id: EP-SYN-002
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-005
+    relationship: CAUSES
+
+sources:
+  - paper_id: P04
+    section: "Section 3.2: Syntax Error Analysis"
+  - paper_id: P05
+    section: "Grammar constraints reduce delimiter errors by 96%"

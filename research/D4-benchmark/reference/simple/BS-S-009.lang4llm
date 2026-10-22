@@ -1,0 +1,29 @@
+fn count_occurrences(numbers: [int], target: int) -> int {
+    let mut count: int = 0;
+    for i in range(0, len(numbers)) {
+        if numbers[i] == target {
+            count = count + 1;
+        };
+    }
+    return count;
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 3, 2, 4, 2];
+    print("count_occurrences([1,2,3,2,4,2], 2) = " + to_string(count_occurrences(a, 2)));
+
+    let b: [int] = [5, 10, 15, 20];
+    print("count_occurrences([5,10,15,20], 15) = " + to_string(count_occurrences(b, 15)));
+
+    let c: [int] = [1, 2, 3, 4];
+    print("count_occurrences([1,2,3,4], 9) = " + to_string(count_occurrences(c, 9)));
+
+    let d: [int] = [];
+    print("count_occurrences([], 5) = " + to_string(count_occurrences(d, 5)));
+
+    let e: [int] = [3, 3, 3, 3];
+    print("count_occurrences([3,3,3,3], 3) = " + to_string(count_occurrences(e, 3)));
+
+    let f: [int] = [-2, 0, -2, 1];
+    print("count_occurrences([-2,0,-2,1], -2) = " + to_string(count_occurrences(f, -2)));
+}

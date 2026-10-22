@@ -1,0 +1,28 @@
+// Example 9: Traits and Implementations
+// Demonstrates: trait definition, impl for trait, trait bounds
+
+trait Display {
+    fn to_string(self: Display) -> string;
+}
+
+struct Point {
+    x: int,
+    y: int
+}
+
+impl Display for Point {
+    fn to_string(self: Point) -> string {
+        return "Point(" + self.x + ", " + self.y + ")";
+    }
+}
+
+fn print_value<T: Display>(value: T) -> unit {
+    print(value.to_string());
+    return none;
+}
+
+fn main() -> unit {
+    let p: Point = Point { x: 10, y: 20 };
+    print_value(p);
+    return none;
+}

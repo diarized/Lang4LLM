@@ -1,0 +1,86 @@
+fn matrix_add(a: [int], b: [int], rows: int, cols: int) -> [int] {
+    if len(a) != rows * cols {
+        let err: [int] = [];
+        return err;
+    };
+    if len(b) != rows * cols {
+        let err2: [int] = [];
+        return err2;
+    };
+    let mut result: [int] = [];
+    for i in range(0, rows * cols) {
+        push(result, a[i] + b[i]);
+    }
+    return result;
+}
+
+fn print_matrix(m: [int], rows: int, cols: int) -> unit {
+    for r in range(0, rows) {
+        let mut row_str: string = "[";
+        for c in range(0, cols) {
+            if c > 0 {
+                row_str = row_str + ", ";
+            };
+            row_str = row_str + to_string(m[r * cols + c]);
+        }
+        row_str = row_str + "]";
+        print(row_str);
+    }
+}
+
+fn main() -> unit {
+    // Test 1: 2x2 integer matrices
+    let a1: [int] = [1, 2, 3, 4];
+    let b1: [int] = [5, 6, 7, 8];
+    let r1: [int] = matrix_add(a1, b1, 2, 2);
+    print("matrix_add 2x2:");
+    print_matrix(r1, 2, 2);
+
+    // Test 2: 3x3 identity + another
+    let a2: [int] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    let b2: [int] = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+    let r2: [int] = matrix_add(a2, b2, 3, 3);
+    print("matrix_add 3x3:");
+    print_matrix(r2, 3, 3);
+
+    // Test 3: 1x1 matrix
+    let a3: [int] = [7];
+    let b3: [int] = [3];
+    let r3: [int] = matrix_add(a3, b3, 1, 1);
+    print("matrix_add 1x1:");
+    print_matrix(r3, 1, 1);
+
+    // Test 4: matrices with negative numbers (cancel out)
+    let a4: [int] = [-1, -2, -3, -4];
+    let b4: [int] = [1, 2, 3, 4];
+    let r4: [int] = matrix_add(a4, b4, 2, 2);
+    print("matrix_add negatives 2x2:");
+    print_matrix(r4, 2, 2);
+
+    // Test 5: all-zero matrices
+    let a5: [int] = [0, 0, 0, 0, 0, 0];
+    let b5: [int] = [0, 0, 0, 0, 0, 0];
+    let r5: [int] = matrix_add(a5, b5, 2, 3);
+    print("matrix_add zeros 2x3:");
+    print_matrix(r5, 2, 3);
+
+    // Test 6: dimension mismatch (a is 2x2, b is 1x2 = 2 elements vs 4)
+    let a6: [int] = [1, 2, 3, 4];
+    let b6: [int] = [1, 2];
+    let r6: [int] = matrix_add(a6, b6, 2, 2);
+    print("matrix_add mismatch size = " + to_string(len(r6)));
+
+    // Test 7: 1x3 row vector addition
+    let a7: [int] = [1, 2, 3];
+    let b7: [int] = [4, 5, 6];
+    let r7: [int] = matrix_add(a7, b7, 1, 3);
+    print("matrix_add 1x3:");
+    print_matrix(r7, 1, 3);
+
+    // Test 8: 2x3 non-square matrix
+    let a8: [int] = [1, 2, 3, 4, 5, 6];
+    let b8: [int] = [6, 5, 4, 3, 2, 1];
+    let r8: [int] = matrix_add(a8, b8, 2, 3);
+    print("matrix_add 2x3:");
+    print_matrix(r8, 2, 3);
+}

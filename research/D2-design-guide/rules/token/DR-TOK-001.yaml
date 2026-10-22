@@ -1,0 +1,62 @@
+id: DR-TOK-001
+category: TOKEN
+name: Symbols Over Keywords Where Clear
+description: |
+  Prefer symbolic operators over verbose keywords when meaning is clear and established.
+  Balance brevity with readability. Aim for 30-40% token reduction vs verbose languages.
+
+priority: 14
+impact_score: 0.40
+
+rationale: |
+  Token efficiency reduces context window pressure for LLMs. GlyphLang achieves 35% token
+  reduction using symbols instead of keywords. Fewer tokens = more code fits in context.
+
+research_backing:
+  - source: "GlyphLang Design Philosophy"
+    finding: "35% token reduction using symbolic operators, improves LLM context usage"
+    confidence: MEDIUM
+
+  - source: "LLM Context Window Studies"
+    finding: "Longer code requires more context, reducing accuracy"
+    confidence: HIGH
+
+  - source: "APL/J Language Design"
+    finding: "Symbolic notation enables extreme conciseness (but readability trade-off)"
+    confidence: LOW
+
+validation_method:
+  approach: |
+    Compare token counts for equivalent programs in verbose (Python) vs symbolic (proposed)
+    syntax. Measure LLM accuracy on both. Target 30-40% reduction without sacrificing clarity.
+  metrics:
+    - M-001  # Token Predictability (balance brevity and clarity)
+  benchmark_specs:
+    - BS-S-035  # Token efficiency tests
+    - BS-M-050  # Symbolic vs keyword variants
+
+counter_examples:
+  - scenario: "Beginner readability"
+    reason: "Keywords like `function` are more explicit than `->`"
+    alternative: "Provide both syntaxes (e.g., Nim's `proc` or `fn`)"
+
+  - scenario: "Screen reader accessibility"
+    reason: "Symbolic operators harder to vocalize"
+    alternative: "Provide verbal aliases in tooling, not syntax"
+
+  - scenario: "Non-ASCII challenges"
+    reason: "Some symbols require Unicode"
+    alternative: "Stick to ASCII-only operators"
+
+related_patterns:
+  - pattern_id: EP-LOG-002
+    mitigation: REDUCES
+    note: "Concise stdlib encourages correct algorithm choice"
+
+implementation_notes:
+  - "Function definition: `fn` or `->` (not `function`)"
+  - "Lambda: `|x| x + 1` (not `lambda x: x + 1`)"
+  - "Type annotation: `:` (not `as` or `is`)"
+  - "Comparison: established symbols (`==`, `!=`, `<`, `>`)"
+  - "Avoid overloading symbols with too many meanings"
+  - "Maintain consistency with mathematical/programming conventions"

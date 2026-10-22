@@ -1,0 +1,55 @@
+id: DR-GRM-003
+category: GRAMMAR
+name: Predictable Token Sequences
+description: |
+  Design grammar to minimize ambiguous token sequences. Avoid backtracking requirements
+  in parser. Predictable syntax aids LLM next-token prediction.
+
+priority: 6
+impact_score: 0.65
+
+rationale: |
+  LLMs generate code token-by-token. Grammar rules with predictable token sequences
+  (no lookahead required) improve LLM prediction accuracy and reduce parse ambiguity.
+
+research_backing:
+  - source: "GlyphLang Token Efficiency"
+    finding: "35% token reduction via predictable syntax structure"
+    confidence: MEDIUM
+
+  - source: "P05 - Grammar-Based Representation"
+    finding: "Predictable token sequences improve LLM structural understanding"
+    confidence: MEDIUM
+
+  - source: "LR/LL Parser Theory"
+    finding: "LL(1) grammars (1-token lookahead) are most predictable"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Analyze grammar for lookahead requirements. Measure LLM perplexity on generated code.
+    Compare LL(1) vs LL(k) grammar variants.
+  metrics:
+    - M-001  # Token Predictability (perplexity)
+  benchmark_specs:
+    - BS-S-010  # Token sequence variations
+    - BS-M-030  # Ambiguous constructs
+
+counter_examples:
+  - scenario: "Operator precedence parsing"
+    reason: "Requires precedence climbing or lookahead"
+    alternative: "Use precedence grammar (acceptable complexity)"
+
+  - scenario: "Type inference"
+    reason: "May require context for disambiguation"
+    alternative: "Separate type inference from parsing"
+
+related_patterns:
+  - pattern_id: EP-SYN-004
+    mitigation: REDUCES
+
+implementation_notes:
+  - "Prefer LL(1) grammar where possible"
+  - "Minimize backtracking in parser"
+  - "Use distinct keywords for different constructs"
+  - "Avoid token sequences with multiple interpretations"

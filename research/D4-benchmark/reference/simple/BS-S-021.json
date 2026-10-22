@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-021",
+  "title": "Capitalize First Letter",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "capitalize_first(\"hello\") = \"Hello\"",
+    "capitalize_first(\"WORLD\") = \"World\"",
+    "capitalize_first(\"hELLO wORLD\") = \"Hello world\"",
+    "capitalize_first(\"\") = \"\"",
+    "capitalize_first(\"a\") = \"A\"",
+    "capitalize_first(\"123abc\") = \"123abc\"",
+    "capitalize_first(\"!!!\") = \"!!!\""
+  ]
+}

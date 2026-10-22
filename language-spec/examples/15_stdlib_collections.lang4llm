@@ -1,0 +1,70 @@
+// Example 15: Standard Library Collection Functions
+// Demonstrates: sort, reverse, map, filter, is_empty, concat, first, pop, push, len
+
+fn double(x: int) -> int {
+    return x * 2;
+}
+
+fn is_even(x: int) -> bool {
+    return x - (x / 2 * 2) == 0;
+}
+
+fn main() -> unit {
+    // sort: in-place ascending sort
+    let mut numbers: [int] = [5, 2, 8, 1, 9, 3];
+    sort(numbers);
+    print("After sort first: " + numbers[0]);
+    print("After sort last: " + numbers[5]);
+
+    // reverse: in-place reversal
+    let mut ascending: [int] = [1, 2, 3, 4, 5];
+    reverse(ascending);
+    print("After reverse first: " + ascending[0]);
+
+    // map: transform each element
+    let values: [int] = [1, 2, 3, 4, 5];
+    let doubled: [int] = map(values, |x| x * 2);
+    print("map doubled[0]: " + doubled[0]);
+    print("map doubled[4]: " + doubled[4]);
+
+    // filter: keep elements matching predicate
+    let mixed: [int] = [1, 2, 3, 4, 5, 6];
+    let evens: [int] = filter(mixed, |x| x - (x / 2 * 2) == 0);
+    print("filter evens count: " + len(evens));
+
+    // is_empty: check for empty array
+    let empty: [int] = [];
+    let nonempty: [int] = [1, 2, 3];
+    let e1: bool = is_empty(empty);
+    let e2: bool = is_empty(nonempty);
+    if e1 {
+        print("empty array detected");
+    } else {
+        print("should be empty");
+    };
+    if e2 {
+        print("ERROR: nonempty wrongly detected as empty");
+    } else {
+        print("nonempty array correctly detected");
+    };
+
+    // concat: combine two arrays
+    let left: [int] = [1, 2, 3];
+    let right: [int] = [4, 5, 6];
+    let combined: [int] = concat(left, right);
+    print("concat length: " + len(combined));
+    print("concat[5]: " + combined[5]);
+
+    // first: get first element
+    let items: [int] = [42, 99, 7];
+    let head: int = first(items);
+    print("first: " + head);
+
+    // pop: remove and return last element
+    let mut stack: [int] = [10, 20, 30];
+    let top: int = pop(stack);
+    print("pop: " + top);
+    print("after pop len: " + len(stack));
+
+    return none;
+}

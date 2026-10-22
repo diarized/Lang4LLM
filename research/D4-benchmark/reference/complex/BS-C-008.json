@@ -1,0 +1,16 @@
+{
+  "spec": "BS-C-008",
+  "title": "Merge Sort with Inversion Count",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "sorted = [1, 2, 3], inversions = 2",
+    "sorted = [1, 2, 3, 4, 5], inversions = 0",
+    "sorted = [1, 2, 3, 4], inversions = 6",
+    "sorted = [1, 1, 2, 2], inversions = 3",
+    "sorted = [], inversions = 0",
+    "sorted = [42], inversions = 0",
+    "sorted = [2, 2, 2], inversions = 0",
+    "sorted = [1, 2, 3, 4, 5], inversions = 5"
+  ]
+}

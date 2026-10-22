@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-002",
+  "title": "Reverse String",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "reverse_string(\"hello\") = olleh",
+    "reverse_string(\"hello world\") = dlrow olleh",
+    "reverse_string(\"racecar\") = racecar",
+    "reverse_string(\"\") = ",
+    "reverse_string(\"a\") = a",
+    "reverse_string(\"abc!\") = !cba"
+  ]
+}

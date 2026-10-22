@@ -1,0 +1,15 @@
+[package]
+name = "lang4llm-transpiler"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Transpiler from Lang4LLM to Rust source code"
+
+[dependencies]
+lang4llm-ast = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+lang4llm-parser = { workspace = true }
+lang4llm-typeck = { workspace = true }

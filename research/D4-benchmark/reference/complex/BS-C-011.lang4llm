@@ -1,0 +1,66 @@
+// BS-C-011: Balanced Bracket Validator with Error Location
+// Stack-based: parallel arrays for bracket chars and their indices
+
+fn is_open(c: string) -> bool {
+    return c == "(" or c == "[" or c == "{";
+}
+
+fn is_close(c: string) -> bool {
+    return c == ")" or c == "]" or c == "}";
+}
+
+fn expected_open(c: string) -> string {
+    if c == ")" { return "("; };
+    if c == "]" { return "["; };
+    return "{";
+}
+
+fn check(s: string) -> string {
+    let cs: [string] = chars(s);
+    let mut stack_chars: [string] = [];
+    let mut stack_idx: [int] = [];
+    let mut i: int = 0;
+    while i < len(cs) {
+        let c: string = cs[i];
+        if is_open(c) {
+            push(stack_chars, c);
+            push(stack_idx, i);
+        } else {
+            if is_close(c) {
+                if is_empty(stack_chars) {
+                    return "error at " + to_string(i) + ": UNMATCHED_CLOSE";
+                };
+                let top: string = stack_chars[len(stack_chars) - 1];
+                let exp: string = expected_open(c);
+                if top != exp {
+                    return "error at " + to_string(i) + ": MISMATCH";
+                };
+                pop(stack_chars);
+                pop(stack_idx);
+            };
+        };
+        i = i + 1;
+    }
+    if not is_empty(stack_chars) {
+        let first_idx: int = stack_idx[0];
+        return "error at " + to_string(first_idx) + ": UNMATCHED_OPEN";
+    };
+    return "balanced";
+}
+
+fn main() -> unit {
+    print("check('') = " + check(""));
+    print("check('()') = " + check("()"));
+    print("check('([{}])') = " + check("([{}])"));
+    print("check('a(b[c]d)e') = " + check("a(b[c]d)e"));
+    print("check(')') = " + check(")"));
+    print("check('abc]def') = " + check("abc]def"));
+    print("check('(]') = " + check("(]"));
+    print("check('([)]') = " + check("([)]"));
+    print("check('(') = " + check("("));
+    print("check('(((') = " + check("((("));
+    print("check('()[]{') = " + check("()[]{"));
+    print("check('hello (world [!])') = " + check("hello (world [!])"));
+    print("check('hi (there]') = " + check("hi (there]"));
+    print("check('(()(') = " + check("(()("));
+}

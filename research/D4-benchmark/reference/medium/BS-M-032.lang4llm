@@ -1,0 +1,189 @@
+// BS-M-032: Word Frequency from Text
+// Count word frequencies: case-insensitive, strip leading/trailing punctuation.
+// Sort by frequency descending, then alphabetically ascending for ties.
+// Returns parallel arrays: words and counts.
+
+fn is_alnum_char(c: string) -> bool {
+    return (c >= "a" and c <= "z") or (c >= "A" and c <= "Z") or (c >= "0" and c <= "9");
+}
+
+fn strip_punct(word: string) -> string {
+    let chs: [string] = chars(word);
+    let n: int = len(chs);
+    if n == 0 {
+        return "";
+    };
+    let mut left: int = 0;
+    let mut right: int = n - 1;
+    while left <= right and not is_alnum_char(chs[left]) {
+        left = left + 1;
+    }
+    while right >= left and not is_alnum_char(chs[right]) {
+        right = right - 1;
+    }
+    if left > right {
+        return "";
+    };
+    let mut result: string = "";
+    for i in range(left, right + 1) {
+        result = result + to_string(chs[i]);
+    }
+    return result;
+}
+
+fn tokenize(text: string) -> [string] {
+    let chs: [string] = chars(text);
+    let n: int = len(chs);
+    let mut tokens: [string] = [];
+    let mut cur: string = "";
+    for i in range(0, n) {
+        let c: string = chs[i];
+        if c == " " or c == "\t" or c == "\n" or c == "\r" {
+            if cur != "" {
+                push(tokens, cur);
+                cur = "";
+            };
+        } else {
+            cur = cur + to_string(c);
+        };
+    }
+    if cur != "" {
+        push(tokens, cur);
+    };
+    return tokens;
+}
+
+fn find_word(words: [string], word: string) -> int {
+    let mut idx: int = -1;
+    for i in range(0, len(words)) {
+        if words[i] == word {
+            idx = i;
+        };
+    }
+    return idx;
+}
+
+fn word_freq_words(text: string) -> [string] {
+    let raw_tokens: [string] = tokenize(text);
+    let mut wwords: [string] = [];
+    let mut wcounts: [int] = [];
+    for i in range(0, len(raw_tokens)) {
+        let stripped: string = strip_punct(raw_tokens[i]);
+        if stripped != "" {
+            let lower_w: string = to_lower(stripped);
+            let existing: int = find_word(wwords, lower_w);
+            if existing >= 0 {
+                wcounts[existing] = wcounts[existing] + 1;
+            } else {
+                push(wwords, lower_w);
+                push(wcounts, 1);
+            };
+        };
+    }
+    // Sort by freq desc, alpha asc (insertion sort)
+    let n: int = len(wwords);
+    for i in range(1, n) {
+        let key_w: string = wwords[i];
+        let key_c: int = wcounts[i];
+        let mut j: int = i - 1;
+        let mut moved: bool = false;
+        while j >= 0 and not moved {
+            let cmp_c: int = wcounts[j];
+            let cmp_w: string = wwords[j];
+            let should_swap: bool = cmp_c < key_c or (cmp_c == key_c and cmp_w > key_w);
+            if should_swap {
+                wwords[j + 1] = cmp_w;
+                wcounts[j + 1] = cmp_c;
+                j = j - 1;
+            } else {
+                moved = true;
+            };
+        }
+        wwords[j + 1] = key_w;
+        wcounts[j + 1] = key_c;
+    }
+    return wwords;
+}
+
+fn word_freq_counts(text: string) -> [int] {
+    let raw_tokens: [string] = tokenize(text);
+    let mut wwords: [string] = [];
+    let mut wcounts: [int] = [];
+    for i in range(0, len(raw_tokens)) {
+        let stripped: string = strip_punct(raw_tokens[i]);
+        if stripped != "" {
+            let lower_w: string = to_lower(stripped);
+            let existing: int = find_word(wwords, lower_w);
+            if existing >= 0 {
+                wcounts[existing] = wcounts[existing] + 1;
+            } else {
+                push(wwords, lower_w);
+                push(wcounts, 1);
+            };
+        };
+    }
+    // Sort by freq desc, alpha asc (insertion sort)
+    let n: int = len(wwords);
+    for i in range(1, n) {
+        let key_w: string = wwords[i];
+        let key_c: int = wcounts[i];
+        let mut j: int = i - 1;
+        let mut moved: bool = false;
+        while j >= 0 and not moved {
+            let cmp_c: int = wcounts[j];
+            let cmp_w: string = wwords[j];
+            let should_swap: bool = cmp_c < key_c or (cmp_c == key_c and cmp_w > key_w);
+            if should_swap {
+                wwords[j + 1] = cmp_w;
+                wcounts[j + 1] = cmp_c;
+                j = j - 1;
+            } else {
+                moved = true;
+            };
+        }
+        wwords[j + 1] = key_w;
+        wcounts[j + 1] = key_c;
+    }
+    return wcounts;
+}
+
+fn print_word_freq(text: string) -> unit {
+    let ww: [string] = word_freq_words(text);
+    let wc: [int] = word_freq_counts(text);
+    if is_empty(ww) {
+        print("[]");
+        return;
+    };
+    let mut s: string = "[";
+    for i in range(0, len(ww)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + "(" + ww[i] + ", " + to_string(wc[i]) + ")";
+    }
+    s = s + "]";
+    print(s);
+}
+
+fn main() -> unit {
+    // Test 1: simple sentence with repetition
+    print_word_freq("the cat sat on the mat");
+
+    // Test 2: case normalization
+    print_word_freq("Hello hello HELLO");
+
+    // Test 3: punctuation stripping
+    print_word_freq("Hello, world! Hello.");
+
+    // Test 4: multi-line text
+    print_word_freq("To be, or not to be,\nthat is the question.");
+
+    // Test 5: empty input
+    print_word_freq("");
+
+    // Test 6: punctuation-only tokens discarded
+    print_word_freq("wow!!! yes... no?");
+
+    // Test 7: numbers treated as words
+    print_word_freq("item 1 item 2 item 1");
+}

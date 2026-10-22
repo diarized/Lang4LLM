@@ -1,0 +1,26 @@
+[package]
+name = "lang4llm-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "lang4llm"
+path = "src/main.rs"
+
+[dependencies]
+lang4llm-ast = { workspace = true }
+lang4llm-parser = { workspace = true }
+lang4llm-typeck = { workspace = true }
+lang4llm-transpiler = { workspace = true }
+lang4llm-formatter = { workspace = true }
+clap = { workspace = true }
+colored = { workspace = true }
+miette = { workspace = true }
+ariadne = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]

@@ -1,0 +1,60 @@
+id: DR-TOK-003
+category: TOKEN
+name: Rich Standard Library with Documented Patterns
+description: |
+  Provide comprehensive standard library with canonical implementations of common algorithms.
+  Document complexity guarantees and usage patterns. Reduces need for LLMs to implement
+  from scratch, lowering error rates.
+
+priority: 13
+impact_score: 0.45
+
+rationale: |
+  Wrong algorithm choice (EP-LOG-002) accounts for 20% of logic errors. Rich stdlib with
+  clear documentation guides LLMs toward correct implementations, reducing reinvention.
+
+research_backing:
+  - source: "P11 - LLM Code Generation Agents Survey"
+    finding: "LLM agents improve significantly with comprehensive stdlib documentation"
+    confidence: HIGH
+
+  - source: "D1 Error Analysis"
+    finding: "Generic stdlib implementations reduce algorithm errors by 15%"
+    confidence: MEDIUM
+
+  - source: "Rust Standard Library Design"
+    finding: "Well-documented stdlib with complexity guarantees improves correctness"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Compare LLM generation with/without stdlib guidance. Measure EP-LOG-002 frequency
+    on algorithmic problems. Test documentation quality impact.
+  metrics:
+    - M-004  # Error Recovery (stdlib provides correct fallbacks)
+  benchmark_specs:
+    - BS-M-005  # Sorting algorithms
+    - BS-M-018  # Collection operations
+    - BS-C-020  # Complex algorithms
+
+counter_examples:
+  - scenario: "Minimal language core"
+    reason: "Large stdlib increases learning curve"
+    alternative: "Modular stdlib (import only what you need)"
+
+  - scenario: "Educational purposes"
+    reason: "Implementing algorithms teaches concepts"
+    alternative: "Provide both stdlib and tutorial implementations"
+
+related_patterns:
+  - pattern_id: EP-LOG-002
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Collections: Vec, HashMap, HashSet with iterator support"
+  - "Algorithms: sort, binary_search, min/max with documented O(n log n) complexity"
+  - "I/O: file, network, stdio with clear error handling (Result types)"
+  - "String: UTF-8 handling, common transformations"
+  - "Math: standard functions with precision guarantees"
+  - "Documentation: Include complexity, example usage, common pitfalls"
+  - "Follow naming conventions from Rust/Go stdlibs (proven LLM-friendly)"

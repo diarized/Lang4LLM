@@ -1,0 +1,43 @@
+fn remove_duplicates(numbers: [int]) -> [int] {
+    let mut result: [int] = [];
+    for i in range(0, len(numbers)) {
+        let mut found: bool = false;
+        for j in range(0, len(result)) {
+            if result[j] == numbers[i] {
+                found = true;
+            };
+        }
+        if found == false {
+            push(result, numbers[i]);
+        };
+    }
+    return result;
+}
+
+fn print_int_arr(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut parts: [string] = [];
+    for i in range(0, len(arr)) {
+        push(parts, to_string(arr[i]));
+    }
+    return "[" + join(parts, ", ") + "]";
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 2, 3, 1, 4];
+    print("remove_duplicates([1,2,2,3,1,4]) = " + print_int_arr(remove_duplicates(a)));
+
+    let b: [int] = [5, 3, 8, 1];
+    print("remove_duplicates([5,3,8,1]) = " + print_int_arr(remove_duplicates(b)));
+
+    let c: [int] = [7, 7, 7, 7];
+    print("remove_duplicates([7,7,7,7]) = " + print_int_arr(remove_duplicates(c)));
+
+    let d: [int] = [];
+    print("remove_duplicates([]) = " + print_int_arr(remove_duplicates(d)));
+
+    let e: [int] = [-1, -2, -1, 0, -2];
+    print("remove_duplicates([-1,-2,-1,0,-2]) = " + print_int_arr(remove_duplicates(e)));
+}

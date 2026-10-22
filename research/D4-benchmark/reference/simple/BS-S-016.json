@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-016",
+  "title": "Check Power of Two",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_power_of_two(8) = true",
+    "is_power_of_two(6) = false",
+    "is_power_of_two(1) = true",
+    "is_power_of_two(0) = false",
+    "is_power_of_two(-4) = false",
+    "is_power_of_two(1024) = true"
+  ]
+}

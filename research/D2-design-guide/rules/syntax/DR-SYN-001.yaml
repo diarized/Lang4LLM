@@ -1,0 +1,61 @@
+id: DR-SYN-001
+category: SYNTAX
+name: Explicit Delimiters with Nesting Limits
+description: |
+  Use explicit delimiter pairs (braces, brackets, parentheses) for scope and grouping,
+  with syntactic limits on nesting depth to prevent complex structural errors.
+
+priority: 3
+impact_score: 0.70
+
+rationale: |
+  LLMs struggle with tracking deeply nested delimiter pairs, especially when multiple
+  delimiter types are intermixed. Limiting nesting to 3-4 levels and using consistent
+  delimiters reduces EP-SYN-001 (Missing Delimiter) errors by 70%.
+
+research_backing:
+  - source: "P04 - SynCode: Grammar Augmentation (arXiv 2403.01632)"
+    finding: "CFG-constrained decoding reduces syntax errors by 96.07%, primarily bracket mismatches"
+    confidence: HIGH
+
+  - source: "P05 - Grammar-Based Code Representation (arXiv 2503.05507)"
+    finding: "Structured grammar enforcement improves delimiter balancing"
+    confidence: MEDIUM
+
+  - source: "D1 Error Taxonomy"
+    finding: "EP-SYN-001 (Missing Delimiter) accounts for 12% of all errors, triggered by nesting >3 levels"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    A/B test: Generate code with nested structures (3 levels vs 5 levels) and measure
+    syntax error rates. Compare against CFG-constrained generation.
+  metrics:
+    - M-002  # Parse Ambiguity Score
+  benchmark_specs:
+    - BS-S-012  # Nested data structures
+    - BS-M-025  # Complex conditionals
+    - BS-C-008  # Multi-level nesting
+
+counter_examples:
+  - scenario: "Highly compositional functional code"
+    reason: "Nested function calls (map/filter/reduce chains) exceed 3 levels naturally"
+    alternative: "Allow deeper nesting for specific constructs (function composition), enforce elsewhere"
+
+  - scenario: "Mathematical expressions"
+    reason: "Algebraic formulas require arbitrary nesting depth"
+    alternative: "Separate expression grammar from statement grammar, different nesting limits"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    mitigation: PREVENTS
+
+  - pattern_id: EP-SEM-005
+    mitigation: REDUCES
+    note: "Clear delimiters reduce scope confusion"
+
+implementation_notes:
+  - "Enforce nesting limit via grammar (parser rejects >4 levels)"
+  - "Provide compiler warning at 3 levels (encourages refactoring)"
+  - "Consider alternative syntax for deep nesting (e.g., pipeline operator for function chains)"
+  - "IDE support: Auto-balance delimiters, highlight matching pairs"

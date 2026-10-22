@@ -1,0 +1,21 @@
+// Example 2: Fibonacci Sequence
+// Demonstrates: iterator-first design, for loop, range, mutable variables
+
+fn fib(n: int) -> int {
+    let mut a: int = 0;
+    let mut b: int = 1;
+
+    for i in range(0, n) {
+        let temp: int = a;
+        a = b;
+        b = temp + b;
+    }
+
+    return a;
+}
+
+fn main() -> unit {
+    let result: int = fib(10);
+    print("Fibonacci(10) = " + result);
+    return none;
+}

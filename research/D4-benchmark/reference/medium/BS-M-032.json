@@ -1,0 +1,15 @@
+{
+  "spec": "BS-M-032",
+  "title": "Word Frequency from Text",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "[(the, 2), (cat, 1), (mat, 1), (on, 1), (sat, 1)]",
+    "[(hello, 3)]",
+    "[(hello, 2), (world, 1)]",
+    "[(be, 2), (to, 2), (is, 1), (not, 1), (or, 1), (question, 1), (that, 1), (the, 1)]",
+    "[]",
+    "[(no, 1), (wow, 1), (yes, 1)]",
+    "[(item, 3), (1, 2), (2, 1)]"
+  ]
+}

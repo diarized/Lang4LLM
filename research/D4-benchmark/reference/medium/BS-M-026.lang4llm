@@ -1,0 +1,76 @@
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn sieve(n: int) -> [int] {
+    if n < 2 {
+        let empty: [int] = [];
+        return empty;
+    };
+    let mut is_prime: [bool] = [];
+    for i in range(0, n + 1) {
+        push(is_prime, true);
+    }
+    is_prime[0] = false;
+    is_prime[1] = false;
+    let mut p: int = 2;
+    while p * p <= n {
+        if is_prime[p] {
+            let mut multiple: int = p * p;
+            while multiple <= n {
+                is_prime[multiple] = false;
+                multiple = multiple + p;
+            }
+        };
+        p = p + 1;
+    }
+    let mut primes: [int] = [];
+    for i in range(2, n + 1) {
+        if is_prime[i] {
+            push(primes, i);
+        };
+    }
+    return primes;
+}
+
+fn main() -> unit {
+    // Test 1: n = 0
+    print("sieve(0) = " + arr_to_str(sieve(0)));
+
+    // Test 2: n = 1
+    print("sieve(1) = " + arr_to_str(sieve(1)));
+
+    // Test 3: n = 2
+    print("sieve(2) = " + arr_to_str(sieve(2)));
+
+    // Test 4: n = 3
+    print("sieve(3) = " + arr_to_str(sieve(3)));
+
+    // Test 5: n = 10
+    print("sieve(10) = " + arr_to_str(sieve(10)));
+
+    // Test 6: n = 13 (prime limit)
+    print("sieve(13) = " + arr_to_str(sieve(13)));
+
+    // Test 7: n = 15 (composite limit)
+    print("sieve(15) = " + arr_to_str(sieve(15)));
+
+    // Test 8: n = 20
+    print("sieve(20) = " + arr_to_str(sieve(20)));
+
+    // Test 9: n = 50
+    let primes50: [int] = sieve(50);
+    print("sieve(50) count = " + to_string(len(primes50)));
+    print("sieve(50) = " + arr_to_str(primes50));
+}

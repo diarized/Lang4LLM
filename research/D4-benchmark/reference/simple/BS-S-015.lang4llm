@@ -1,0 +1,19 @@
+fn factorial(n: int) -> int {
+    if n == 0 {
+        return 1;
+    };
+    let mut result: int = 1;
+    for i in range(1, n + 1) {
+        result = result * i;
+    }
+    return result;
+}
+
+fn main() -> unit {
+    print("factorial(0) = " + to_string(factorial(0)));
+    print("factorial(1) = " + to_string(factorial(1)));
+    print("factorial(2) = " + to_string(factorial(2)));
+    print("factorial(5) = " + to_string(factorial(5)));
+    print("factorial(10) = " + to_string(factorial(10)));
+    print("factorial(3) = " + to_string(factorial(3)));
+}

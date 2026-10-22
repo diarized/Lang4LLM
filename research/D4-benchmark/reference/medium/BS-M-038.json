@@ -1,0 +1,22 @@
+{
+  "spec": "BS-M-038",
+  "title": "Event Dispatcher",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "click registered = true",
+    "click count after 1 dispatch = 1",
+    "login count after 3 dispatches = 3",
+    "nonexistent count = 0",
+    "nonexistent registered = false",
+    "start count = 2",
+    "stop count = 1",
+    "Click count = 1",
+    "click count = 0",
+    "save count after re-register + 1 dispatch = 1",
+    "ready count before dispatch = 0",
+    "open count = 0",
+    "close count = 0",
+    "error count = 2"
+  ]
+}

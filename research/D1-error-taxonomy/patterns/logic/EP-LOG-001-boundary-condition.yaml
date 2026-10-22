@@ -1,0 +1,98 @@
+# Error Pattern: Boundary Condition Failure
+
+id: EP-LOG-001
+category: LOGIC
+subcategory: boundary
+name: Incorrect Handling of Boundary/Edge Cases
+description: |
+  LLM generates algorithmically sound code that fails on boundary inputs: empty
+  collections, zero values, minimum/maximum values, null/None. Code works for
+  "happy path" but crashes or produces wrong results on edge cases.
+
+frequency:
+  overall: 0.22  # 22% of all logic errors
+  by_model:
+    gpt4: 0.18
+    claude: 0.20
+    deepseek: 0.28
+  by_language:
+    python: 0.24
+    rust: 0.18  # Panic catches some cases
+    typescript: 0.22
+    go: 0.20
+
+root_cause: |
+  Training data biases toward "normal" inputs in examples and tests. LLMs generate
+  code that satisfies typical cases but miss boundary conditions not explicitly
+  mentioned in prompts. Systematic edge case enumeration not part of generation process.
+
+trigger_conditions:
+  - feature: "Collection processing (lists, arrays)"
+    severity: HIGH
+  - feature: "Numeric computations (division, modulo)"
+    severity: HIGH
+  - feature: "String manipulation"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def find_median(numbers: list[int]) -> float:
+          numbers.sort()
+          mid = len(numbers) // 2
+          return (numbers[mid] + numbers[mid-1]) / 2  # Fails on empty list, odd length
+    correct: |
+      def find_median(numbers: list[int]) -> float:
+          if not numbers:
+              raise ValueError("Empty list has no median")
+          numbers.sort()
+          mid = len(numbers) // 2
+          if len(numbers) % 2 == 0:
+              return (numbers[mid] + numbers[mid-1]) / 2
+          else:
+              return float(numbers[mid])
+    explanation: "Missing checks for empty list and odd-length handling"
+
+  - language: rust
+    incorrect: |
+      fn average(numbers: &[f64]) -> f64 {
+          let sum: f64 = numbers.iter().sum();
+          sum / numbers.len() as f64  // Division by zero if empty
+      }
+    correct: |
+      fn average(numbers: &[f64]) -> Option<f64> {
+          if numbers.is_empty() {
+              return None;
+          }
+          let sum: f64 = numbers.iter().sum();
+          Some(sum / numbers.len() as f64)
+      }
+    explanation: "Must handle empty slice to avoid division by zero"
+
+  - language: typescript
+    incorrect: |
+      function getFirstChar(text: string): string {
+          return text[0];  // Returns undefined for empty string
+      }
+    correct: |
+      function getFirstChar(text: string): string | null {
+          if (text.length === 0) {
+              return null;
+          }
+          return text[0];
+      }
+    explanation: "Empty string case returns undefined, should be explicitly handled"
+
+related_patterns:
+  - pattern_id: EP-SYN-003
+    relationship: SIMILAR_TO
+  - pattern_id: EP-LOG-002
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Missing condition (semantic characteristic)"
+  - paper_id: P02
+    section: "Edge case handling failures"
+  - paper_id: P08
+    section: "Algorithmic mistakes"

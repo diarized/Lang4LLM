@@ -1,0 +1,59 @@
+id: DR-ERR-004
+category: ERROR_PREVENTION
+name: Compiler-Enforced Completeness Checking
+description: |
+  Compiler verifies exhaustiveness for pattern matching, return statements, and error handling.
+  No implicit fallthrough. All cases must be handled explicitly.
+
+priority: 19
+impact_score: 0.55
+
+rationale: |
+  Exhaustiveness checking catches incomplete logic at compile time. Prevents missing cases
+  in conditionals (EP-LOG-003) and missing returns (EP-SEM-004).
+
+research_backing:
+  - source: "Rust Compiler Design"
+    finding: "Exhaustive pattern matching prevents logic errors at compile time"
+    confidence: HIGH
+
+  - source: "P08 - LLM Code Mistakes"
+    finding: "Missing conditional branches account for 12% of logic errors"
+    confidence: MEDIUM
+
+  - source: "Haskell/ML Family Languages"
+    finding: "Exhaustiveness checking is foundational to safety"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Compare LLM generation on exhaustive (Rust match) vs non-exhaustive (C switch)
+    pattern matching. Measure EP-LOG-003 frequency.
+  metrics:
+    - M-004  # Error Recovery (compile-time completeness)
+  benchmark_specs:
+    - BS-M-040  # Pattern matching
+    - BS-M-015  # Conditional completeness
+
+counter_examples:
+  - scenario: "Partial patterns with default"
+    reason: "Default case catches all remaining patterns"
+    alternative: "Require explicit wildcard `_` pattern, warn if too broad"
+
+  - scenario: "Open enums (extensible)"
+    reason: "Can't check exhaustiveness for open types"
+    alternative: "Closed enums by default, open only with explicit annotation"
+
+related_patterns:
+  - pattern_id: EP-SEM-004
+    mitigation: PREVENTS
+
+  - pattern_id: EP-LOG-003
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Match expressions must handle all cases or use `_ => ...` wildcard"
+  - "If/else chains with boolean must have `else` branch"
+  - "Enum variants: compiler tracks all cases, error if missing"
+  - "Result<T, E> types must be handled (no ignored errors)"
+  - "Compiler error: 'pattern not covered', 'missing else branch'"

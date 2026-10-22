@@ -1,0 +1,26 @@
+{
+  "spec": "BS-M-036",
+  "title": "Shape Calculator",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "circle_area(1) = 3.141592653589793",
+    "circle_perimeter(1) = 6.283185307179586",
+    "circle_area(5) = 78.53981633974483",
+    "circle_perimeter(5) = 31.41592653589793",
+    "rect_area(4, 6) = 24",
+    "rect_perimeter(4, 6) = 20",
+    "rect_area(5, 5) = 25",
+    "rect_perimeter(5, 5) = 20",
+    "triangle_valid(3, 3, 3) = true",
+    "triangle_area(3, 3, 3) = 3.897114317029974",
+    "triangle_perimeter(3, 3, 3) = 9",
+    "triangle_valid(3, 4, 5) = true",
+    "triangle_area(3, 4, 5) = 6",
+    "triangle_perimeter(3, 4, 5) = 12",
+    "triangle_valid(5, 12, 13) = true",
+    "triangle_area(5, 12, 13) = 30",
+    "triangle_perimeter(5, 12, 13) = 30",
+    "triangle_valid(1, 2, 10) = false"
+  ]
+}

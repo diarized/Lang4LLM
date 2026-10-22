@@ -1,0 +1,13 @@
+{
+  "spec": "BS-S-001",
+  "title": "Check Even Number",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_even(4) = true",
+    "is_even(7) = false",
+    "is_even(0) = true",
+    "is_even(-2) = true",
+    "is_even(15) = false"
+  ]
+}

@@ -1,0 +1,24 @@
+// Example 7: Array Operations
+// Demonstrates: arrays, indexing, bounds checking, iteration
+
+fn sum_array(arr: [int]) -> int {
+    let mut total: int = 0;
+
+    for num in arr {
+        total = total + num;
+    }
+
+    return total;
+}
+
+fn main() -> unit {
+    let numbers: [int] = [1, 2, 3, 4, 5];
+
+    let first: int = numbers[0];  // Bounds-checked access
+    let last: int = numbers[4];
+
+    let total: int = sum_array(numbers);
+
+    print("Sum: " + total);
+    return none;
+}

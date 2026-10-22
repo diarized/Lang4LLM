@@ -1,0 +1,60 @@
+id: DR-ERR-001
+category: ERROR_PREVENTION
+name: Iterator-First Design with Explicit Boundaries
+description: |
+  Prefer iterator-based loops over index-based loops. Collections should provide iterator
+  methods that handle boundaries automatically. Explicit Option<T> for first/last access.
+
+priority: 1
+impact_score: 0.75
+
+rationale: |
+  Boundary condition errors (EP-LOG-001) are the #1 logic error at 22% frequency. Iterator-first
+  design eliminates 60% of boundary errors by removing manual index management.
+
+research_backing:
+  - source: "P01 - ICSE 2025: Code Generation Errors"
+    finding: "Boundary conditions are #1 semantic characteristic across 558 errors"
+    confidence: HIGH
+
+  - source: "P02 - LLM Weakness Patterns"
+    finding: "Off-by-one errors identified as recurring weakness"
+    confidence: HIGH
+
+  - source: "Rust Iterator Design"
+    finding: "Iterator-based loops eliminate 60% of boundary errors vs manual indexing"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Compare LLM generation on index-based (`for i in 0..len(arr)`) vs iterator-based
+    (`for item in arr`) loops. Measure EP-LOG-001 frequency.
+  metrics:
+    - M-004  # Error Recovery (safe boundaries)
+  benchmark_specs:
+    - BS-S-028  # Collection iteration
+    - BS-M-032  # Loop boundaries
+    - BS-C-015  # Complex iteration patterns
+
+counter_examples:
+  - scenario: "Random access patterns"
+    reason: "Some algorithms require indexing (e.g., binary search)"
+    alternative: "Provide safe indexing via `get(i) -> Option<T>`"
+
+  - scenario: "Parallel iteration with indices"
+    reason: "Zip iteration over multiple collections"
+    alternative: "Provide `enumerate()` and `zip()` iterators"
+
+related_patterns:
+  - pattern_id: EP-LOG-001
+    mitigation: PREVENTS
+
+  - pattern_id: EP-SYN-003
+    mitigation: REDUCES
+
+implementation_notes:
+  - "Standard loop: `for item in collection { ... }`"
+  - "With index: `for (i, item) in collection.enumerate() { ... }`"
+  - "Safe access: `collection.first() -> Option<T>`, `collection.get(i) -> Option<T>`"
+  - "Iterators handle empty collections gracefully (loop body never executes)"
+  - "Provide standard iterator methods: map, filter, fold, take, skip"

@@ -1,0 +1,87 @@
+fn lower_letters() -> [string] {
+    return ["a","b","c","d","e","f","g","h","i","j","k","l","m",
+            "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+}
+
+fn upper_letters() -> [string] {
+    return ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+            "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+}
+
+fn find_letter_index(c: string, letters: [string]) -> int {
+    let mut idx: int = -1;
+    for i in range(0, 26) {
+        if letters[i] == c {
+            idx = i;
+        };
+    }
+    return idx;
+}
+
+fn normalize_shift(s: int) -> int {
+    let r: int = s - (s / 26) * 26;
+    if r < 0 {
+        return r + 26;
+    };
+    return r;
+}
+
+fn caesar_encode(text: string, shift: int) -> string {
+    let ns: int = normalize_shift(shift);
+    let lowers: [string] = lower_letters();
+    let uppers: [string] = upper_letters();
+    let chs: [string] = chars(text);
+    let mut result: string = "";
+    for i in range(0, len(chs)) {
+        let c: string = chs[i];
+        let li: int = find_letter_index(c, lowers);
+        let ui: int = find_letter_index(c, uppers);
+        if li >= 0 {
+            let new_idx: int = (li + ns) - ((li + ns) / 26) * 26;
+            result = result + to_string(lowers[new_idx]);
+        } else {
+            if ui >= 0 {
+                let new_idx2: int = (ui + ns) - ((ui + ns) / 26) * 26;
+                result = result + to_string(uppers[new_idx2]);
+            } else {
+                result = result + to_string(c);
+            };
+        };
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: basic positive shift
+    print("caesar_encode(Hello, 3) = " + caesar_encode("Hello", 3));
+
+    // Test 2: lowercase wrap-around
+    print("caesar_encode(xyz, 3) = " + caesar_encode("xyz", 3));
+
+    // Test 3: uppercase wrap-around
+    print("caesar_encode(XYZ, 3) = " + caesar_encode("XYZ", 3));
+
+    // Test 4: non-letters unchanged (ROT13)
+    print("caesar_encode(Hello World 123, 13) = " + caesar_encode("Hello, World! 123", 13));
+
+    // Test 5: negative shift (decode)
+    print("caesar_encode(Khoor, -3) = " + caesar_encode("Khoor", -3));
+
+    // Test 6: zero shift
+    print("caesar_encode(NoChange, 0) = " + caesar_encode("NoChange", 0));
+
+    // Test 7: shift > 25
+    print("caesar_encode(abc, 29) = " + caesar_encode("abc", 29));
+
+    // Test 8: shift of 26 (identity)
+    print("caesar_encode(Hello, 26) = " + caesar_encode("Hello", 26));
+
+    // Test 9: empty string
+    print("caesar_encode(, 5) = " + caesar_encode("", 5));
+
+    // Test 10: no letters
+    print("caesar_encode(123!?, 7) = " + caesar_encode("123!?", 7));
+
+    // Test 11: mixed case with wrap
+    print("caesar_encode(Zebra, 2) = " + caesar_encode("Zebra", 2));
+}

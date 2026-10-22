@@ -1,0 +1,17 @@
+{
+  "spec": "BS-S-040",
+  "title": "Check Substring",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "has_substring(\"hello world\", \"world\") = true",
+    "has_substring(\"hello world\", \"xyz\") = false",
+    "has_substring(\"Hello World\", \"hello\") = false",
+    "has_substring(\"anything\", \"\") = true",
+    "has_substring(\"\", \"abc\") = false",
+    "has_substring(\"\", \"\") = true",
+    "has_substring(\"abc\", \"abc\") = true",
+    "has_substring(\"hello world\", \"hello\") = true",
+    "has_substring(\"hello world\", \"abcdefghijk\") = false"
+  ]
+}

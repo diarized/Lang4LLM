@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-006",
+  "title": "Check if Array is Sorted",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_sorted([1,2,3,4,5]) = true",
+    "is_sorted([1,3,2,4]) = false",
+    "is_sorted([1,2,2,3]) = true",
+    "is_sorted([7]) = true",
+    "is_sorted([]) = true",
+    "is_sorted([5,5,5,5]) = true"
+  ]
+}

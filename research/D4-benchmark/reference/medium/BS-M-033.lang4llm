@@ -1,0 +1,86 @@
+// BS-M-033: Simple Config Parser
+// Parse key=value lines, skip # comments and blank lines.
+// Duplicate keys: last value wins. Values may contain '='.
+
+fn config_get(config_text: string, key: string) -> string {
+    let lines: [string] = split(config_text, "\n");
+    let mut result: string = "";
+    for i in range(0, len(lines)) {
+        let line: string = trim(lines[i]);
+        if is_empty(line) {
+            // skip blank
+        } else {
+            if starts_with(line, "#") {
+                // skip comment
+            } else {
+                // find first '='
+                let line_chars: [string] = chars(line);
+                let mut eq_pos: int = -1;
+                let mut found_eq: bool = false;
+                for j in range(0, len(line_chars)) {
+                    if line_chars[j] == "=" and not found_eq {
+                        eq_pos = j;
+                        found_eq = true;
+                    };
+                }
+                if found_eq {
+                    // reconstruct key part and value part
+                    let mut k: string = "";
+                    for j in range(0, eq_pos) {
+                        k = k + to_string(line_chars[j]);
+                    }
+                    let mut v: string = "";
+                    for j in range(eq_pos + 1, len(line_chars)) {
+                        v = v + to_string(line_chars[j]);
+                    }
+                    let trimmed_k: string = trim(k);
+                    let trimmed_v: string = trim(v);
+                    if trimmed_k == key {
+                        result = trimmed_v;
+                    };
+                };
+            };
+        };
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: basic key-value
+    let cfg1: string = "host=localhost\nport=8080\ndebug=true";
+    print("host = " + config_get(cfg1, "host"));
+    print("port = " + config_get(cfg1, "port"));
+    print("debug = " + config_get(cfg1, "debug"));
+
+    // Test 2: comments and blank lines
+    let cfg2: string = "# Database\nhost=db.example.com\n\n# Creds\nuser=admin\npassword=secret";
+    print("db_host = " + config_get(cfg2, "host"));
+    print("user = " + config_get(cfg2, "user"));
+
+    // Test 3: whitespace around separator
+    let cfg3: string = "key1 = value1\nkey2=value2\n  key3  =  value3";
+    print("key1 = " + config_get(cfg3, "key1"));
+    print("key3 = " + config_get(cfg3, "key3"));
+
+    // Test 4: value containing equals sign
+    let cfg4: string = "url=http://example.com/path?a=1&b=2\nformula=x=y+z";
+    print("url = " + config_get(cfg4, "url"));
+    print("formula = " + config_get(cfg4, "formula"));
+
+    // Test 5: duplicate key - last value wins
+    let cfg5: string = "timeout=30\ntimeout=60";
+    print("timeout = " + config_get(cfg5, "timeout"));
+
+    // Test 6: empty value
+    let cfg6: string = "empty_key=\nanother=value";
+    print("empty_key = '" + config_get(cfg6, "empty_key") + "'");
+
+    // Test 7: missing key returns empty string
+    let cfg7: string = "name=Alice\nage=30";
+    print("missing = '" + config_get(cfg7, "missing") + "'");
+
+    // Test 8: malformed lines (no '=') are skipped
+    let cfg8: string = "valid=yes\nno_equals_sign_here\nanother=ok";
+    print("valid = " + config_get(cfg8, "valid"));
+    print("another = " + config_get(cfg8, "another"));
+}

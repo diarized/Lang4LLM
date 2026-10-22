@@ -1,0 +1,16 @@
+{
+  "spec": "BS-C-006",
+  "title": "Undirected Graph",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "bfs(1) = [1, 2, 3, 4]",
+    "dfs(1) = [1, 2, 4, 3]",
+    "has_cycle = true",
+    "has_cycle(tree) = false",
+    "has_cycle(triangle) = true",
+    "has_cycle(self_loop) = true",
+    "components count = 2",
+    "empty has_cycle = false"
+  ]
+}

@@ -1,0 +1,67 @@
+fn roman_values() -> [int] {
+    return [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+}
+
+fn roman_symbols() -> [string] {
+    return ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+}
+
+fn to_roman(n: int) -> string {
+    if n < 1 or n > 3999 {
+        return "";
+    };
+    let values: [int] = roman_values();
+    let symbols: [string] = roman_symbols();
+    let mut remaining: int = n;
+    let mut result: string = "";
+    for i in range(0, len(values)) {
+        while remaining >= values[i] {
+            result = result + to_string(symbols[i]);
+            remaining = remaining - values[i];
+        }
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: minimum value
+    print("to_roman(1) = " + to_roman(1));
+
+    // Test 2: additive repetition
+    print("to_roman(3) = " + to_roman(3));
+
+    // Test 3: IV
+    print("to_roman(4) = " + to_roman(4));
+
+    // Test 4: IX
+    print("to_roman(9) = " + to_roman(9));
+
+    // Test 5: XL
+    print("to_roman(40) = " + to_roman(40));
+
+    // Test 6: XC
+    print("to_roman(90) = " + to_roman(90));
+
+    // Test 7: CD
+    print("to_roman(400) = " + to_roman(400));
+
+    // Test 8: CM
+    print("to_roman(900) = " + to_roman(900));
+
+    // Test 9: round values
+    print("to_roman(1000) = " + to_roman(1000));
+    print("to_roman(500) = " + to_roman(500));
+    print("to_roman(100) = " + to_roman(100));
+    print("to_roman(50) = " + to_roman(50));
+    print("to_roman(10) = " + to_roman(10));
+    print("to_roman(5) = " + to_roman(5));
+
+    // Test 10: combined subtractive
+    print("to_roman(1994) = " + to_roman(1994));
+
+    // Test 11: maximum value
+    print("to_roman(3999) = " + to_roman(3999));
+
+    // Test 12: value using all subtractive forms
+    print("to_roman(1949) = " + to_roman(1949));
+}

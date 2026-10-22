@@ -1,0 +1,70 @@
+// BS-M-036: Shape Calculator
+// Separate functions per shape: circle, rectangle, triangle.
+// Triangle validation: triangle inequality must hold (strict).
+
+fn circle_area(r: float) -> float {
+    let pi: float = 3.141592653589793;
+    return pi * r * r;
+}
+
+fn circle_perimeter(r: float) -> float {
+    let pi: float = 3.141592653589793;
+    return 2.0 * pi * r;
+}
+
+fn rect_area(w: float, h: float) -> float {
+    return w * h;
+}
+
+fn rect_perimeter(w: float, h: float) -> float {
+    return 2.0 * (w + h);
+}
+
+fn triangle_valid(a: float, b: float, c: float) -> bool {
+    return a + b > c and b + c > a and a + c > b;
+}
+
+fn triangle_area(a: float, b: float, c: float) -> float {
+    let s: float = (a + b + c) / 2.0;
+    return sqrt(s * (s - a) * (s - b) * (s - c));
+}
+
+fn triangle_perimeter(a: float, b: float, c: float) -> float {
+    return a + b + c;
+}
+
+fn main() -> unit {
+    // Test 1: unit circle
+    print("circle_area(1) = " + to_string(circle_area(1.0)));
+    print("circle_perimeter(1) = " + to_string(circle_perimeter(1.0)));
+
+    // Test 2: circle r=5
+    print("circle_area(5) = " + to_string(circle_area(5.0)));
+    print("circle_perimeter(5) = " + to_string(circle_perimeter(5.0)));
+
+    // Test 3: rectangle 4x6
+    print("rect_area(4, 6) = " + to_string(rect_area(4.0, 6.0)));
+    print("rect_perimeter(4, 6) = " + to_string(rect_perimeter(4.0, 6.0)));
+
+    // Test 4: square 5x5
+    print("rect_area(5, 5) = " + to_string(rect_area(5.0, 5.0)));
+    print("rect_perimeter(5, 5) = " + to_string(rect_perimeter(5.0, 5.0)));
+
+    // Test 5: equilateral triangle 3,3,3
+    print("triangle_valid(3, 3, 3) = " + to_string(triangle_valid(3.0, 3.0, 3.0)));
+    print("triangle_area(3, 3, 3) = " + to_string(triangle_area(3.0, 3.0, 3.0)));
+    print("triangle_perimeter(3, 3, 3) = " + to_string(triangle_perimeter(3.0, 3.0, 3.0)));
+
+    // Test 6: right triangle 3,4,5
+    print("triangle_valid(3, 4, 5) = " + to_string(triangle_valid(3.0, 4.0, 5.0)));
+    print("triangle_area(3, 4, 5) = " + to_string(triangle_area(3.0, 4.0, 5.0)));
+    print("triangle_perimeter(3, 4, 5) = " + to_string(triangle_perimeter(3.0, 4.0, 5.0)));
+
+    // Test 7: right triangle 5,12,13
+    print("triangle_valid(5, 12, 13) = " + to_string(triangle_valid(5.0, 12.0, 13.0)));
+    print("triangle_area(5, 12, 13) = " + to_string(triangle_area(5.0, 12.0, 13.0)));
+    print("triangle_perimeter(5, 12, 13) = " + to_string(triangle_perimeter(5.0, 12.0, 13.0)));
+
+    // Test 8: invalid triangle
+    print("triangle_valid(1, 2, 10) = " + to_string(triangle_valid(1.0, 2.0, 10.0)));
+}

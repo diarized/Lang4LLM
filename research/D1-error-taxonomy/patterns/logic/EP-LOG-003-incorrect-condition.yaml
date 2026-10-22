@@ -1,0 +1,98 @@
+# Error Pattern: Incorrect Conditional Logic
+
+id: EP-LOG-003
+category: LOGIC
+subcategory: condition
+name: Wrong Conditional Expression (But Syntactically Valid)
+description: |
+  LLM generates conditional logic that is syntactically correct but logically wrong:
+  using AND instead of OR, reversed comparison operators, negation errors, or
+  missing conditions. Code compiles and runs but produces incorrect behavior.
+
+frequency:
+  overall: 0.18  # 18% of all logic errors
+  by_model:
+    gpt4: 0.14
+    claude: 0.16
+    deepseek: 0.22
+  by_language:
+    python: 0.19
+    rust: 0.16
+    typescript: 0.18
+    go: 0.17
+
+root_cause: |
+  Boolean logic requires precise operator selection (AND/OR, </>/==/!=). LLMs
+  confuse similar patterns, especially with negation. Natural language ambiguity
+  ("check if x and y are both valid") can be interpreted multiple ways. De Morgan's
+  laws not consistently applied.
+
+trigger_conditions:
+  - feature: "Complex boolean expressions (>2 conditions)"
+    severity: HIGH
+  - feature: "Negated conditions"
+    severity: HIGH
+  - feature: "Range checks"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def is_valid_age(age: int) -> bool:
+          # Should allow 18-65, but logic is reversed
+          return age < 18 or age > 65
+    correct: |
+      def is_valid_age(age: int) -> bool:
+          return 18 <= age <= 65
+    explanation: "Using OR instead of AND, creating inverted logic"
+
+  - language: rust
+    incorrect: |
+      fn can_access(user: &User, resource: &Resource) -> bool {
+          // Missing OR: should allow admin OR owner
+          user.is_admin && user.id == resource.owner_id
+      }
+    correct: |
+      fn can_access(user: &User, resource: &Resource) -> bool {
+          user.is_admin || user.id == resource.owner_id
+      }
+    explanation: "Using AND requires both conditions; should be OR"
+
+  - language: typescript
+    incorrect: |
+      function isWeekend(date: Date): boolean {
+          const day = date.getDay();
+          return day !== 0 && day !== 6;  // Wrong: weekdays, not weekend
+      }
+    correct: |
+      function isWeekend(date: Date): boolean {
+          const day = date.getDay();
+          return day === 0 || day === 6;
+      }
+    explanation: "Negation error: !== with AND checks weekdays, not weekend"
+
+  - language: go
+    incorrect: |
+      func inRange(x int, min int, max int) bool {
+          // Wrong: allows values outside range
+          return x > min || x < max
+      }
+    correct: |
+      func inRange(x int, min int, max int) bool {
+          return x >= min && x <= max
+      }
+    explanation: "Using OR with > and < always returns true; should be AND with >=/<="
+
+related_patterns:
+  - pattern_id: EP-SYN-004
+    relationship: SIMILAR_TO
+  - pattern_id: EP-LOG-001
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Incorrect condition (semantic characteristic)"
+  - paper_id: P02
+    section: "Boolean logic errors"
+  - paper_id: P07
+    section: "Logical bug patterns"

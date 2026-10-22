@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-032",
+  "title": "Count Digits",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count_digits(5) = 1",
+    "count_digits(42) = 2",
+    "count_digits(100) = 3",
+    "count_digits(0) = 1",
+    "count_digits(1000000) = 7",
+    "count_digits(9) = 1",
+    "count_digits(111) = 3"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-025",
+  "title": "Repeat String",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "repeat_string(\"ab\", 3) = \"ababab\"",
+    "repeat_string(\"hello\", 0) = \"\"",
+    "repeat_string(\"hello\", 1) = \"hello\"",
+    "repeat_string(\"\", 5) = \"\"",
+    "repeat_string(\"x\", 4) = \"xxxx\"",
+    "repeat_string(\"ha \", 2) = \"ha ha \""
+  ]
+}

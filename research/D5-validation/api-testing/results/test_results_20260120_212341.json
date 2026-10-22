@@ -1,0 +1,242 @@
+[
+  {
+    "test_id": "TC-001",
+    "variant": "iterator",
+    "code": "def find_maximum(arr):\n    \"\"\"Find the maximum value in an array of integers using iterator-based patterns.\"\"\"\n    if not arr:\n        return None\n    \n    return max(arr)",
+    "passed": true,
+    "boundary_error": false,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.2312321662902832
+  },
+  {
+    "test_id": "TC-001",
+    "variant": "index",
+    "code": "def find_maximum(array):\n    if len(array) == 0:\n        return None\n    \n    max_value = array[0]\n    for i in range(1, len(array)):\n        if array[i] > max_value:\n            max_value = array[i]\n    \n    return max_value",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.4657440185546875
+  },
+  {
+    "test_id": "TC-002",
+    "variant": "iterator",
+    "code": "def rotate_array(arr, k):\n    if not arr:\n        return []\n    \n    n = len(arr)\n    k = k % n if n > 0 else 0\n    \n    if k == 0:\n        return arr.copy()\n    \n    return arr[-k:] + arr[:-k]",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.5328030586242676
+  },
+  {
+    "test_id": "TC-002",
+    "variant": "index",
+    "code": "def rotate_array(array, k):\n    if len(array) == 0:\n        return []\n    \n    k = k % len(array)\n    \n    if k == 0:\n        return array\n    \n    result = [0] * len(array)\n    \n    for i in range(len(array)):\n        new_index = (i + k) % len(array)\n        result[new_index] = array[i]\n    \n    return result",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.1701056957244873
+  },
+  {
+    "test_id": "TC-003",
+    "variant": "iterator",
+    "code": "def first_missing_positive(nums):\n    if not nums:\n        return 1\n    \n    # Filter positive integers and convert to set for O(1) lookup\n    positive_set = {num for num in nums if num > 0}\n    \n    if not positive_set:\n        return 1\n    \n    # Find the first missing positive starting from 1\n    candidate = 1\n    while candidate in positive_set:\n        candidate += 1\n    \n    return candidate",
+    "passed": true,
+    "boundary_error": false,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.8774826526641846
+  },
+  {
+    "test_id": "TC-003",
+    "variant": "index",
+    "code": "def first_missing_positive(nums):\n    if not nums:\n        return 1\n    \n    n = len(nums)\n    \n    # Step 1: Place each positive integer at its correct index (value k at index k-1)\n    for i in range(n):\n        while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n            # Swap nums[i] with nums[nums[i] - 1]\n            target_idx = nums[i] - 1\n            nums[i], nums[target_idx] = nums[target_idx], nums[i]\n    \n    # Step 2: Find the first index where nums[i] != i + 1\n    for i in range(n):\n        if nums[i] != i + 1:\n            return i + 1\n    \n    # If all positions are correct, return n + 1\n    return n + 1",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 3.712129831314087
+  },
+  {
+    "test_id": "TC-004",
+    "variant": "iterator",
+    "code": "def remove_duplicates(nums):\n    if not nums:\n        return [[], 0]\n    \n    # Use iterator pattern to build unique list\n    unique = [nums[0]]\n    for num in nums:\n        if num != unique[-1]:\n            unique.append(num)\n    \n    # Modify in-place\n    for i, val in enumerate(unique):\n        nums[i] = val\n    \n    # Remove extra elements\n    del nums[len(unique):]\n    \n    return [nums, len(nums)]",
+    "passed": false,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "Boundary error patterns detected: ['missing_bounds_check']",
+    "execution_time": 3.8264589309692383
+  },
+  {
+    "test_id": "TC-004",
+    "variant": "index",
+    "code": "def remove_duplicates(nums):\n    if len(nums) == 0:\n        return [[], 0]\n    \n    # Index for placing unique elements\n    write_idx = 1\n    \n    # Iterate through array starting from second element\n    for i in range(1, len(nums)):\n        # If current element is different from previous unique element\n        if nums[i] != nums[write_idx - 1]:\n            nums[write_idx] = nums[i]\n            write_idx += 1\n    \n    # Return the modified array (first write_idx elements) and the count\n    return [nums[:write_idx], write_idx]",
+    "passed": false,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "Boundary error patterns detected: ['missing_bounds_check']",
+    "execution_time": 3.6825149059295654
+  },
+  {
+    "test_id": "TC-005",
+    "variant": "iterator",
+    "code": "def sliding_window_maximum(nums, k):\n    if not nums or k <= 0:\n        return []\n    \n    from collections import deque\n    \n    result = []\n    dq = deque()  # stores indices\n    \n    for idx, num in enumerate(nums):\n        # Remove indices that are out of the current window\n        while dq and dq[0] <= idx - k:\n            dq.popleft()\n        \n        # Remove indices whose values are smaller than current num\n        while dq and nums[dq[-1]] < num:\n            dq.pop()\n        \n        dq.append(idx)\n        \n        # Add to result once we have a full window\n        if idx >= k - 1:\n            result.append(nums[dq[0]])\n    \n    return result",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 3.278181791305542
+  },
+  {
+    "test_id": "TC-005",
+    "variant": "index",
+    "code": "def sliding_window_maximum(nums, k):\n    if not nums or k == 0:\n        return []\n    \n    result = []\n    \n    # Iterate through each possible window starting position\n    for i in range(len(nums) - k + 1):\n        # Find maximum in current window [i, i+k)\n        max_val = nums[i]\n        for j in range(i, i + k):\n            if nums[j] > max_val:\n                max_val = nums[j]\n        result.append(max_val)\n    \n    return result",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.4285879135131836
+  },
+  {
+    "test_id": "TC-006",
+    "variant": "iterator",
+    "code": "def binary_search(arr, target):\n    if not arr:\n        return -1\n    \n    left, right = 0, len(arr) - 1\n    \n    while left <= right:\n        mid = (left + right) // 2\n        mid_value = arr[mid]\n        \n        if mid_value == target:\n            return mid\n        elif mid_value < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    \n    return -1",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.841116189956665
+  },
+  {
+    "test_id": "TC-006",
+    "variant": "index",
+    "code": "def binary_search(array, target):\n    left = 0\n    right = len(array) - 1\n    \n    while left <= right:\n        mid = (left + right) // 2\n        \n        if array[mid] == target:\n            return mid\n        elif array[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    \n    return -1",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.7708606719970703
+  },
+  {
+    "test_id": "TC-007",
+    "variant": "iterator",
+    "code": "def two_sum(nums, target):\n    \"\"\"Find indices of two numbers that add up to target.\"\"\"\n    if not nums or len(nums) < 2:\n        return None\n    \n    seen = {}\n    for index, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], index]\n        seen[num] = index\n    \n    return None",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.7020902633666992
+  },
+  {
+    "test_id": "TC-007",
+    "variant": "index",
+    "code": "def two_sum(nums, target):\n    for i in range(len(nums)):\n        for j in range(i + 1, len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return None",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.276153326034546
+  },
+  {
+    "test_id": "TC-008",
+    "variant": "iterator",
+    "code": "def merge(nums1, m, nums2, n):\n    \"\"\"Merge two sorted arrays into the first array.\"\"\"\n    # Create iterators for the valid portions of both arrays\n    # Work backwards to avoid overwriting elements in nums1\n    write_pos = m + n - 1\n    i, j = m - 1, n - 1\n    \n    # Merge from the end\n    while i >= 0 and j >= 0:\n        if nums1[i] > nums2[j]:\n            nums1[write_pos] = nums1[i]\n            i -= 1\n        else:\n            nums1[write_pos] = nums2[j]\n            j -= 1\n        write_pos -= 1\n    \n    # Copy remaining elements from nums2 if any\n    while j >= 0:\n        nums1[write_pos] = nums2[j]\n        j -= 1\n        write_pos -= 1\n    \n    return nums1",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 3.5843546390533447
+  },
+  {
+    "test_id": "TC-008",
+    "variant": "index",
+    "code": "def merge(nums1, m, nums2, n):\n    # Start from the end of both arrays and fill nums1 from the back\n    i = m - 1  # Last element in the first part of nums1\n    j = n - 1  # Last element in nums2\n    k = m + n - 1  # Last position in nums1\n    \n    # Merge from back to front\n    for _ in range(m + n):\n        if i >= 0 and j >= 0:\n            if nums1[i] > nums2[j]:\n                nums1[k] = nums1[i]\n                i -= 1\n            else:\n                nums1[k] = nums2[j]\n                j -= 1\n            k -= 1\n        elif j >= 0:\n            nums1[k] = nums2[j]\n            j -= 1\n            k -= 1\n        else:\n            break\n    \n    return nums1",
+    "passed": false,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "Boundary error patterns detected: ['missing_bounds_check']",
+    "execution_time": 3.5547122955322266
+  },
+  {
+    "test_id": "TC-009",
+    "variant": "iterator",
+    "code": "def longest_consecutive(nums):\n    if not nums:\n        return 0\n    \n    num_set = set(nums)\n    max_length = 0\n    \n    for num in num_set:\n        # Only start counting from the beginning of a sequence\n        if num - 1 not in num_set:\n            current_num = num\n            current_length = 1\n            \n            # Count consecutive numbers\n            while current_num + 1 in num_set:\n                current_num += 1\n                current_length += 1\n            \n            max_length = max(max_length, current_length)\n    \n    return max_length",
+    "passed": true,
+    "boundary_error": false,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.5390663146972656
+  },
+  {
+    "test_id": "TC-009",
+    "variant": "index",
+    "code": "def longest_consecutive(array):\n    if len(array) == 0:\n        return 0\n    \n    # Convert to set for O(1) lookup, then back to list for indexing\n    num_set = set(array)\n    num_list = list(num_set)\n    \n    max_length = 0\n    \n    for i in range(len(num_list)):\n        # Check if this is the start of a sequence\n        if num_list[i] - 1 not in num_set:\n            current_num = num_list[i]\n            current_length = 1\n            \n            # Count consecutive numbers\n            while current_num + 1 in num_set:\n                current_num += 1\n                current_length += 1\n            \n            if current_length > max_length:\n                max_length = current_length\n    \n    return max_length",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": true,
+    "error_type": "None",
+    "execution_time": 3.279726982116699
+  },
+  {
+    "test_id": "TC-010",
+    "variant": "iterator",
+    "code": "def product_except_self(nums):\n    if not nums:\n        return []\n    \n    n = len(nums)\n    result = [1] * n\n    \n    # Calculate left products using iterator pattern\n    left_product = 1\n    for i, num in enumerate(nums):\n        result[i] = left_product\n        left_product *= num\n    \n    # Calculate right products and combine using iterator pattern\n    right_product = 1\n    for i, num in enumerate(reversed(nums)):\n        idx = n - 1 - i\n        result[idx] *= right_product\n        right_product *= num\n    \n    return result",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.5703330039978027
+  },
+  {
+    "test_id": "TC-010",
+    "variant": "index",
+    "code": "def product_except_self(nums):\n    n = len(nums)\n    output = [1] * n\n    \n    # Calculate left products\n    left_product = 1\n    for i in range(n):\n        output[i] = left_product\n        left_product *= nums[i]\n    \n    # Calculate right products and multiply with left products\n    right_product = 1\n    for i in range(n - 1, -1, -1):\n        output[i] *= right_product\n        right_product *= nums[i]\n    \n    return output",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 2.1732940673828125
+  },
+  {
+    "test_id": "TC-011",
+    "variant": "iterator",
+    "code": "def trap(height):\n    if not height or len(height) < 3:\n        return 0\n    \n    # Calculate max height to the left of each position (including current)\n    left_max = []\n    current_max = 0\n    for h in height:\n        current_max = max(current_max, h)\n        left_max.append(current_max)\n    \n    # Calculate max height to the right of each position (including current)\n    right_max = []\n    current_max = 0\n    for h in reversed(height):\n        current_max = max(current_max, h)\n        right_max.append(current_max)\n    right_max.reverse()\n    \n    # Calculate water trapped at each position\n    return sum(\n        min(left, right) - h\n        for h, left, right in zip(height, left_max, right_max)\n    )",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 3.475675344467163
+  },
+  {
+    "test_id": "TC-011",
+    "variant": "index",
+    "code": "def trap(height):\n    if len(height) <= 2:\n        return 0\n    \n    n = len(height)\n    left_max = [0] * n\n    right_max = [0] * n\n    \n    # Fill left_max array\n    left_max[0] = height[0]\n    for i in range(1, n):\n        left_max[i] = max(left_max[i - 1], height[i])\n    \n    # Fill right_max array\n    right_max[n - 1] = height[n - 1]\n    for i in range(n - 2, -1, -1):\n        right_max[i] = max(right_max[i + 1], height[i])\n    \n    # Calculate trapped water\n    water = 0\n    for i in range(n):\n        water += min(left_max[i], right_max[i]) - height[i]\n    \n    return water",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 3.0401549339294434
+  },
+  {
+    "test_id": "TC-012",
+    "variant": "iterator",
+    "code": "def is_palindrome(arr):\n    return all(a == b for a, b in zip(arr, reversed(arr)))",
+    "passed": true,
+    "boundary_error": false,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.2654662132263184
+  },
+  {
+    "test_id": "TC-012",
+    "variant": "index",
+    "code": "def is_palindrome(array):\n    n = len(array)\n    for i in range(n // 2):\n        if array[i] != array[n - 1 - i]:\n            return False\n    return True",
+    "passed": true,
+    "boundary_error": true,
+    "off_by_one": false,
+    "error_type": "None",
+    "execution_time": 1.2658724784851074
+  }
+]

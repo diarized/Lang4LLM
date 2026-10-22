@@ -1,0 +1,32 @@
+// BS-S-038: Clamp Value
+// Constrain a value to the closed interval [min_val, max_val].
+
+fn clamp(value: int, min_val: int, max_val: int) -> int {
+    if value < min_val {
+        return min_val;
+    };
+    if value > max_val {
+        return max_val;
+    };
+    return value;
+}
+
+fn clamp_float(value: float, min_val: float, max_val: float) -> float {
+    if value < min_val {
+        return min_val;
+    };
+    if value > max_val {
+        return max_val;
+    };
+    return value;
+}
+
+fn main() -> unit {
+    print("clamp(5, 1, 10) = " + to_string(clamp(5, 1, 10)));
+    print("clamp(-3, 0, 100) = " + to_string(clamp(-3, 0, 100)));
+    print("clamp(150, 0, 100) = " + to_string(clamp(150, 0, 100)));
+    print("clamp(0, 0, 10) = " + to_string(clamp(0, 0, 10)));
+    print("clamp(10, 0, 10) = " + to_string(clamp(10, 0, 10)));
+    print("clamp_float(1.5, 0.0, 1.0) = " + to_string(clamp_float(1.5, 0.0, 1.0)));
+    print("clamp(-5, -10, -1) = " + to_string(clamp(-5, -10, -1)));
+}

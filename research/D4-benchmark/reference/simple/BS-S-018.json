@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-018",
+  "title": "Move Zeros to End",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "move_zeros_to_end([0,1,0,3,12]) = [1, 3, 12, 0, 0]",
+    "move_zeros_to_end([1,2,3]) = [1, 2, 3]",
+    "move_zeros_to_end([0,0,0]) = [0, 0, 0]",
+    "move_zeros_to_end([5,6,0]) = [5, 6, 0]",
+    "move_zeros_to_end([0,-3,0,5,-1,0]) = [-3, 5, -1, 0, 0, 0]",
+    "move_zeros_to_end([]) = []"
+  ]
+}

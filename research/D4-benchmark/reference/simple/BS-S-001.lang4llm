@@ -1,0 +1,11 @@
+fn is_even(n: int) -> bool {
+    return n % 2 == 0;
+}
+
+fn main() -> unit {
+    print("is_even(4) = " + to_string(is_even(4)));
+    print("is_even(7) = " + to_string(is_even(7)));
+    print("is_even(0) = " + to_string(is_even(0)));
+    print("is_even(-2) = " + to_string(is_even(-2)));
+    print("is_even(15) = " + to_string(is_even(15)));
+}

@@ -1,0 +1,57 @@
+fn reverse_words(s: string) -> string {
+    let raw_words: [string] = split(s, " ");
+    let mut words: [string] = [];
+    for i in range(0, len(raw_words)) {
+        if raw_words[i] != "" {
+            push(words, raw_words[i]);
+        };
+    }
+    if is_empty(words) {
+        return "";
+    };
+    let n: int = len(words);
+    let mut reversed: [string] = [];
+    for i in range(0, n) {
+        push(reversed, words[n - 1 - i]);
+    }
+    let mut result: string = "";
+    for i in range(0, len(reversed)) {
+        if i > 0 {
+            result = result + " ";
+        };
+        result = result + to_string(reversed[i]);
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: basic two words
+    print("reverse_words(\"Hello World\") = " + reverse_words("Hello World"));
+
+    // Test 2: four words
+    print("reverse_words(\"the quick brown fox\") = " + reverse_words("the quick brown fox"));
+
+    // Test 3: leading and trailing spaces
+    print("reverse_words(\"  hello world  \") = " + reverse_words("  hello world  "));
+
+    // Test 4: multiple spaces between words
+    print("reverse_words(\"foo   bar   baz\") = " + reverse_words("foo   bar   baz"));
+
+    // Test 5: single word
+    print("reverse_words(\"lonely\") = " + reverse_words("lonely"));
+
+    // Test 6: empty string
+    print("reverse_words(\"\") = " + reverse_words(""));
+
+    // Test 7: all whitespace
+    print("reverse_words(\"     \") = " + reverse_words("     "));
+
+    // Test 8: words with punctuation
+    print("reverse_words(\"Hello, World!\") = " + reverse_words("Hello, World!"));
+
+    // Test 9: mixed leading trailing and internal multiple spaces
+    print("reverse_words(\"  one  two  three  \") = " + reverse_words("  one  two  three  "));
+
+    // Test 10: five words
+    print("reverse_words(\"a b c d e\") = " + reverse_words("a b c d e"));
+}

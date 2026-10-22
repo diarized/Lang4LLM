@@ -1,0 +1,21 @@
+fn count_vowels(text: string) -> int {
+    let vowels: string = "aeiouAEIOU";
+    let char_arr: [string] = chars(text);
+    let mut count: int = 0;
+    for i in range(0, len(char_arr)) {
+        if contains(vowels, char_arr[i]) {
+            count = count + 1;
+        };
+    }
+    return count;
+}
+
+fn main() -> unit {
+    print("count_vowels(\"hello\") = " + to_string(count_vowels("hello")));
+    print("count_vowels(\"Hello World\") = " + to_string(count_vowels("Hello World")));
+    print("count_vowels(\"rhythm\") = " + to_string(count_vowels("rhythm")));
+    print("count_vowels(\"aeiou\") = " + to_string(count_vowels("aeiou")));
+    print("count_vowels(\"hello123!!\") = " + to_string(count_vowels("hello123!!")));
+    print("count_vowels(\"\") = " + to_string(count_vowels("")));
+    print("count_vowels(\"AEIOU\") = " + to_string(count_vowels("AEIOU")));
+}

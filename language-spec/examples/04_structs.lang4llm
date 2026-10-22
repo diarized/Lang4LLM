@@ -1,0 +1,27 @@
+// Example 4: Structs and Methods
+// Demonstrates: struct definition, impl blocks, methods with self
+
+struct Point {
+    x: int,
+    y: int
+}
+
+impl Point {
+    fn new(x: int, y: int) -> Point {
+        return Point { x: x, y: y };
+    }
+
+    fn distance_from_origin(self: Point) -> float {
+        let x_squared: int = self.x * self.x;
+        let y_squared: int = self.y * self.y;
+        let sum: int = x_squared + y_squared;
+        return sqrt(as_float(sum));
+    }
+}
+
+fn main() -> unit {
+    let p: Point = Point::new(3, 4);
+    let dist: float = p.distance_from_origin();
+    print("Distance from origin: " + dist);
+    return none;
+}

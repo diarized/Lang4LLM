@@ -1,0 +1,8 @@
+{
+  "spec": "BS-S-035",
+  "title": "Count Lines in File",
+  "tier": "simple",
+  "lang4llm_compatible": false,
+  "reason": "Requires file I/O which Lang4LLM does not support",
+  "expected": []
+}

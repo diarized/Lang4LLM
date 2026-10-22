@@ -1,0 +1,16 @@
+{
+  "spec": "BS-M-007",
+  "title": "Queue Implementation",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "new is_empty: true",
+    "dequeue from 10,20,30: 10",
+    "front 1st: 5",
+    "front 2nd: 5",
+    "dequeue after fronts: 5",
+    "empty after enqueue+dequeue: true",
+    "FIFO order: 1,2,3",
+    "fully drained: true"
+  ]
+}

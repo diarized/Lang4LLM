@@ -1,0 +1,60 @@
+id: DR-GRM-001
+category: GRAMMAR
+name: Context-Free Grammar Foundation
+description: |
+  Language grammar must be context-free (CFG) with minimal context-dependent rules.
+  Enables formal grammar analysis and constrained decoding for LLMs.
+
+priority: 1
+impact_score: 0.96
+
+rationale: |
+  CFG-constrained decoding (SynCode) reduces syntax errors by 96.07%. Context-free grammars
+  enable LLMs to generate syntactically valid code through grammar-guided generation.
+
+research_backing:
+  - source: "P04 - SynCode: Grammar Augmentation (arXiv 2403.01632)"
+    finding: "96.07% syntax error reduction using CFG-constrained decoding on HumanEval"
+    confidence: HIGH
+
+  - source: "P05 - Grammar-Based Code Representation (arXiv 2503.05507)"
+    finding: "CFG representation improves structural correctness beyond syntax"
+    confidence: HIGH
+
+  - source: "Formal Language Theory"
+    finding: "CFG enables efficient parsing algorithms (LR, LL)"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Define formal CFG for language. Test with SynCode constrained generation.
+    Measure syntax error reduction compared to unconstrained generation.
+  metrics:
+    - M-002  # Parse Ambiguity Score (should be minimal)
+  benchmark_specs:
+    - BS-S-001  # Simple expressions
+    - BS-M-015  # Nested structures
+    - BS-C-005  # Complex grammar coverage
+
+counter_examples:
+  - scenario: "Context-sensitive features (e.g., significant indentation)"
+    reason: "Python's indentation is context-sensitive (not CFG)"
+    alternative: "Avoid significant whitespace (DR-SYN-002)"
+
+  - scenario: "Type-dependent parsing (e.g., C++ templates)"
+    reason: "Context-sensitive grammar required for full type resolution"
+    alternative: "Separate type checking from parsing, keep grammar CFG"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    mitigation: PREVENTS
+
+  - pattern_id: EP-SYN-004
+    mitigation: REDUCES
+
+implementation_notes:
+  - "Define grammar in BNF or EBNF format"
+  - "Test with standard parser generators (Bison, ANTLR)"
+  - "Ensure grammar is unambiguous (no shift/reduce conflicts)"
+  - "Provide grammar specification in language documentation"
+  - "Compatible with SynCode for LLM constrained decoding"

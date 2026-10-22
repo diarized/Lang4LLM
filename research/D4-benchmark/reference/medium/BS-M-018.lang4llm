@@ -1,0 +1,91 @@
+// Permutations via backtracking.
+// Since nested arrays are not supported, each permutation is stored as
+// a comma-separated string. Results are collected in a [string] array
+// and sorted lexicographically before printing.
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn perm_helper(nums: [int], chosen: [int], used: [bool], results: [string]) -> [string] {
+    let n: int = len(nums);
+    if len(chosen) == n {
+        let mut new_results: [string] = results;
+        push(new_results, arr_to_str(chosen));
+        return new_results;
+    };
+    let mut cur_results: [string] = results;
+    for i in range(0, n) {
+        if not used[i] {
+            let mut new_chosen: [int] = chosen;
+            push(new_chosen, nums[i]);
+            let mut new_used: [bool] = used;
+            new_used[i] = true;
+            cur_results = perm_helper(nums, new_chosen, new_used, cur_results);
+        };
+    }
+    return cur_results;
+}
+
+fn permutations(nums: [int]) -> [string] {
+    if is_empty(nums) {
+        let mut empty_result: [string] = [];
+        push(empty_result, "[]");
+        return empty_result;
+    };
+    let mut sorted_nums: [int] = nums;
+    sort(sorted_nums);
+    let n: int = len(sorted_nums);
+    let mut used: [bool] = [];
+    for i in range(0, n) {
+        push(used, false);
+    }
+    let chosen: [int] = [];
+    let base: [string] = [];
+    let mut raw: [string] = perm_helper(sorted_nums, chosen, used, base);
+    sort(raw);
+    return raw;
+}
+
+fn main() -> unit {
+    // Test 1: three elements
+    let p1: [string] = permutations([1, 2, 3]);
+    print("count([1,2,3]) = " + to_string(len(p1)));
+    for perm in p1 {
+        print(perm);
+    }
+
+    // Test 2: two elements
+    let p2: [string] = permutations([1, 2]);
+    print("count([1,2]) = " + to_string(len(p2)));
+    for perm2 in p2 {
+        print(perm2);
+    }
+
+    // Test 3: single element
+    let p3: [string] = permutations([5]);
+    print("count([5]) = " + to_string(len(p3)));
+    print(p3[0]);
+
+    // Test 4: empty list
+    let p4: [string] = permutations([]);
+    print("count([]) = " + to_string(len(p4)));
+    print(p4[0]);
+
+    // Test 5: unsorted input gives lexicographic output
+    let p5: [string] = permutations([3, 1, 2]);
+    print("count([3,1,2]) = " + to_string(len(p5)));
+    print("first perm: " + p5[0]);
+    print("last perm: " + p5[5]);
+}

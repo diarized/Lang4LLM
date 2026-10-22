@@ -1,0 +1,35 @@
+// Example 10: Complex Pattern Matching
+// Demonstrates: nested patterns, struct patterns, tuple patterns
+
+enum Status {
+    Pending,
+    Running(int),  // Progress percentage
+    Completed(string),  // Result message
+    Failed(string)  // Error message
+}
+
+struct Task {
+    name: string,
+    status: Status
+}
+
+fn describe_task(task: Task) -> string {
+    let description: string = match task.status {
+        Status::Pending => task.name + ": Waiting to start",
+        Status::Running(progress) => task.name + ": Running at " + progress + "%",
+        Status::Completed(result) => task.name + ": Done - " + result,
+        Status::Failed(error) => task.name + ": Failed - " + error,
+    };
+    return description;
+}
+
+fn main() -> unit {
+    let t1: Task = Task {
+        name: "Build",
+        status: Status::Running(75)
+    };
+
+    let description: string = describe_task(t1);
+    print(description);
+    return none;
+}

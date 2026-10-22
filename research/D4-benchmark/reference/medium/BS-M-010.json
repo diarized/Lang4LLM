@@ -1,0 +1,20 @@
+{
+  "spec": "BS-M-010",
+  "title": "Circular Buffer",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "basic read 1: 1",
+    "basic read 2: 2",
+    "after overwrite read: 2",
+    "repeat overwrite r1: 3",
+    "repeat overwrite r2: 4",
+    "repeat overwrite empty: true",
+    "new is_empty: true",
+    "before write is_full: false",
+    "after 1 write is_full: false",
+    "after 2 writes is_full: true",
+    "after read is_full: false",
+    "capacity=1 overwrite: 9"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-012",
+  "title": "Get Last Element",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "notes": "Lang4LLM lacks Option types; empty list returns 'none' string via helper function",
+  "expected": [
+    "get_last([1,2,3,4,5]) = 5",
+    "get_last([42]) = 42",
+    "get_last([]) = none",
+    "get_last([-10,-3,-7]) = -7",
+    "get_last([5,3,1,0]) = 0"
+  ]
+}

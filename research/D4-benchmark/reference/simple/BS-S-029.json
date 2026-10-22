@@ -1,0 +1,16 @@
+{
+  "spec": "BS-S-029",
+  "title": "Check Prime Number",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_prime(7) = true",
+    "is_prime(9) = false",
+    "is_prime(1) = false",
+    "is_prime(2) = true",
+    "is_prime(4) = false",
+    "is_prime(97) = true",
+    "is_prime(100) = false",
+    "is_prime(3) = true"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "spec": "BS-C-018",
+  "title": "Command Pattern",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "counter=10 hist=1 redo=0",
+    "counter=0 hist=0 redo=1",
+    "counter=10 hist=1 redo=0",
+    "undo empty: counter=0",
+    "after new exec: counter=6 redo=0",
+    "after 2 undos: counter=1",
+    "after 3 redos: counter=6",
+    "hist_size after 5 cmds (max 3): 3",
+    "counter after 5 adds: 15",
+    "counter after 4 undos (only 3 possible): 3",
+    "after set:100: counter=100",
+    "after undo set: counter=10"
+  ]
+}

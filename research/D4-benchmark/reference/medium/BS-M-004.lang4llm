@@ -1,0 +1,44 @@
+fn fibonacci(n: int) -> [int] {
+    let mut result: [int] = [];
+    if n == 0 {
+        return result;
+    };
+    push(result, 0);
+    if n == 1 {
+        return result;
+    };
+    push(result, 1);
+    let mut prev: int = 0;
+    let mut curr: int = 1;
+    for i in range(2, n) {
+        let next: int = prev + curr;
+        push(result, next);
+        prev = curr;
+        curr = next;
+    }
+    return result;
+}
+
+fn arr_to_string(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    print("fib(0) = " + arr_to_string(fibonacci(0)));
+    print("fib(1) = " + arr_to_string(fibonacci(1)));
+    print("fib(2) = " + arr_to_string(fibonacci(2)));
+    print("fib(3) = " + arr_to_string(fibonacci(3)));
+    print("fib(5) = " + arr_to_string(fibonacci(5)));
+    print("fib(10) = " + arr_to_string(fibonacci(10)));
+}

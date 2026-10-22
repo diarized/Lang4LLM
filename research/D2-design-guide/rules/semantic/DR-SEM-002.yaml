@@ -1,0 +1,61 @@
+id: DR-SEM-002
+category: SEMANTIC
+name: Strong Static Typing with Minimal Inference
+description: |
+  Mandatory type annotations for function signatures. Local variable types can be inferred.
+  No implicit type conversions. Structural or nominal typing with compile-time checking.
+
+priority: 10
+impact_score: 0.70
+
+rationale: |
+  Type mismatch errors (EP-SEM-002) account for 16% of all errors. Strong static typing
+  catches 70% of these at compile time. Type inference aids brevity while maintaining safety.
+
+research_backing:
+  - source: "P06 - Type-Constrained Code Generation (arXiv 2504.09246)"
+    finding: "Type constraints improve semantic correctness"
+    confidence: HIGH
+
+  - source: "D1 Cross-Language Analysis"
+    finding: "Rust (strong typing): 25% type errors, Python (dynamic): 38%"
+    confidence: HIGH
+
+  - source: "TypeScript Adoption Studies"
+    finding: "40% reduction in semantic errors with static types"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Compare LLM generation on dynamically-typed vs statically-typed variants.
+    Measure EP-SEM-002 frequency and compiler catch rate.
+  metrics:
+    - M-003  # AST Complexity (type annotations add structure)
+  benchmark_specs:
+    - BS-S-025  # Type conversions
+    - BS-M-038  # Generic functions
+    - BS-C-010  # Complex type systems
+
+counter_examples:
+  - scenario: "Rapid prototyping"
+    reason: "Type annotations slow down initial development"
+    alternative: "Gradual typing: allow `Any` type during prototyping, require refinement later"
+
+  - scenario: "Dynamic dispatch"
+    reason: "Static types limit runtime flexibility"
+    alternative: "Provide trait objects/interfaces for polymorphism"
+
+related_patterns:
+  - pattern_id: EP-SEM-002
+    mitigation: PREVENTS
+
+  - pattern_id: EP-LOG-001
+    mitigation: REDUCES
+    note: "Type-level bounds checking"
+
+implementation_notes:
+  - "Function signatures: `fn foo(x: Int, y: String) -> Bool { ... }`"
+  - "Local inference: `let x = 42  // inferred as Int`"
+  - "No implicit conversions (explicit `.into()` or constructor)"
+  - "Option<T> and Result<T, E> for nullability and errors"
+  - "Generics with trait bounds for polymorphism"

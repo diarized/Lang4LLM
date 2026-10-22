@@ -1,0 +1,57 @@
+id: DR-SEM-001
+category: SEMANTIC
+name: Mandatory Variable Declarations
+description: |
+  All variables must be explicitly declared before use. No implicit globals or dynamic
+  variable creation. Lexical scoping only.
+
+priority: 9
+impact_score: 0.60
+
+rationale: |
+  Undefined variable errors (EP-SEM-001) account for 18% of all errors. Mandatory declarations
+  with compile-time name resolution reduce this to near-zero (Rust/TypeScript model).
+
+research_backing:
+  - source: "D1 Cross-Language Analysis"
+    finding: "Python (implicit): 25% undefined errors, Rust (explicit): 5%"
+    confidence: HIGH
+
+  - source: "TypeScript Design"
+    finding: "Adding type annotations reduces semantic errors by 40%"
+    confidence: HIGH
+
+  - source: "P08 - LLM Code Mistakes"
+    finding: "Variable scope confusion is primary semantic error"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Compare error rates on implicit (JavaScript var) vs explicit (TypeScript let/const)
+    variable declarations. Test LLM generation accuracy.
+  metrics:
+    - M-001  # Token Predictability (explicit tokens)
+  benchmark_specs:
+    - BS-S-018  # Variable scope
+    - BS-M-020  # Nested scopes
+    - BS-M-042  # Shadowing scenarios
+
+counter_examples:
+  - scenario: "REPL/scripting convenience"
+    reason: "Requiring declarations is verbose for quick scripts"
+    alternative: "Different mode for REPL (but increases complexity)"
+
+  - scenario: "Dynamic language flexibility"
+    reason: "Implicit variables enable metaprogramming"
+    alternative: "Provide explicit metaprogramming primitives instead"
+
+related_patterns:
+  - pattern_id: EP-SEM-001
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Require `let x: T = value` or `var x = value` (with inference)"
+  - "Compiler tracks symbol table, error on undefined names"
+  - "No global scope pollution (all globals must be explicit)"
+  - "Shadowing allowed but generates warning"
+  - "Unused variable warning"

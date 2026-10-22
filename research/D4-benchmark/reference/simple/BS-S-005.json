@@ -1,0 +1,15 @@
+{
+  "spec": "BS-S-005",
+  "title": "Count Vowels in String",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count_vowels(\"hello\") = 2",
+    "count_vowels(\"Hello World\") = 3",
+    "count_vowels(\"rhythm\") = 0",
+    "count_vowels(\"aeiou\") = 5",
+    "count_vowels(\"hello123!!\") = 2",
+    "count_vowels(\"\") = 0",
+    "count_vowels(\"AEIOU\") = 5"
+  ]
+}

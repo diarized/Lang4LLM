@@ -1,0 +1,80 @@
+# Error Pattern: Incorrect Indentation
+
+id: EP-SYN-002
+category: SYNTAX
+subcategory: indentation
+name: Incorrect Indentation (Python-specific)
+description: |
+  LLM generates Python code with incorrect indentation levels, mixing tabs/spaces,
+  or inconsistent indentation within a block. Causes IndentationError or unexpected
+  code behavior due to changed block scope.
+
+frequency:
+  overall: 0.08  # 8% of all syntax errors
+  by_model:
+    gpt4: 0.05
+    claude: 0.07
+    deepseek: 0.12
+  by_language:
+    python: 0.20  # Python-specific error
+    rust: 0.00
+    typescript: 0.00
+    go: 0.00
+
+root_cause: |
+  Tokenization treats indentation as whitespace tokens with semantic significance in Python.
+  LLMs may not maintain consistent indentation context across generation steps,
+  especially when generating code blocks out of visual order or after context truncation.
+
+trigger_conditions:
+  - feature: "Nested control structures"
+    severity: HIGH
+  - feature: "Multi-line function definitions"
+    severity: MEDIUM
+  - feature: "Class method definitions"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def process_items(items):
+          for item in items:
+            if item.valid:
+              result = transform(item)  # Inconsistent indent
+                save(result)  # Wrong indent level
+          return True
+    correct: |
+      def process_items(items):
+          for item in items:
+              if item.valid:
+                  result = transform(item)
+                  save(result)
+          return True
+    explanation: "Inconsistent indentation within if block"
+
+  - language: python
+    incorrect: |
+      class DataProcessor:
+        def __init__(self):  # Should be 4 spaces
+            self.data = []
+          def process(self):  # Wrong indent
+              return self.data
+    correct: |
+      class DataProcessor:
+          def __init__(self):
+              self.data = []
+          def process(self):
+              return self.data
+    explanation: "Inconsistent indentation for class methods"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-004
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Syntactic characteristics: Incorrect code blocks"
+  - paper_id: P07
+    section: "Python-specific error patterns"

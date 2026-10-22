@@ -1,0 +1,18 @@
+{
+  "spec": "BS-M-006",
+  "title": "Stack Implementation",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "new is_empty: true",
+    "peek after 10,20,30: 30",
+    "pop returns: 30",
+    "peek after pop: 20",
+    "peek 1st: 9",
+    "peek 2nd: 9",
+    "after pop is_empty: false",
+    "empty after push+pop: true",
+    "LIFO order: 3,2,1",
+    "fully drained: true"
+  ]
+}

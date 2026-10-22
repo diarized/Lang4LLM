@@ -1,0 +1,18 @@
+{
+  "spec": "BS-M-026",
+  "title": "Sieve of Eratosthenes",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "sieve(0) = []",
+    "sieve(1) = []",
+    "sieve(2) = [2]",
+    "sieve(3) = [2, 3]",
+    "sieve(10) = [2, 3, 5, 7]",
+    "sieve(13) = [2, 3, 5, 7, 11, 13]",
+    "sieve(15) = [2, 3, 5, 7, 11, 13]",
+    "sieve(20) = [2, 3, 5, 7, 11, 13, 17, 19]",
+    "sieve(50) count = 15",
+    "sieve(50) = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]"
+  ]
+}

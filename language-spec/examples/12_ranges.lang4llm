@@ -1,0 +1,20 @@
+// Example 12: Range Expressions and Slicing
+// Demonstrates: range operators (.., ..=), array slicing
+
+fn main() -> unit {
+    let numbers: [int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    // Range expressions for iteration
+    for i in range(0, 5) {  // 0..5 (exclusive)
+        print("Index: " + i);
+    }
+
+    // Array slicing with ranges
+    let slice1: [int] = numbers[0..5];    // Elements 0, 1, 2, 3, 4
+    let slice2: [int] = numbers[0..=4];   // Elements 0, 1, 2, 3, 4 (inclusive)
+    let slice3: [int] = numbers[5..];     // Elements from 5 to end
+    let slice4: [int] = numbers[..5];     // Elements from start to 5
+
+    print("Slice length: " + len(slice1));
+    return none;
+}

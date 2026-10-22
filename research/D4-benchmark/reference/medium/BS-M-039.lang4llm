@@ -1,0 +1,3 @@
+// BS-M-039: Thread-Safe Counter
+// lang4llm_compatible: false
+// Reason: Requires concurrency primitives (mutex, atomic operations) not available in Lang4LLM.

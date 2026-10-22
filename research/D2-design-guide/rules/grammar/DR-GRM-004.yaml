@@ -1,0 +1,51 @@
+id: DR-GRM-004
+category: GRAMMAR
+name: Minimal Grammar Ambiguity
+description: |
+  Grammar should have no shift/reduce or reduce/reduce conflicts. Unambiguous parsing
+  eliminates multiple interpretations of the same code.
+
+priority: 7
+impact_score: 0.60
+
+rationale: |
+  Ambiguous grammars confuse LLMs during generation and humans during reading.
+  Unambiguous grammar ensures single correct parse tree, improving LLM accuracy.
+
+research_backing:
+  - source: "Compiler Design Principles (Dragon Book)"
+    finding: "Unambiguous grammars enable deterministic parsing"
+    confidence: HIGH
+
+  - source: "P02 - LLM Weakness Patterns"
+    finding: "Ambiguous syntax contributes to structural errors"
+    confidence: MEDIUM
+
+validation_method:
+  approach: |
+    Parse language grammar with standard parser generator. Verify no conflicts.
+    Test with ambiguous vs unambiguous grammar variants on LLM generation.
+  metrics:
+    - M-002  # Parse Ambiguity (should be 0)
+  benchmark_specs:
+    - BS-M-012  # Potentially ambiguous constructs
+    - BS-M-033  # Precedence challenges
+
+counter_examples:
+  - scenario: "Dangling else problem"
+    reason: "Classic grammar ambiguity in if/else"
+    alternative: "Require braces or end keyword (eliminates ambiguity)"
+
+  - scenario: "Operator precedence"
+    reason: "Can create ambiguity without explicit rules"
+    alternative: "Define explicit precedence table, not grammar ambiguity"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    mitigation: REDUCES
+
+implementation_notes:
+  - "Test grammar with parser generator (Bison, ANTLR)"
+  - "Resolve all shift/reduce conflicts"
+  - "Provide explicit precedence rules"
+  - "Document grammar specification with ambiguity tests"

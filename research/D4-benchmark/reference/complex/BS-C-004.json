@@ -1,0 +1,18 @@
+{
+  "spec": "BS-C-004",
+  "title": "Binary Search Tree",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "inorder = [1, 3, 4, 5, 7]",
+    "search(3) = true",
+    "search(6) = false",
+    "after dup insert(5), inorder = [1, 3, 4, 5, 7]",
+    "after delete(2) = [4, 6, 8, 10, 12, 14]",
+    "after delete(6) = [4, 5, 8, 10, 12, 14]",
+    "after delete(12) = [4, 5, 8, 10, 14]",
+    "after delete(99) = [4, 5, 8, 10, 14]",
+    "empty inorder = []",
+    "search empty = false"
+  ]
+}

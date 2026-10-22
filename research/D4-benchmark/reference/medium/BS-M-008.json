@@ -1,0 +1,16 @@
+{
+  "spec": "BS-M-008",
+  "title": "Linked List Basics",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "append 1,2,3: [1, 2, 3]",
+    "prepend 3,2,1: [1, 2, 3]",
+    "mixed append/prepend: [1, 5, 10, 20]",
+    "delete middle 2: [1, 3]",
+    "delete head 1: [2, 3]",
+    "delete tail 3: [1, 2]",
+    "delete missing 99: [1, 2, 3]",
+    "empty to_list: []"
+  ]
+}

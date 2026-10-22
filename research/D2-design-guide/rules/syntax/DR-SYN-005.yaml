@@ -1,0 +1,52 @@
+id: DR-SYN-005
+category: SYNTAX
+name: Consistent Statement Terminators
+description: |
+  Use explicit statement terminators (semicolons or newlines with clear rules) consistently.
+  Avoid context-dependent termination rules.
+
+priority: 15
+impact_score: 0.30
+
+rationale: |
+  Inconsistent statement termination (JavaScript's ASI, Python's implicit line continuation)
+  causes minor syntax errors. While lower impact than other rules, consistency aids LLM prediction.
+
+research_backing:
+  - source: "P05 - Grammar-Based Representation"
+    finding: "Predictable grammar rules improve LLM parsing accuracy"
+    confidence: MEDIUM
+
+  - source: "JavaScript ASI Issues"
+    finding: "Automatic semicolon insertion creates edge cases and silent errors"
+    confidence: LOW
+
+validation_method:
+  approach: |
+    Compare explicit semicolons (C-style) vs newline-based (Go-style) vs ASI (JS-style).
+    Measure parsing error rates and ambiguous cases.
+  metrics:
+    - M-002  # Parse Ambiguity
+  benchmark_specs:
+    - BS-S-008  # Multi-line statements
+    - BS-M-022  # Statement sequences
+
+counter_examples:
+  - scenario: "Brevity in scripting languages"
+    reason: "Semicolons add visual noise"
+    alternative: "Use newline as terminator (Go-style) with explicit continuation"
+
+  - scenario: "REPL-friendly syntax"
+    reason: "Requiring semicolons in interactive mode is tedious"
+    alternative: "Different rules for REPL vs source files (but adds complexity)"
+
+related_patterns:
+  - pattern_id: EP-SYN-001
+    mitigation: REDUCES
+    note: "Clear termination reduces structural ambiguity"
+
+implementation_notes:
+  - "Option 1 (Recommended): Semicolons required (like C/Rust)"
+  - "Option 2: Newline terminates unless backslash continues (like Python)"
+  - "Avoid ASI (JavaScript-style automatic insertion)"
+  - "If using newlines, require explicit continuation (`\\` or unclosed delimiter)"

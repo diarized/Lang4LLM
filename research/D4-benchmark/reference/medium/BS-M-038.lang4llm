@@ -1,0 +1,121 @@
+// BS-M-038: Event Dispatcher (Lang4LLM simplified)
+// Closures cannot be stored in struct fields; this implementation tracks
+// event registration counts and dispatch counts using parallel arrays.
+// Demonstrates the structure of an event dispatcher without callable storage.
+
+struct Dispatcher {
+    event_names: [string],
+    event_counts: [int]
+}
+
+fn dispatcher_new() -> Dispatcher {
+    return Dispatcher { event_names: [], event_counts: [] };
+}
+
+fn dispatcher_find(d: Dispatcher, event: string) -> int {
+    let mut idx: int = -1;
+    for i in range(0, len(d.event_names)) {
+        if d.event_names[i] == event {
+            idx = i;
+        };
+    }
+    return idx;
+}
+
+fn dispatcher_register(d: Dispatcher, event: string) -> Dispatcher {
+    let existing: int = dispatcher_find(d, event);
+    if existing >= 0 {
+        return d;
+    };
+    let mut new_names: [string] = d.event_names;
+    let mut new_counts: [int] = d.event_counts;
+    push(new_names, event);
+    push(new_counts, 0);
+    return Dispatcher { event_names: new_names, event_counts: new_counts };
+}
+
+fn dispatcher_dispatch(d: Dispatcher, event: string) -> Dispatcher {
+    let idx: int = dispatcher_find(d, event);
+    if idx < 0 {
+        return d;
+    };
+    let mut new_counts: [int] = d.event_counts;
+    new_counts[idx] = new_counts[idx] + 1;
+    return Dispatcher { event_names: d.event_names, event_counts: new_counts };
+}
+
+fn dispatcher_count(d: Dispatcher, event: string) -> int {
+    let idx: int = dispatcher_find(d, event);
+    if idx < 0 {
+        return 0;
+    };
+    return d.event_counts[idx];
+}
+
+fn dispatcher_is_registered(d: Dispatcher, event: string) -> bool {
+    return dispatcher_find(d, event) >= 0;
+}
+
+fn main() -> unit {
+    // Test 1: register and dispatch single event
+    let d1a: Dispatcher = dispatcher_new();
+    let d1b: Dispatcher = dispatcher_register(d1a, "click");
+    let d1c: Dispatcher = dispatcher_dispatch(d1b, "click");
+    print("click registered = " + to_string(dispatcher_is_registered(d1c, "click")));
+    print("click count after 1 dispatch = " + to_string(dispatcher_count(d1c, "click")));
+
+    // Test 2: dispatch increments count
+    let d2a: Dispatcher = dispatcher_new();
+    let d2b: Dispatcher = dispatcher_register(d2a, "login");
+    let d2c: Dispatcher = dispatcher_dispatch(d2b, "login");
+    let d2d: Dispatcher = dispatcher_dispatch(d2c, "login");
+    let d2e: Dispatcher = dispatcher_dispatch(d2d, "login");
+    print("login count after 3 dispatches = " + to_string(dispatcher_count(d2e, "login")));
+
+    // Test 3: dispatch on unregistered event does nothing
+    let d3a: Dispatcher = dispatcher_new();
+    let d3b: Dispatcher = dispatcher_dispatch(d3a, "nonexistent");
+    print("nonexistent count = " + to_string(dispatcher_count(d3b, "nonexistent")));
+    print("nonexistent registered = " + to_string(dispatcher_is_registered(d3b, "nonexistent")));
+
+    // Test 4: multiple independent events
+    let d4a: Dispatcher = dispatcher_new();
+    let d4b: Dispatcher = dispatcher_register(d4a, "start");
+    let d4c: Dispatcher = dispatcher_register(d4b, "stop");
+    let d4d: Dispatcher = dispatcher_dispatch(d4c, "start");
+    let d4e: Dispatcher = dispatcher_dispatch(d4d, "start");
+    let d4f: Dispatcher = dispatcher_dispatch(d4e, "stop");
+    print("start count = " + to_string(dispatcher_count(d4f, "start")));
+    print("stop count = " + to_string(dispatcher_count(d4f, "stop")));
+
+    // Test 5: event names are case-sensitive
+    let d5a: Dispatcher = dispatcher_new();
+    let d5b: Dispatcher = dispatcher_register(d5a, "Click");
+    let d5c: Dispatcher = dispatcher_register(d5b, "click");
+    let d5d: Dispatcher = dispatcher_dispatch(d5c, "Click");
+    print("Click count = " + to_string(dispatcher_count(d5d, "Click")));
+    print("click count = " + to_string(dispatcher_count(d5d, "click")));
+
+    // Test 6: re-registering same event is idempotent
+    let d6a: Dispatcher = dispatcher_new();
+    let d6b: Dispatcher = dispatcher_register(d6a, "save");
+    let d6c: Dispatcher = dispatcher_register(d6b, "save");
+    let d6d: Dispatcher = dispatcher_dispatch(d6c, "save");
+    print("save count after re-register + 1 dispatch = " + to_string(dispatcher_count(d6d, "save")));
+
+    // Test 7: count zero before any dispatch
+    let d7a: Dispatcher = dispatcher_new();
+    let d7b: Dispatcher = dispatcher_register(d7a, "ready");
+    print("ready count before dispatch = " + to_string(dispatcher_count(d7b, "ready")));
+
+    // Test 8: multiple events registered, dispatch selectively
+    let d8a: Dispatcher = dispatcher_new();
+    let d8b: Dispatcher = dispatcher_register(d8a, "open");
+    let d8c: Dispatcher = dispatcher_register(d8b, "close");
+    let d8d: Dispatcher = dispatcher_register(d8c, "error");
+    let d8e: Dispatcher = dispatcher_dispatch(d8d, "error");
+    let d8f: Dispatcher = dispatcher_dispatch(d8e, "error");
+    print("open count = " + to_string(dispatcher_count(d8f, "open")));
+    print("close count = " + to_string(dispatcher_count(d8f, "close")));
+    print("error count = " + to_string(dispatcher_count(d8f, "error")));
+}

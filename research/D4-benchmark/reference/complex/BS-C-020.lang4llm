@@ -1,0 +1,6 @@
+// BS-C-020: Rate Limiter (Token Bucket)
+// lang4llm_compatible: false
+// Reason: Requires concurrency (mutex, threads) and blocking operations — not supported in Lang4LLM
+fn main() -> unit {
+    print("not implemented");
+}

@@ -1,0 +1,20 @@
+{
+  "spec": "BS-M-017",
+  "title": "Power Function",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "fast_pow(2, 10) = 1024",
+    "fast_pow(7, 0) = 1",
+    "fast_pow(0, 5) = 0",
+    "fast_pow(1, 30) = 1",
+    "fast_pow(-1, 4) = 1",
+    "fast_pow(-1, 7) = -1",
+    "fast_pow(-3, 4) = 81",
+    "fast_pow(-3, 3) = -27",
+    "fast_pow(13, 1) = 13",
+    "fast_pow(2, 20) = 1048576",
+    "fast_pow(3, 5) = 243",
+    "fast_pow(5, 6) = 15625"
+  ]
+}

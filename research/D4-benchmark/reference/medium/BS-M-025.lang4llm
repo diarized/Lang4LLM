@@ -1,0 +1,115 @@
+fn digit_value(c: string) -> int {
+    if c == "0" { return 0; };
+    if c == "1" { return 1; };
+    if c == "2" { return 2; };
+    if c == "3" { return 3; };
+    if c == "4" { return 4; };
+    if c == "5" { return 5; };
+    if c == "6" { return 6; };
+    if c == "7" { return 7; };
+    if c == "8" { return 8; };
+    if c == "9" { return 9; };
+    return -1;
+}
+
+fn parse_int(s: string) -> int {
+    let int_max: int = 2147483647;
+    let int_min: int = -2147483648;
+    let chs: [string] = chars(s);
+    let n: int = len(chs);
+    let mut i: int = 0;
+    while i < n and chs[i] == " " {
+        i = i + 1;
+    }
+    if i >= n {
+        return 0;
+    };
+    let mut negative: bool = false;
+    if chs[i] == "-" {
+        negative = true;
+        i = i + 1;
+    } else {
+        if chs[i] == "+" {
+            i = i + 1;
+        };
+    };
+    let mut result: int = 0;
+    let mut found_digit: bool = false;
+    let mut overflow: bool = false;
+    while i < n and not overflow {
+        let dv: int = digit_value(chs[i]);
+        if dv < 0 {
+            i = n;
+        } else {
+            found_digit = true;
+            if not negative {
+                if result > (int_max - dv) / 10 {
+                    result = int_max;
+                    overflow = true;
+                } else {
+                    result = result * 10 + dv;
+                };
+            } else {
+                if result > (-(int_min + dv)) / 10 {
+                    result = -int_min;
+                    overflow = true;
+                } else {
+                    result = result * 10 + dv;
+                };
+            };
+            i = i + 1;
+        };
+    }
+    if not found_digit {
+        return 0;
+    };
+    if overflow {
+        if negative {
+            return int_min;
+        } else {
+            return int_max;
+        };
+    };
+    if negative {
+        return -result;
+    };
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: simple positive integer
+    print("parse_int(42) = " + to_string(parse_int("42")));
+
+    // Test 2: negative overflow
+    print("parse_int(-91283472332) = " + to_string(parse_int("-91283472332")));
+
+    // Test 3: leading whitespace
+    print("parse_int(   42) = " + to_string(parse_int("   42")));
+
+    // Test 4: explicit positive sign
+    print("parse_int(+100) = " + to_string(parse_int("+100")));
+
+    // Test 5: stop at non-digit
+    print("parse_int(4193 with words) = " + to_string(parse_int("4193 with words")));
+
+    // Test 6: non-digit before digits
+    print("parse_int(words and 987) = " + to_string(parse_int("words and 987")));
+
+    // Test 7: positive overflow
+    print("parse_int(2147483648) = " + to_string(parse_int("2147483648")));
+
+    // Test 8: empty string
+    print("parse_int() = " + to_string(parse_int("")));
+
+    // Test 9: only whitespace
+    print("parse_int(   ) = " + to_string(parse_int("   ")));
+
+    // Test 10: negative zero
+    print("parse_int(-0) = " + to_string(parse_int("-0")));
+
+    // Test 11: exact max boundary
+    print("parse_int(2147483647) = " + to_string(parse_int("2147483647")));
+
+    // Test 12: exact min boundary
+    print("parse_int(-2147483648) = " + to_string(parse_int("-2147483648")));
+}

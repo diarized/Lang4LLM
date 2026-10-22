@@ -1,0 +1,19 @@
+// Test file for error reporting
+// Contains intentional errors to test diagnostics
+
+fn test_type_mismatch() -> i32 {
+    let x: i32 = true;  // Type mismatch: expected i32, found bool
+    return x;
+}
+
+fn test_undefined_symbol() -> i32 {
+    return undefined_var;  // Undefined symbol
+}
+
+fn test_missing_type_annotation() -> () {
+    let y;  // Missing type annotation
+}
+
+fn test_uninitialized() -> () {
+    let z: i32;  // Uninitialized variable
+}

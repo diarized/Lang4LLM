@@ -1,0 +1,119 @@
+# Error Pattern: Infinite Loop or Non-Terminating Recursion
+
+id: EP-LOG-004
+category: LOGIC
+subcategory: control-flow
+name: Loop/Recursion That Never Terminates
+description: |
+  LLM generates loop or recursive function with incorrect termination condition,
+  missing increment, or unreachable exit. Code runs indefinitely or until stack
+  overflow. Often passes syntax/semantic checks but fails at runtime.
+
+frequency:
+  overall: 0.15  # 15% of all logic errors
+  by_model:
+    gpt4: 0.12
+    claude: 0.14
+    deepseek: 0.19
+  by_language:
+    python: 0.16
+    rust: 0.12  # Stack overflow detected
+    typescript: 0.15
+    go: 0.14
+
+root_cause: |
+  LLMs generate loop conditions and body independently, sometimes forgetting to
+  update loop variables. Recursive base cases may be omitted or unreachable.
+  Complex loop invariants difficult to maintain across generation steps.
+
+trigger_conditions:
+  - feature: "While loops with complex conditions"
+    severity: HIGH
+  - feature: "Recursive functions"
+    severity: HIGH
+  - feature: "Nested loops"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def countdown(n: int):
+          while n > 0:
+              print(n)
+              # Missing n -= 1, infinite loop
+    correct: |
+      def countdown(n: int):
+          while n > 0:
+              print(n)
+              n -= 1
+    explanation: "Loop variable never updated, condition always True"
+
+  - language: rust
+    incorrect: |
+      fn factorial(n: u32) -> u32 {
+          if n == 0 {
+              return 1;
+          }
+          n * factorial(n)  // Missing n-1, infinite recursion
+      }
+    correct: |
+      fn factorial(n: u32) -> u32 {
+          if n == 0 {
+              return 1;
+          }
+          n * factorial(n - 1)
+      }
+    explanation: "Recursive call with same argument causes infinite recursion"
+
+  - language: typescript
+    incorrect: |
+      function findIndex(arr: number[], target: number): number {
+          let i = 0;
+          while (arr[i] !== target) {
+              // Missing i++, infinite loop if target not found or at end
+          }
+          return i;
+      }
+    correct: |
+      function findIndex(arr: number[], target: number): number {
+          let i = 0;
+          while (i < arr.length && arr[i] !== target) {
+              i++;
+          }
+          return i < arr.length ? i : -1;
+      }
+    explanation: "Missing increment and bounds check causes infinite loop"
+
+  - language: go
+    incorrect: |
+      func sumEven(numbers []int) int {
+          sum := 0
+          i := 0
+          for numbers[i]%2 == 0 {  // Skips i++, infinite on first even
+              sum += numbers[i]
+          }
+          return sum
+      }
+    correct: |
+      func sumEven(numbers []int) int {
+          sum := 0
+          for _, num := range numbers {
+              if num%2 == 0 {
+                  sum += num
+              }
+          }
+          return sum
+      }
+    explanation: "Loop condition doesn't advance, use range-based loop instead"
+
+related_patterns:
+  - pattern_id: EP-LOG-003
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-004
+    relationship: CAUSES
+
+sources:
+  - paper_id: P02
+    section: "Control flow termination errors"
+  - paper_id: P08
+    section: "Algorithmic mistakes: loop logic"

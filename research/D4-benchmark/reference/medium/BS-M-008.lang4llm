@@ -1,0 +1,144 @@
+// Singly linked list simulated with parallel arrays.
+// nodes_val[i] = value of node i
+// nodes_next[i] = index of next node, or -1 if tail
+// head = index of head node, or -1 if empty
+
+struct LinkedList {
+    nodes_val: [int],
+    nodes_next: [int],
+    head: int,
+    size: int
+}
+
+fn ll_new() -> LinkedList {
+    return LinkedList { nodes_val: [], nodes_next: [], head: -1, size: 0 };
+}
+
+fn ll_alloc(ll: LinkedList, value: int) -> LinkedList {
+    let mut vals: [int] = ll.nodes_val;
+    let mut nexts: [int] = ll.nodes_next;
+    push(vals, value);
+    push(nexts, -1);
+    return LinkedList { nodes_val: vals, nodes_next: nexts, head: ll.head, size: ll.size };
+}
+
+fn ll_append(ll: LinkedList, value: int) -> LinkedList {
+    let mut updated: LinkedList = ll_alloc(ll, value);
+    let new_idx: int = len(updated.nodes_val) - 1;
+    if updated.head == -1 {
+        return LinkedList { nodes_val: updated.nodes_val, nodes_next: updated.nodes_next, head: new_idx, size: updated.size + 1 };
+    };
+    // find tail
+    let mut curr: int = updated.head;
+    let mut mut_nexts: [int] = updated.nodes_next;
+    while mut_nexts[curr] != -1 {
+        curr = mut_nexts[curr];
+    }
+    mut_nexts[curr] = new_idx;
+    return LinkedList { nodes_val: updated.nodes_val, nodes_next: mut_nexts, head: updated.head, size: updated.size + 1 };
+}
+
+fn ll_prepend(ll: LinkedList, value: int) -> LinkedList {
+    let mut updated: LinkedList = ll_alloc(ll, value);
+    let new_idx: int = len(updated.nodes_val) - 1;
+    let mut mut_nexts: [int] = updated.nodes_next;
+    mut_nexts[new_idx] = updated.head;
+    return LinkedList { nodes_val: updated.nodes_val, nodes_next: mut_nexts, head: new_idx, size: updated.size + 1 };
+}
+
+fn ll_delete(ll: LinkedList, value: int) -> LinkedList {
+    if ll.head == -1 {
+        return ll;
+    };
+    let mut mut_nexts: [int] = ll.nodes_next;
+    // check if head matches
+    if ll.nodes_val[ll.head] == value {
+        let new_head: int = mut_nexts[ll.head];
+        return LinkedList { nodes_val: ll.nodes_val, nodes_next: mut_nexts, head: new_head, size: ll.size - 1 };
+    };
+    // traverse to find predecessor
+    let mut prev: int = ll.head;
+    let mut curr: int = mut_nexts[ll.head];
+    let mut found: bool = false;
+    while curr != -1 and not found {
+        if ll.nodes_val[curr] == value {
+            mut_nexts[prev] = mut_nexts[curr];
+            found = true;
+        } else {
+            prev = curr;
+            curr = mut_nexts[curr];
+        };
+    }
+    let new_size: int = ll.size - 1;
+    if found {
+        return LinkedList { nodes_val: ll.nodes_val, nodes_next: mut_nexts, head: ll.head, size: new_size };
+    };
+    return ll;
+}
+
+fn ll_to_list(ll: LinkedList) -> [int] {
+    let mut result: [int] = [];
+    let mut curr: int = ll.head;
+    while curr != -1 {
+        push(result, ll.nodes_val[curr]);
+        curr = ll.nodes_next[curr];
+    }
+    return result;
+}
+
+fn arr_to_string(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    let l0: LinkedList = ll_new();
+
+    // append and to_list
+    let l1: LinkedList = ll_append(l0, 1);
+    let l2: LinkedList = ll_append(l1, 2);
+    let l3: LinkedList = ll_append(l2, 3);
+    print("append 1,2,3: " + arr_to_string(ll_to_list(l3)));
+
+    // prepend and to_list
+    let l4: LinkedList = ll_prepend(l0, 3);
+    let l5: LinkedList = ll_prepend(l4, 2);
+    let l6: LinkedList = ll_prepend(l5, 1);
+    print("prepend 3,2,1: " + arr_to_string(ll_to_list(l6)));
+
+    // mixed
+    let l7: LinkedList = ll_append(l0, 10);
+    let l8: LinkedList = ll_prepend(l7, 5);
+    let l9: LinkedList = ll_append(l8, 20);
+    let l10: LinkedList = ll_prepend(l9, 1);
+    print("mixed append/prepend: " + arr_to_string(ll_to_list(l10)));
+
+    // delete middle
+    let l11: LinkedList = ll_delete(l3, 2);
+    print("delete middle 2: " + arr_to_string(ll_to_list(l11)));
+
+    // delete head
+    let l12: LinkedList = ll_delete(l3, 1);
+    print("delete head 1: " + arr_to_string(ll_to_list(l12)));
+
+    // delete tail
+    let l13: LinkedList = ll_delete(l3, 3);
+    print("delete tail 3: " + arr_to_string(ll_to_list(l13)));
+
+    // delete non-existent
+    let l14: LinkedList = ll_delete(l3, 99);
+    print("delete missing 99: " + arr_to_string(ll_to_list(l14)));
+
+    // empty list to_list
+    print("empty to_list: " + arr_to_string(ll_to_list(l0)));
+}

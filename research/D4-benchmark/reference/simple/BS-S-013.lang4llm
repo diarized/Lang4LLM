@@ -1,0 +1,28 @@
+fn linear_search(numbers: [int], target: int) -> int {
+    for i in range(0, len(numbers)) {
+        if numbers[i] == target {
+            return i;
+        };
+    }
+    return -1;
+}
+
+fn main() -> unit {
+    let a: [int] = [4, 7, 2, 9, 1];
+    print("linear_search([4,7,2,9,1], 9) = " + to_string(linear_search(a, 9)));
+
+    let b: [int] = [1, 2, 3, 4, 5];
+    print("linear_search([1,2,3,4,5], 6) = " + to_string(linear_search(b, 6)));
+
+    let c: [int] = [3, 1, 4, 1, 5, 9];
+    print("linear_search([3,1,4,1,5,9], 1) = " + to_string(linear_search(c, 1)));
+
+    let d: [int] = [8, 2, 5, 3];
+    print("linear_search([8,2,5,3], 8) = " + to_string(linear_search(d, 8)));
+
+    let e: [int] = [];
+    print("linear_search([], 7) = " + to_string(linear_search(e, 7)));
+
+    let f: [int] = [1, 2, 3, 4, 5];
+    print("linear_search([1,2,3,4,5], 5) = " + to_string(linear_search(f, 5)));
+}

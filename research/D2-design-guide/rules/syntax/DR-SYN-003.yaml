@@ -1,0 +1,60 @@
+id: DR-SYN-003
+category: SYNTAX
+name: Bounds-Checked Indexing with Clear Range Syntax
+description: |
+  Array/collection indexing must be bounds-checked at runtime (compiler-inserted checks).
+  Range syntax must explicitly distinguish inclusive vs exclusive bounds.
+
+priority: 2
+impact_score: 0.80
+
+rationale: |
+  Off-by-one errors (EP-SYN-003) account for 15% of all errors and 22% of boundary-related
+  logic errors. Automatic bounds checking prevents crashes; explicit range syntax reduces confusion.
+
+research_backing:
+  - source: "P01 - ICSE 2025: Code Generation Errors"
+    finding: "Boundary condition errors are the #1 semantic characteristic across 558 samples"
+    confidence: HIGH
+
+  - source: "P02 - Where Do LLMs Struggle"
+    finding: "Off-by-one errors identified as recurring weakness pattern"
+    confidence: HIGH
+
+  - source: "Rust Language Design"
+    finding: "Bounds checking catches 100% of out-of-bounds access at runtime (panics)"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Generate code with array access patterns. Compare panic-on-error (Rust-style) vs
+    silent undefined behavior (C-style). Measure EP-SYN-003 and EP-LOG-001 frequency.
+  metrics:
+    - M-004  # Error Recovery Score
+  benchmark_specs:
+    - BS-S-020  # Array slicing
+    - BS-M-032  # Loop boundaries
+    - BS-C-015  # Multi-dimensional arrays
+
+counter_examples:
+  - scenario: "Performance-critical code"
+    reason: "Bounds checking adds runtime overhead (5-10%)"
+    alternative: "Provide unsafe blocks for verified code, but default to checked"
+
+  - scenario: "Systems programming"
+    reason: "Low-level memory access requires unchecked indexing"
+    alternative: "Separate `unsafe` mode for explicit unchecked operations"
+
+related_patterns:
+  - pattern_id: EP-SYN-003
+    mitigation: PREVENTS
+
+  - pattern_id: EP-LOG-001
+    mitigation: REDUCES
+    note: "Runtime checks catch boundary violations"
+
+implementation_notes:
+  - "Compiler inserts bounds checks for all indexing operations"
+  - "Range syntax: `0..10` (exclusive end), `0..=10` (inclusive end)"
+  - "Provide `get(index) -> Option<T>` for recoverable access"
+  - "Allow `unsafe { arr[i] }` for performance-critical verified code"

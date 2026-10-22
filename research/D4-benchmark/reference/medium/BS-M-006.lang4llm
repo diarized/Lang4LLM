@@ -1,0 +1,85 @@
+struct Stack {
+    items: [int]
+}
+
+fn stack_new() -> Stack {
+    return Stack { items: [] };
+}
+
+fn stack_push(st: Stack, value: int) -> Stack {
+    let mut new_items: [int] = st.items;
+    push(new_items, value);
+    return Stack { items: new_items };
+}
+
+fn stack_pop(st: Stack) -> Stack {
+    if is_empty(st.items) {
+        print("ERROR: pop on empty stack");
+        return st;
+    };
+    let mut new_items: [int] = st.items;
+    pop(new_items);
+    return Stack { items: new_items };
+}
+
+fn stack_pop_val(st: Stack) -> int {
+    if is_empty(st.items) {
+        return -1;
+    };
+    let n: int = len(st.items);
+    return st.items[n - 1];
+}
+
+fn stack_peek(st: Stack) -> int {
+    if is_empty(st.items) {
+        return -1;
+    };
+    let n: int = len(st.items);
+    return st.items[n - 1];
+}
+
+fn stack_is_empty(st: Stack) -> bool {
+    return is_empty(st.items);
+}
+
+fn stack_size(st: Stack) -> int {
+    return len(st.items);
+}
+
+fn main() -> unit {
+    let s0: Stack = stack_new();
+    print("new is_empty: " + to_string(stack_is_empty(s0)));
+
+    let s1: Stack = stack_push(s0, 10);
+    let s2: Stack = stack_push(s1, 20);
+    let s3: Stack = stack_push(s2, 30);
+    print("peek after 10,20,30: " + to_string(stack_peek(s3)));
+
+    let val1: int = stack_pop_val(s3);
+    let s4: Stack = stack_pop(s3);
+    print("pop returns: " + to_string(val1));
+    print("peek after pop: " + to_string(stack_peek(s4)));
+
+    let s5: Stack = stack_push(s0, 5);
+    let s6: Stack = stack_push(s5, 9);
+    print("peek 1st: " + to_string(stack_peek(s6)));
+    print("peek 2nd: " + to_string(stack_peek(s6)));
+    let s7: Stack = stack_pop(s6);
+    print("after pop is_empty: " + to_string(stack_is_empty(s7)));
+
+    let s8: Stack = stack_push(s0, 42);
+    let s9: Stack = stack_pop(s8);
+    print("empty after push+pop: " + to_string(stack_is_empty(s9)));
+
+    let s10: Stack = stack_push(s0, 1);
+    let s11: Stack = stack_push(s10, 2);
+    let s12: Stack = stack_push(s11, 3);
+    let v3: int = stack_pop_val(s12);
+    let s13: Stack = stack_pop(s12);
+    let v2: int = stack_pop_val(s13);
+    let s14: Stack = stack_pop(s13);
+    let v1: int = stack_pop_val(s14);
+    let s15: Stack = stack_pop(s14);
+    print("LIFO order: " + to_string(v3) + "," + to_string(v2) + "," + to_string(v1));
+    print("fully drained: " + to_string(stack_is_empty(s15)));
+}

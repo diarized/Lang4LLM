@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-003",
+  "title": "Find Maximum in List",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "find_maximum([3,7,2,9,1]) = 9",
+    "find_maximum([-5,-2,-8,-1]) = -1",
+    "find_maximum([-3,5,-1,2]) = 5",
+    "find_maximum([42]) = 42",
+    "find_maximum([7,7,7,7]) = 7",
+    "find_maximum([10,1,100,50]) = 100"
+  ]
+}

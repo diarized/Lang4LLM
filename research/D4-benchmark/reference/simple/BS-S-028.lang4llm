@@ -1,0 +1,30 @@
+// BS-S-028: GCD of Two Numbers
+// Compute the greatest common divisor using the Euclidean algorithm.
+
+fn gcd(a: int, b: int) -> int {
+    let mut x: int = a;
+    let mut y: int = b;
+    let mut running: bool = true;
+    for i in range(0, 1000000) {
+        if running {
+            if y == 0 {
+                running = false;
+            } else {
+                let temp: int = y;
+                y = x % y;
+                x = temp;
+            };
+        };
+    }
+    return x;
+}
+
+fn main() -> unit {
+    print("gcd(48, 18) = " + to_string(gcd(48, 18)));
+    print("gcd(12, 4) = " + to_string(gcd(12, 4)));
+    print("gcd(7, 13) = " + to_string(gcd(7, 13)));
+    print("gcd(9, 9) = " + to_string(gcd(9, 9)));
+    print("gcd(1, 100) = " + to_string(gcd(1, 100)));
+    print("gcd(100, 1) = " + to_string(gcd(100, 1)));
+    print("gcd(1000000, 500000) = " + to_string(gcd(1000000, 500000)));
+}

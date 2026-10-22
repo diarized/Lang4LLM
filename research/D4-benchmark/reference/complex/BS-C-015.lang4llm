@@ -1,0 +1,202 @@
+// BS-C-015: Config File System
+// Parses in-memory config text (INI-like format) into parallel key/value arrays.
+// Keys stored as fully-qualified dot-notation paths (e.g. "database.host").
+// Root-level keys stored with no prefix (e.g. "app_name").
+// NOTE: Functional style — config_set returns new Config (no mutable references).
+
+struct Config {
+    keys: [string],
+    values: [string]
+}
+
+fn str_array_contains(arr: [string], val: string) -> bool {
+    let mut ci: int = 0;
+    while ci < len(arr) {
+        if arr[ci] == val {
+            return true;
+        };
+        ci = ci + 1;
+    }
+    return false;
+}
+
+fn config_new() -> Config {
+    let empty_keys: [string] = [];
+    let empty_vals: [string] = [];
+    return Config { keys: empty_keys, values: empty_vals };
+}
+
+fn config_find(cfg: Config, path: string) -> int {
+    let mut i: int = 0;
+    while i < len(cfg.keys) {
+        if cfg.keys[i] == path {
+            return i;
+        };
+        i = i + 1;
+    }
+    return -1;
+}
+
+fn config_get(cfg: Config, path: string) -> string {
+    let idx: int = config_find(cfg, path);
+    if idx == -1 {
+        return "null";
+    };
+    return cfg.values[idx];
+}
+
+fn config_set(cfg: Config, path: string, value: string) -> Config {
+    let idx: int = config_find(cfg, path);
+    if idx == -1 {
+        let mut new_keys: [string] = cfg.keys;
+        let mut new_vals: [string] = cfg.values;
+        push(new_keys, path);
+        push(new_vals, value);
+        return Config { keys: new_keys, values: new_vals };
+    } else {
+        let mut updated_vals: [string] = cfg.values;
+        updated_vals[idx] = value;
+        return Config { keys: cfg.keys, values: updated_vals };
+    };
+}
+
+fn config_load(text: string) -> Config {
+    let mut cfg: Config = config_new();
+    let lines: [string] = split(text, "\n");
+    let mut section: string = "";
+    let mut i: int = 0;
+    while i < len(lines) {
+        let line: string = trim(lines[i]);
+        if len(line) == 0 {
+            i = i + 1;
+        } else {
+            if starts_with(line, "#") {
+                i = i + 1;
+            } else {
+                if starts_with(line, "[") and ends_with(line, "]") {
+                    let inner: string = replace(replace(line, "[", ""), "]", "");
+                    section = trim(inner);
+                    i = i + 1;
+                } else {
+                    // key = value line: find first '=' by scanning chars
+                    let line_chs: [string] = chars(line);
+                    let mut eq_pos: int = -1;
+                    let mut ci: int = 0;
+                    while ci < len(line_chs) {
+                        if line_chs[ci] == "=" and eq_pos == -1 {
+                            eq_pos = ci;
+                        };
+                        ci = ci + 1;
+                    }
+                    if eq_pos > 0 {
+                        let mut raw_key: string = "";
+                        let mut raw_val: string = "";
+                        let mut ci2: int = 0;
+                        while ci2 < eq_pos {
+                            raw_key = raw_key + to_string(line_chs[ci2]);
+                            ci2 = ci2 + 1;
+                        }
+                        ci2 = eq_pos + 1;
+                        while ci2 < len(line_chs) {
+                            raw_val = raw_val + to_string(line_chs[ci2]);
+                            ci2 = ci2 + 1;
+                        }
+                        let key: string = trim(raw_key);
+                        let val: string = trim(raw_val);
+                        let mut full_key: string = key;
+                        if len(section) > 0 {
+                            full_key = section + "." + key;
+                        };
+                        cfg = config_set(cfg, full_key, val);
+                    };
+                    i = i + 1;
+                };
+            };
+        };
+    }
+    return cfg;
+}
+
+fn config_save(cfg: Config) -> string {
+    let mut root_keys: [string] = [];
+    let mut root_vals: [string] = [];
+    let mut sec_names: [string] = [];
+    let mut i: int = 0;
+    while i < len(cfg.keys) {
+        let key_i: string = cfg.keys[i];
+        if contains(key_i, ".") {
+            let parts: [string] = split(key_i, ".");
+            let sec_nm: string = parts[0];
+            if not str_array_contains(sec_names, sec_nm) {
+                push(sec_names, sec_nm);
+            };
+        } else {
+            push(root_keys, key_i);
+            push(root_vals, cfg.values[i]);
+        };
+        i = i + 1;
+    }
+    let mut out: string = "";
+    let mut ri: int = 0;
+    while ri < len(root_keys) {
+        out = out + root_keys[ri] + " = " + root_vals[ri] + "\n";
+        ri = ri + 1;
+    }
+    let mut si: int = 0;
+    while si < len(sec_names) {
+        let section_name: string = sec_names[si];
+        out = out + "\n[" + section_name + "]\n";
+        let mut ki: int = 0;
+        while ki < len(cfg.keys) {
+            let key_ki: string = cfg.keys[ki];
+            if starts_with(key_ki, section_name + ".") {
+                let subkey: string = replace(key_ki, section_name + ".", "");
+                out = out + subkey + " = " + cfg.values[ki] + "\n";
+            };
+            ki = ki + 1;
+        }
+        si = si + 1;
+    }
+    return out;
+}
+
+fn main() -> unit {
+    // Test 1: load with sections and root keys
+    let text1: string = "# App config\napp_name = MyApp\n\n[database]\nhost = localhost\nport = 5432\n\n[server]\nhost = 0.0.0.0\nport = 8080";
+    let cfg1: Config = config_load(text1);
+    print("app_name = " + config_get(cfg1, "app_name"));
+    print("database.host = " + config_get(cfg1, "database.host"));
+    print("database.port = " + config_get(cfg1, "database.port"));
+    print("server.port = " + config_get(cfg1, "server.port"));
+    print("missing.key = " + config_get(cfg1, "missing.key"));
+
+    // Test 2: set and override (functional — must use returned Config)
+    let cfg1a: Config = config_set(cfg1, "database.host", "remotehost");
+    print("db.host after set = " + config_get(cfg1a, "database.host"));
+    print("db.port unchanged = " + config_get(cfg1a, "database.port"));
+
+    // Test 3: set new section key
+    let cfg1b: Config = config_set(cfg1a, "cache.ttl", "300");
+    print("cache.ttl = " + config_get(cfg1b, "cache.ttl"));
+
+    // Test 4: load empty string
+    let cfg2: Config = config_load("");
+    print("empty get = " + config_get(cfg2, "any.key"));
+
+    // Test 5: set on empty config and get back
+    let cfg2a: Config = config_set(cfg2, "timeout", "30");
+    let cfg2b: Config = config_set(cfg2a, "app.name", "Demo");
+    print("timeout = " + config_get(cfg2b, "timeout"));
+    print("app.name = " + config_get(cfg2b, "app.name"));
+
+    // Test 6: duplicate key last wins
+    let text3: string = "[db]\nhost = first\nhost = second";
+    let cfg3: Config = config_load(text3);
+    print("dup key = " + config_get(cfg3, "db.host"));
+
+    // Test 7: deeply nested via dot in key name within section
+    let text4: string = "[logging]\nfile.path = /var/log/app.log\nfile.level = DEBUG";
+    let cfg4: Config = config_load(text4);
+    print("logging.file.path = " + config_get(cfg4, "logging.file.path"));
+    print("logging.file.level = " + config_get(cfg4, "logging.file.level"));
+}

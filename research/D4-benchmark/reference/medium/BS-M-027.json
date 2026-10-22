@@ -1,0 +1,29 @@
+{
+  "spec": "BS-M-027",
+  "title": "Matrix Addition",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "matrix_add 2x2:",
+    "[6, 8]",
+    "[10, 12]",
+    "matrix_add 3x3:",
+    "[10, 8, 7]",
+    "[6, 6, 4]",
+    "[3, 2, 2]",
+    "matrix_add 1x1:",
+    "[10]",
+    "matrix_add negatives 2x2:",
+    "[0, 0]",
+    "[0, 0]",
+    "matrix_add zeros 2x3:",
+    "[0, 0, 0]",
+    "[0, 0, 0]",
+    "matrix_add mismatch size = 0",
+    "matrix_add 1x3:",
+    "[5, 7, 9]",
+    "matrix_add 2x3:",
+    "[7, 7, 7]",
+    "[7, 7, 7]"
+  ]
+}

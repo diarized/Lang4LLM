@@ -1,0 +1,169 @@
+// BS-M-031: CSV Parser
+// Parses CSV string with quoted fields (RFC 4180 compatible).
+// State machine: normal vs in_quoted_field.
+// No nested arrays: return header row and individual data rows as [string].
+
+// Returns headers (first row) as [string].
+fn csv_parse_headers(csv: string) -> [string] {
+    let all_chars: [string] = chars(csv);
+    let total: int = len(all_chars);
+    let mut headers: [string] = [];
+    let mut field: string = "";
+    let mut in_q: bool = false;
+    let mut done: bool = false;
+    let mut i: int = 0;
+    while i < total and not done {
+        let ch: string = all_chars[i];
+        if in_q {
+            if ch == "\"" {
+                if i + 1 < total and all_chars[i + 1] == "\"" {
+                    field = field + "\"";
+                    i = i + 1;
+                } else {
+                    in_q = false;
+                };
+            } else {
+                field = field + to_string(ch);
+            };
+        } else {
+            if ch == "\"" {
+                in_q = true;
+            } else {
+                if ch == "," {
+                    push(headers, field);
+                    field = "";
+                } else {
+                    if ch == "\n" {
+                        push(headers, field);
+                        done = true;
+                    } else {
+                        field = field + to_string(ch);
+                    };
+                };
+            };
+        };
+        i = i + 1;
+    }
+    if not done {
+        push(headers, field);
+    };
+    return headers;
+}
+
+// Returns fields of data row row_idx (0-indexed, skips header) as [string].
+fn csv_parse_row(csv: string, row_idx: int) -> [string] {
+    let all_chars: [string] = chars(csv);
+    let total: int = len(all_chars);
+    // Skip past (row_idx + 1) newlines (header + row_idx data rows before target)
+    let mut newlines_needed: int = row_idx + 1;
+    let mut i: int = 0;
+    let mut in_q_skip: bool = false;
+    while i < total and newlines_needed > 0 {
+        let ch_s: string = all_chars[i];
+        if in_q_skip {
+            if ch_s == "\"" {
+                if i + 1 < total and all_chars[i + 1] == "\"" {
+                    i = i + 1;
+                } else {
+                    in_q_skip = false;
+                };
+            };
+        } else {
+            if ch_s == "\"" {
+                in_q_skip = true;
+            } else {
+                if ch_s == "\n" {
+                    newlines_needed = newlines_needed - 1;
+                };
+            };
+        };
+        i = i + 1;
+    }
+    // Parse the target row starting at position i
+    let mut fields: [string] = [];
+    let mut field: string = "";
+    let mut in_q2: bool = false;
+    let mut done2: bool = false;
+    while i < total and not done2 {
+        let ch2: string = all_chars[i];
+        if in_q2 {
+            if ch2 == "\"" {
+                if i + 1 < total and all_chars[i + 1] == "\"" {
+                    field = field + "\"";
+                    i = i + 1;
+                } else {
+                    in_q2 = false;
+                };
+            } else {
+                field = field + to_string(ch2);
+            };
+        } else {
+            if ch2 == "\"" {
+                in_q2 = true;
+            } else {
+                if ch2 == "," {
+                    push(fields, field);
+                    field = "";
+                } else {
+                    if ch2 == "\n" {
+                        push(fields, field);
+                        done2 = true;
+                    } else {
+                        field = field + to_string(ch2);
+                    };
+                };
+            };
+        };
+        i = i + 1;
+    }
+    if not done2 {
+        push(fields, field);
+    };
+    return fields;
+}
+
+fn arr_str_to_str(arr: [string]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + "\"" + arr[i] + "\"";
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    // Test 1: simple two-column CSV
+    let csv1: string = "name,age\nAlice,30\nBob,25";
+    print("headers1 = " + arr_str_to_str(csv_parse_headers(csv1)));
+    print("row1[0] = " + arr_str_to_str(csv_parse_row(csv1, 0)));
+    print("row1[1] = " + arr_str_to_str(csv_parse_row(csv1, 1)));
+
+    // Test 2: quoted field containing comma
+    let csv2: string = "name,address\nAlice,\"123 Main St, Apt 4\"\nBob,456 Oak Ave";
+    print("headers2 = " + arr_str_to_str(csv_parse_headers(csv2)));
+    print("row2[0] = " + arr_str_to_str(csv_parse_row(csv2, 0)));
+    print("row2[1] = " + arr_str_to_str(csv_parse_row(csv2, 1)));
+
+    // Test 3: escaped double quote inside quoted field
+    let csv3: string = "id,description\n1,\"He said \"\"hello\"\"\"";
+    print("headers3 = " + arr_str_to_str(csv_parse_headers(csv3)));
+    print("row3[0] = " + arr_str_to_str(csv_parse_row(csv3, 0)));
+
+    // Test 4: empty field value (two consecutive commas)
+    let csv4: string = "a,b,c\n1,,3";
+    print("headers4 = " + arr_str_to_str(csv_parse_headers(csv4)));
+    print("row4[0] = " + arr_str_to_str(csv_parse_row(csv4, 0)));
+
+    // Test 5: three columns, multiple rows
+    let csv5: string = "first,last,score\nAlice,Smith,95\nBob,Jones,82\nCarol,White,78";
+    print("headers5 = " + arr_str_to_str(csv_parse_headers(csv5)));
+    print("row5[0] = " + arr_str_to_str(csv_parse_row(csv5, 0)));
+    print("row5[1] = " + arr_str_to_str(csv_parse_row(csv5, 1)));
+    print("row5[2] = " + arr_str_to_str(csv_parse_row(csv5, 2)));
+}

@@ -1,0 +1,16 @@
+{
+  "spec": "BS-S-031",
+  "title": "Integer Square Root",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "isqrt(9) = 3",
+    "isqrt(8) = 2",
+    "isqrt(0) = 0",
+    "isqrt(1) = 1",
+    "isqrt(100) = 10",
+    "isqrt(15) = 3",
+    "isqrt(2) = 1",
+    "isqrt(10000) = 100"
+  ]
+}

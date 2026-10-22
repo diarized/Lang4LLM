@@ -1,0 +1,21 @@
+{
+  "spec": "BS-C-016",
+  "title": "Observer Pattern",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "logger received: hello",
+    "logger received: world",
+    "obs1 received: event_data",
+    "obs2 received: event_data",
+    "logger received: event_data",
+    "obs1 received: tick1",
+    "obs2 received: tick1",
+    "obs2 received: tick2",
+    "logger received: upd1",
+    "counter received: t1",
+    "logger received: upd2",
+    "no-observer notify: ok",
+    "auditor received: should_fire"
+  ]
+}

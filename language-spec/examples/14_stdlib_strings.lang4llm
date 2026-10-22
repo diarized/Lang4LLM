@@ -1,0 +1,59 @@
+// Example 14: Standard Library String Functions
+// Demonstrates: trim, to_upper, to_lower, contains, replace, starts_with, ends_with,
+//               split, join, chars
+
+fn main() -> unit {
+    // trim: remove leading and trailing whitespace
+    let padded: string = "  hello world  ";
+    let trimmed: string = trim(padded);
+    print("trim result: " + trimmed);
+
+    // to_upper and to_lower: case conversion
+    let msg: string = "Hello, Lang4LLM!";
+    let upper: string = to_upper(msg);
+    let lower: string = to_lower(msg);
+    print("to_upper: " + upper);
+    print("to_lower: " + lower);
+
+    // contains: substring search
+    let sentence: string = "the quick brown fox";
+    let found: bool = contains(sentence, "quick");
+    if found {
+        print("Found 'quick' in sentence");
+    } else {
+        print("Not found");
+    };
+
+    // starts_with and ends_with
+    let sw: bool = starts_with(sentence, "the");
+    let ew: bool = ends_with(sentence, "fox");
+    if sw {
+        print("Starts with 'the'");
+    } else {
+        print("Does not start with 'the'");
+    };
+    if ew {
+        print("Ends with 'fox'");
+    } else {
+        print("Does not end with 'fox'");
+    };
+
+    // replace: substitute substrings
+    let replaced: string = replace(sentence, "fox", "cat");
+    print("After replace: " + replaced);
+
+    // split and join: roundtrip via delimiter
+    let csv: string = "apple,banana,cherry";
+    let parts: [string] = split(csv, ",");
+    print("Parts count: " + len(parts));
+    let rejoined: string = join(parts, " | ");
+    print("Rejoined: " + rejoined);
+
+    // chars: decompose string into character list
+    let word: string = "hello";
+    let letters: [string] = chars(word);
+    print("Char count: " + len(letters));
+    print("First char: " + letters[0]);
+
+    return none;
+}

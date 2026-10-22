@@ -1,0 +1,19 @@
+{
+  "spec": "BS-C-001",
+  "title": "LRU Cache Implementation",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "get(1) = 100",
+    "get(2) = -1",
+    "get(3) = 300",
+    "get(1) = 150",
+    "get(2) = -1",
+    "get(1) = -1",
+    "get(2) = 200",
+    "get(3) = -1",
+    "get(1) = 100",
+    "get(2) = 200",
+    "get(4) = 400"
+  ]
+}

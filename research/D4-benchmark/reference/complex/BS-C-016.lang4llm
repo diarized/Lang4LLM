@@ -1,0 +1,143 @@
+// BS-C-016: Observer Pattern
+// Since closures cannot be stored in structs, observers are identified by string name.
+// Subject stores two event types ("update" and "tick") each with a list of observer names.
+// Dispatch calls the named observer function via if-chain.
+// NOTE: Functional style — subscribe/unsubscribe return new Subject.
+
+struct Subject {
+    update_observers: [string],
+    tick_observers: [string],
+    log: [string]
+}
+
+fn subject_new() -> Subject {
+    let uo: [string] = [];
+    let to_obs: [string] = [];
+    let lg: [string] = [];
+    return Subject { update_observers: uo, tick_observers: to_obs, log: lg };
+}
+
+fn subscribe(subj: Subject, event: string, obs: string) -> Subject {
+    if event == "update" {
+        let mut new_uo: [string] = subj.update_observers;
+        push(new_uo, obs);
+        return Subject { update_observers: new_uo, tick_observers: subj.tick_observers, log: subj.log };
+    };
+    if event == "tick" {
+        let mut new_to: [string] = subj.tick_observers;
+        push(new_to, obs);
+        return Subject { update_observers: subj.update_observers, tick_observers: new_to, log: subj.log };
+    };
+    return subj;
+}
+
+fn unsubscribe(subj: Subject, event: string, obs: string) -> Subject {
+    if event == "update" {
+        let mut new_uo: [string] = [];
+        let mut i: int = 0;
+        let mut removed: bool = false;
+        while i < len(subj.update_observers) {
+            if subj.update_observers[i] == obs and not removed {
+                removed = true;
+            } else {
+                push(new_uo, subj.update_observers[i]);
+            };
+            i = i + 1;
+        }
+        return Subject { update_observers: new_uo, tick_observers: subj.tick_observers, log: subj.log };
+    };
+    if event == "tick" {
+        let mut new_to: [string] = [];
+        let mut i2: int = 0;
+        let mut removed2: bool = false;
+        while i2 < len(subj.tick_observers) {
+            if subj.tick_observers[i2] == obs and not removed2 {
+                removed2 = true;
+            } else {
+                push(new_to, subj.tick_observers[i2]);
+            };
+            i2 = i2 + 1;
+        }
+        return Subject { update_observers: subj.update_observers, tick_observers: new_to, log: subj.log };
+    };
+    return subj;
+}
+
+fn dispatch_observer(obs_name: string, data: string) -> unit {
+    if obs_name == "logger" {
+        print("logger received: " + data);
+    };
+    if obs_name == "counter" {
+        print("counter received: " + data);
+    };
+    if obs_name == "auditor" {
+        print("auditor received: " + data);
+    };
+    if obs_name == "obs1" {
+        print("obs1 received: " + data);
+    };
+    if obs_name == "obs2" {
+        print("obs2 received: " + data);
+    };
+}
+
+fn notify(subj: Subject, event: string, data: string) -> unit {
+    if event == "update" {
+        let mut i: int = 0;
+        while i < len(subj.update_observers) {
+            dispatch_observer(subj.update_observers[i], data);
+            i = i + 1;
+        }
+    };
+    if event == "tick" {
+        let mut i2: int = 0;
+        while i2 < len(subj.tick_observers) {
+            dispatch_observer(subj.tick_observers[i2], data);
+            i2 = i2 + 1;
+        }
+    };
+}
+
+fn main() -> unit {
+    // Test 1: subscribe one observer, notify
+    let mut s1: Subject = subject_new();
+    s1 = subscribe(s1, "update", "logger");
+    notify(s1, "update", "hello");
+    notify(s1, "update", "world");
+
+    // Test 2: multiple observers, notification order
+    let mut s2: Subject = subject_new();
+    s2 = subscribe(s2, "update", "obs1");
+    s2 = subscribe(s2, "update", "obs2");
+    s2 = subscribe(s2, "update", "logger");
+    notify(s2, "update", "event_data");
+
+    // Test 3: unsubscribe then notify
+    let mut s3: Subject = subject_new();
+    s3 = subscribe(s3, "tick", "obs1");
+    s3 = subscribe(s3, "tick", "obs2");
+    notify(s3, "tick", "tick1");
+    s3 = unsubscribe(s3, "tick", "obs1");
+    notify(s3, "tick", "tick2");
+
+    // Test 4: two independent event types
+    let mut s4: Subject = subject_new();
+    s4 = subscribe(s4, "update", "logger");
+    s4 = subscribe(s4, "tick", "counter");
+    notify(s4, "update", "upd1");
+    notify(s4, "tick", "t1");
+    notify(s4, "update", "upd2");
+
+    // Test 5: notify event with no observers (silent)
+    let mut s5: Subject = subject_new();
+    notify(s5, "tick", "nothing");
+    print("no-observer notify: ok");
+
+    // Test 6: unsubscribe from one event, still active on other
+    let mut s6: Subject = subject_new();
+    s6 = subscribe(s6, "update", "auditor");
+    s6 = subscribe(s6, "tick", "auditor");
+    s6 = unsubscribe(s6, "update", "auditor");
+    notify(s6, "update", "should_not_fire");
+    notify(s6, "tick", "should_fire");
+}

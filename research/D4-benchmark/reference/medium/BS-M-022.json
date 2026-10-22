@@ -1,0 +1,18 @@
+{
+  "spec": "BS-M-022",
+  "title": "Reverse Words in Sentence",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "reverse_words(\"Hello World\") = World Hello",
+    "reverse_words(\"the quick brown fox\") = fox brown quick the",
+    "reverse_words(\"  hello world  \") = world hello",
+    "reverse_words(\"foo   bar   baz\") = baz bar foo",
+    "reverse_words(\"lonely\") = lonely",
+    "reverse_words(\"\") = ",
+    "reverse_words(\"     \") = ",
+    "reverse_words(\"Hello, World!\") = World! Hello,",
+    "reverse_words(\"  one  two  three  \") = three two one",
+    "reverse_words(\"a b c d e\") = e d c b a"
+  ]
+}

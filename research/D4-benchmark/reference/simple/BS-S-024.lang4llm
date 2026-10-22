@@ -1,0 +1,75 @@
+// BS-S-024: Check if String is Numeric
+// Return true if the string is a valid integer: optional leading '-' followed by one or more digits.
+
+fn is_numeric(text: string) -> bool {
+    if len(text) == 0 {
+        return false;
+    };
+    let ch: [string] = chars(text);
+    let mut start: int = 0;
+    if ch[0] == "-" {
+        start = 1;
+    };
+    if start == len(text) {
+        return false;
+    };
+    let mut valid: bool = true;
+    for i in range(start, len(text)) {
+        let c: string = ch[i];
+        if c == "0" {
+            valid = valid;
+        } else {
+            if c == "1" {
+                valid = valid;
+            } else {
+                if c == "2" {
+                    valid = valid;
+                } else {
+                    if c == "3" {
+                        valid = valid;
+                    } else {
+                        if c == "4" {
+                            valid = valid;
+                        } else {
+                            if c == "5" {
+                                valid = valid;
+                            } else {
+                                if c == "6" {
+                                    valid = valid;
+                                } else {
+                                    if c == "7" {
+                                        valid = valid;
+                                    } else {
+                                        if c == "8" {
+                                            valid = valid;
+                                        } else {
+                                            if c == "9" {
+                                                valid = valid;
+                                            } else {
+                                                valid = false;
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    }
+    return valid;
+}
+
+fn main() -> unit {
+    print("is_numeric(\"123\") = " + to_string(is_numeric("123")));
+    print("is_numeric(\"-456\") = " + to_string(is_numeric("-456")));
+    print("is_numeric(\"12a3\") = " + to_string(is_numeric("12a3")));
+    print("is_numeric(\"\") = " + to_string(is_numeric("")));
+    print("is_numeric(\"-\") = " + to_string(is_numeric("-")));
+    print("is_numeric(\" 123\") = " + to_string(is_numeric(" 123")));
+    print("is_numeric(\"3.14\") = " + to_string(is_numeric("3.14")));
+    print("is_numeric(\"0\") = " + to_string(is_numeric("0")));
+    print("is_numeric(\"007\") = " + to_string(is_numeric("007")));
+    print("is_numeric(\"+5\") = " + to_string(is_numeric("+5")));
+}

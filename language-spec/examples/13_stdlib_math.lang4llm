@@ -1,0 +1,40 @@
+// Example 13: Standard Library Math Functions
+// Demonstrates: abs, min, max, pow, floor, ceil, round, sqrt, as_float, to_string
+
+fn main() -> unit {
+    // abs: integer absolute value
+    let neg: int = 0 - 5;
+    let pos: int = abs(neg);
+    print("abs(0 - 5) = " + pos);
+
+    // min and max on integers
+    let smaller: int = min(3, 7);
+    let larger: int = max(3, 7);
+    print("min(3, 7) = " + smaller);
+    print("max(3, 7) = " + larger);
+
+    // pow: integer exponentiation
+    let result: int = pow(2, 10);
+    print("pow(2, 10) = " + result);
+
+    // float rounding functions
+    let x: float = 3.7;
+    let floored: float = floor(x);
+    let ceiled: float = ceil(x);
+    let rounded: float = round(x);
+    print("floor(3.7) = " + floored);
+    print("ceil(3.7) = " + ceiled);
+    print("round(3.7) = " + rounded);
+
+    // sqrt via as_float conversion
+    let n: int = 9;
+    let f: float = as_float(n);
+    let root: float = sqrt(f);
+    print("sqrt(9) = " + root);
+
+    // to_string: convert int to string
+    let num_str: string = to_string(42);
+    print("to_string(42) = " + num_str);
+
+    return none;
+}

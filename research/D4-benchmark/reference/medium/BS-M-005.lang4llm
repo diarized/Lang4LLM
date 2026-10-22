@@ -1,0 +1,142 @@
+fn is_local_char(c: string) -> bool {
+    let lower: string = to_lower(c);
+    return (lower >= "a" and lower <= "z") or (c >= "0" and c <= "9") or c == "." or c == "_" or c == "-";
+}
+
+fn is_domain_char(c: string) -> bool {
+    let lower: string = to_lower(c);
+    return (lower >= "a" and lower <= "z") or (c >= "0" and c <= "9") or c == "-";
+}
+
+fn is_alpha(c: string) -> bool {
+    let lower: string = to_lower(c);
+    return lower >= "a" and lower <= "z";
+}
+
+fn validate_local(local: string) -> bool {
+    if len(local) == 0 {
+        return false;
+    };
+    let chs: [string] = chars(local);
+    let n: int = len(chs);
+    if chs[0] == "." {
+        return false;
+    };
+    if chs[n - 1] == "." {
+        return false;
+    };
+    let mut prev_dot: bool = false;
+    let mut valid: bool = true;
+    for ch in chs {
+        if not is_local_char(ch) {
+            valid = false;
+        };
+        if ch == "." and prev_dot {
+            valid = false;
+        };
+        if ch == "." {
+            prev_dot = true;
+        } else {
+            prev_dot = false;
+        };
+    }
+    return valid;
+}
+
+fn validate_domain(domain: string) -> bool {
+    if len(domain) == 0 {
+        return false;
+    };
+    if not contains(domain, ".") {
+        return false;
+    };
+    let parts: [string] = split(domain, ".");
+    let num_parts: int = len(parts);
+    let tld: string = parts[num_parts - 1];
+    if len(tld) < 2 {
+        return false;
+    };
+    let tld_chars: [string] = chars(tld);
+    let mut tld_valid: bool = true;
+    for ch in tld_chars {
+        if not is_alpha(ch) {
+            tld_valid = false;
+        };
+    }
+    if not tld_valid {
+        return false;
+    };
+    let mut part_idx: int = 0;
+    let mut all_valid: bool = true;
+    while part_idx < num_parts - 1 {
+        let part: string = parts[part_idx];
+        if len(part) == 0 {
+            all_valid = false;
+        };
+        let part_chs: [string] = chars(part);
+        for ch in part_chs {
+            if not is_domain_char(ch) {
+                all_valid = false;
+            };
+        }
+        part_idx = part_idx + 1;
+    }
+    return all_valid;
+}
+
+fn count_at(email: string) -> int {
+    let chs: [string] = chars(email);
+    let mut count: int = 0;
+    for ch in chs {
+        if ch == "@" {
+            count = count + 1;
+        };
+    }
+    return count;
+}
+
+fn find_at_index(email: string) -> int {
+    let chs: [string] = chars(email);
+    let mut idx: int = 0;
+    for ch in chs {
+        if ch == "@" {
+            return idx;
+        };
+        idx = idx + 1;
+    }
+    return -1;
+}
+
+fn validate_email(email: string) -> bool {
+    if count_at(email) != 1 {
+        return false;
+    };
+    let at_idx: int = find_at_index(email);
+    let chs: [string] = chars(email);
+    let mut local: string = "";
+    let mut domain: string = "";
+    let mut i: int = 0;
+    while i < at_idx {
+        local = local + to_string(chs[i]);
+        i = i + 1;
+    }
+    i = at_idx + 1;
+    while i < len(chs) {
+        domain = domain + to_string(chs[i]);
+        i = i + 1;
+    }
+    return validate_local(local) and validate_domain(domain);
+}
+
+fn main() -> unit {
+    print("user@example.com: " + to_string(validate_email("user@example.com")));
+    print("john.doe123@mail.company.com: " + to_string(validate_email("john.doe123@mail.company.com")));
+    print("userexample.com: " + to_string(validate_email("userexample.com")));
+    print("user@@example.com: " + to_string(validate_email("user@@example.com")));
+    print("user@: " + to_string(validate_email("user@")));
+    print("user@example: " + to_string(validate_email("user@example")));
+    print(".user@example.com: " + to_string(validate_email(".user@example.com")));
+    print("user..name@example.com: " + to_string(validate_email("user..name@example.com")));
+    print("user@example.c: " + to_string(validate_email("user@example.c")));
+    print("user_name@example.com: " + to_string(validate_email("user_name@example.com")));
+}

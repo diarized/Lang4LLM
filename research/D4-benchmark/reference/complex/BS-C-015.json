@@ -1,0 +1,22 @@
+{
+  "spec": "BS-C-015",
+  "title": "Config File System",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "app_name = MyApp",
+    "database.host = localhost",
+    "database.port = 5432",
+    "server.port = 8080",
+    "missing.key = null",
+    "db.host after set = remotehost",
+    "db.port unchanged = 5432",
+    "cache.ttl = 300",
+    "empty get = null",
+    "timeout = 30",
+    "app.name = Demo",
+    "dup key = second",
+    "logging.file.path = /var/log/app.log",
+    "logging.file.level = DEBUG"
+  ]
+}

@@ -1,0 +1,161 @@
+struct BST {
+    val: [int],
+    left: [int],
+    right: [int],
+    root: int,
+    size: int
+}
+
+fn bst_new() -> BST {
+    let v: [int] = [];
+    let l: [int] = [];
+    let r: [int] = [];
+    return BST { val: v, left: l, right: r, root: -1, size: 0 };
+}
+
+fn bst_insert(t: BST, value: int) -> BST {
+    let mut new_val: [int] = t.val;
+    let mut new_left: [int] = t.left;
+    let mut new_right: [int] = t.right;
+    if t.root == -1 {
+        push(new_val, value);
+        push(new_left, -1);
+        push(new_right, -1);
+        return BST { val: new_val, left: new_left, right: new_right, root: 0, size: 1 };
+    };
+    let mut cur: int = t.root;
+    let mut done: bool = false;
+    while not done {
+        if value < new_val[cur] {
+            if new_left[cur] == -1 {
+                let ni: int = len(new_val);
+                push(new_val, value);
+                push(new_left, -1);
+                push(new_right, -1);
+                new_left[cur] = ni;
+                done = true;
+            } else {
+                cur = new_left[cur];
+            };
+        } else {
+            if value > new_val[cur] {
+                if new_right[cur] == -1 {
+                    let ni2: int = len(new_val);
+                    push(new_val, value);
+                    push(new_left, -1);
+                    push(new_right, -1);
+                    new_right[cur] = ni2;
+                    done = true;
+                } else {
+                    cur = new_right[cur];
+                };
+            } else {
+                done = true;
+            };
+        };
+    }
+    let new_size: int = len(new_val);
+    return BST { val: new_val, left: new_left, right: new_right, root: t.root, size: new_size };
+}
+
+fn bst_search(t: BST, value: int) -> bool {
+    let mut cur: int = t.root;
+    while cur != -1 {
+        if t.val[cur] == value { return true; };
+        if value < t.val[cur] {
+            cur = t.left[cur];
+        } else {
+            cur = t.right[cur];
+        };
+    }
+    return false;
+}
+
+fn bst_inorder_rec(val: [int], left: [int], right: [int], node: int) -> [int] {
+    if node == -1 { return []; };
+    let left_res: [int] = bst_inorder_rec(val, left, right, left[node]);
+    let right_res: [int] = bst_inorder_rec(val, left, right, right[node]);
+    let mut mid: [int] = [];
+    push(mid, val[node]);
+    let lr: [int] = concat(left_res, mid);
+    return concat(lr, right_res);
+}
+
+fn bst_inorder(t: BST) -> [int] {
+    return bst_inorder_rec(t.val, t.left, t.right, t.root);
+}
+
+fn build_bst_from_sorted(sorted: [int]) -> BST {
+    let mut t: BST = bst_new();
+    let mut i: int = 0;
+    while i < len(sorted) {
+        t = bst_insert(t, sorted[i]);
+        i = i + 1;
+    }
+    return t;
+}
+
+fn bst_delete(t: BST, value: int) -> BST {
+    let inorder: [int] = bst_inorder(t);
+    let mut filtered: [int] = [];
+    let mut i: int = 0;
+    let mut found: bool = false;
+    while i < len(inorder) {
+        if inorder[i] == value and not found {
+            found = true;
+        } else {
+            push(filtered, inorder[i]);
+        };
+        i = i + 1;
+    }
+    return build_bst_from_sorted(filtered);
+}
+
+fn arr_str(arr: [int]) -> string {
+    if is_empty(arr) { return "[]"; };
+    let mut s: string = "[";
+    let mut i: int = 0;
+    while i < len(arr) {
+        if i > 0 { s = s + ", "; };
+        s = s + to_string(arr[i]);
+        i = i + 1;
+    }
+    return s + "]";
+}
+
+fn main() -> unit {
+    let t0: BST = bst_new();
+    let t1: BST = bst_insert(t0, 5);
+    let t2: BST = bst_insert(t1, 3);
+    let t3: BST = bst_insert(t2, 7);
+    let t4: BST = bst_insert(t3, 1);
+    let t5: BST = bst_insert(t4, 4);
+    print("inorder = " + arr_str(bst_inorder(t5)));
+    print("search(3) = " + to_string(bst_search(t5, 3)));
+    print("search(6) = " + to_string(bst_search(t5, 6)));
+
+    let t6: BST = bst_insert(t5, 5);
+    print("after dup insert(5), inorder = " + arr_str(bst_inorder(t6)));
+
+    let u0: BST = bst_new();
+    let u1: BST = bst_insert(u0, 8);
+    let u2: BST = bst_insert(u1, 4);
+    let u3: BST = bst_insert(u2, 12);
+    let u4: BST = bst_insert(u3, 2);
+    let u5: BST = bst_insert(u4, 6);
+    let u6: BST = bst_insert(u5, 10);
+    let u7: BST = bst_insert(u6, 14);
+    let u8: BST = bst_delete(u7, 2);
+    print("after delete(2) = " + arr_str(bst_inorder(u8)));
+    let u9: BST = bst_insert(u8, 5);
+    let u10: BST = bst_delete(u9, 6);
+    print("after delete(6) = " + arr_str(bst_inorder(u10)));
+    let u11: BST = bst_delete(u10, 12);
+    print("after delete(12) = " + arr_str(bst_inorder(u11)));
+    let u12: BST = bst_delete(u11, 99);
+    print("after delete(99) = " + arr_str(bst_inorder(u12)));
+
+    let v0: BST = bst_new();
+    print("empty inorder = " + arr_str(bst_inorder(v0)));
+    print("search empty = " + to_string(bst_search(v0, 5)));
+}

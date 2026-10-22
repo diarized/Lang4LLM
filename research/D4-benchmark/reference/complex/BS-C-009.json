@@ -1,0 +1,26 @@
+{
+  "spec": "BS-C-009",
+  "title": "Simple Pattern Matcher (Glob-Style)",
+  "tier": "complex",
+  "lang4llm_compatible": true,
+  "expected": [
+    "match('hello', 'hello') = true",
+    "match('hello', 'world') = false",
+    "match('h?llo', 'hello') = true",
+    "match('h?llo', 'hllo') = false",
+    "match('he*', 'hello') = true",
+    "match('he*', 'he') = true",
+    "match('*', '') = true",
+    "match('*', 'anything') = true",
+    "match('*.txt', 'file.txt') = true",
+    "match('*.txt', 'file.csv') = false",
+    "match('a*b*c', 'aXXbYYc') = true",
+    "match('a*b*c', 'abc') = true",
+    "match('a*b*c', 'ac') = false",
+    "match('**', 'hello') = true",
+    "match('', '') = true",
+    "match('', 'a') = false",
+    "match('?', 'a') = true",
+    "match('?', '') = false"
+  ]
+}

@@ -1,0 +1,114 @@
+// Circular buffer with fixed capacity.
+// Uses a backing array pre-filled to capacity, a read pointer,
+// a write pointer, and an element count.
+// count distinguishes full from empty when read == write.
+
+struct CircBuf {
+    data: [int],
+    capacity: int,
+    read_ptr: int,
+    write_ptr: int,
+    count: int
+}
+
+fn cb_new(capacity: int) -> CircBuf {
+    let mut data: [int] = [];
+    for i in range(0, capacity) {
+        push(data, 0);
+    }
+    return CircBuf { data: data, capacity: capacity, read_ptr: 0, write_ptr: 0, count: 0 };
+}
+
+fn cb_is_empty(cb: CircBuf) -> bool {
+    return cb.count == 0;
+}
+
+fn cb_is_full(cb: CircBuf) -> bool {
+    return cb.count == cb.capacity;
+}
+
+fn cb_write(cb: CircBuf, value: int) -> CircBuf {
+    let mut new_data: [int] = cb.data;
+    new_data[cb.write_ptr] = value;
+    let new_write: int = (cb.write_ptr + 1) % cb.capacity;
+    if cb_is_full(cb) {
+        // overwrite: advance read pointer
+        let new_read: int = (cb.read_ptr + 1) % cb.capacity;
+        return CircBuf { data: new_data, capacity: cb.capacity, read_ptr: new_read, write_ptr: new_write, count: cb.count };
+    };
+    return CircBuf { data: new_data, capacity: cb.capacity, read_ptr: cb.read_ptr, write_ptr: new_write, count: cb.count + 1 };
+}
+
+fn cb_read_val(cb: CircBuf) -> int {
+    if cb_is_empty(cb) {
+        return -1;
+    };
+    return cb.data[cb.read_ptr];
+}
+
+fn cb_read(cb: CircBuf) -> CircBuf {
+    if cb_is_empty(cb) {
+        print("ERROR: read on empty buffer");
+        return cb;
+    };
+    let new_read: int = (cb.read_ptr + 1) % cb.capacity;
+    return CircBuf { data: cb.data, capacity: cb.capacity, read_ptr: new_read, write_ptr: cb.write_ptr, count: cb.count - 1 };
+}
+
+fn main() -> unit {
+    // Example 1: basic write and read (capacity=3)
+    let c1_0: CircBuf = cb_new(3);
+    let c1_1: CircBuf = cb_write(c1_0, 1);
+    let c1_2: CircBuf = cb_write(c1_1, 2);
+    let c1_3: CircBuf = cb_write(c1_2, 3);
+    let v1: int = cb_read_val(c1_3);
+    let c1_4: CircBuf = cb_read(c1_3);
+    let v2: int = cb_read_val(c1_4);
+    let c1_5: CircBuf = cb_read(c1_4);
+    print("basic read 1: " + to_string(v1));
+    print("basic read 2: " + to_string(v2));
+
+    // Example 2: overwrite when full (capacity=3)
+    let c2_0: CircBuf = cb_new(3);
+    let c2_1: CircBuf = cb_write(c2_0, 1);
+    let c2_2: CircBuf = cb_write(c2_1, 2);
+    let c2_3: CircBuf = cb_write(c2_2, 3);
+    let c2_4: CircBuf = cb_write(c2_3, 4);
+    let vr: int = cb_read_val(c2_4);
+    print("after overwrite read: " + to_string(vr));
+
+    // Example 3: repeated overwrite (capacity=2)
+    let c3_0: CircBuf = cb_new(2);
+    let c3_1: CircBuf = cb_write(c3_0, 1);
+    let c3_2: CircBuf = cb_write(c3_1, 2);
+    let c3_3: CircBuf = cb_write(c3_2, 3);
+    let c3_4: CircBuf = cb_write(c3_3, 4);
+    let vr1: int = cb_read_val(c3_4);
+    let c3_5: CircBuf = cb_read(c3_4);
+    let vr2: int = cb_read_val(c3_5);
+    let c3_6: CircBuf = cb_read(c3_5);
+    print("repeat overwrite r1: " + to_string(vr1));
+    print("repeat overwrite r2: " + to_string(vr2));
+    print("repeat overwrite empty: " + to_string(cb_is_empty(c3_6)));
+
+    // Example 4: is_empty on new buffer
+    let c4: CircBuf = cb_new(3);
+    print("new is_empty: " + to_string(cb_is_empty(c4)));
+
+    // Example 5: is_full transitions (capacity=2)
+    let c5_0: CircBuf = cb_new(2);
+    print("before write is_full: " + to_string(cb_is_full(c5_0)));
+    let c5_1: CircBuf = cb_write(c5_0, 10);
+    print("after 1 write is_full: " + to_string(cb_is_full(c5_1)));
+    let c5_2: CircBuf = cb_write(c5_1, 20);
+    print("after 2 writes is_full: " + to_string(cb_is_full(c5_2)));
+    let c5_3: CircBuf = cb_read(c5_2);
+    print("after read is_full: " + to_string(cb_is_full(c5_3)));
+
+    // Example 6: capacity=1 overwrite
+    let c6_0: CircBuf = cb_new(1);
+    let c6_1: CircBuf = cb_write(c6_0, 5);
+    let c6_2: CircBuf = cb_write(c6_1, 9);
+    let vc6: int = cb_read_val(c6_2);
+    print("capacity=1 overwrite: " + to_string(vc6));
+}

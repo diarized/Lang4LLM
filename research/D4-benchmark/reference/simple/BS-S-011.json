@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-011",
+  "title": "Check if List Contains Element",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "list_contains([10,20,30,40], 30) = true",
+    "list_contains([1,2,3,4], 9) = false",
+    "list_contains([], 5) = false",
+    "list_contains([7,1,2,3], 7) = true",
+    "list_contains([-1,0,1], 0) = true",
+    "list_contains([5], 5) = true"
+  ]
+}

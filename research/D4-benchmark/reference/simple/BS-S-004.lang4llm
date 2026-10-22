@@ -1,0 +1,27 @@
+fn sum_list(numbers: [int]) -> int {
+    let mut total: int = 0;
+    for i in range(0, len(numbers)) {
+        total = total + numbers[i];
+    }
+    return total;
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 3, 4, 5];
+    print("sum_list([1,2,3,4,5]) = " + to_string(sum_list(a)));
+
+    let b: [int] = [-1, -2, -3];
+    print("sum_list([-1,-2,-3]) = " + to_string(sum_list(b)));
+
+    let c: [int] = [10, -5, 3, -2];
+    print("sum_list([10,-5,3,-2]) = " + to_string(sum_list(c)));
+
+    let d: [int] = [];
+    print("sum_list([]) = " + to_string(sum_list(d)));
+
+    let e: [int] = [42];
+    print("sum_list([42]) = " + to_string(sum_list(e)));
+
+    let f: [int] = [0, 0, 5, 0];
+    print("sum_list([0,0,5,0]) = " + to_string(sum_list(f)));
+}

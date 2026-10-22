@@ -1,0 +1,3 @@
+// BS-M-040: Task Queue
+// lang4llm_compatible: false
+// Reason: Requires concurrency primitives (blocking queues, condition variables, mutex) not available in Lang4LLM.

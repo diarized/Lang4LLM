@@ -1,0 +1,99 @@
+// BS-M-035: Bank Account
+// Functional-style account with balance and transaction history.
+// History entries stored as strings: "deposit|amount|balance_after"
+
+struct Account {
+    balance: float,
+    history: [string]
+}
+
+fn account_new(initial: float) -> Account {
+    return Account { balance: initial, history: [] };
+}
+
+fn account_deposit(acc: Account, amount: float) -> Account {
+    if amount <= 0.0 {
+        return acc;
+    };
+    let new_balance: float = acc.balance + amount;
+    let mut new_history: [string] = acc.history;
+    let entry: string = "deposit|" + to_string(amount) + "|" + to_string(new_balance);
+    push(new_history, entry);
+    return Account { balance: new_balance, history: new_history };
+}
+
+fn account_withdraw(acc: Account, amount: float) -> Account {
+    if amount <= 0.0 {
+        return acc;
+    };
+    if acc.balance < amount {
+        return acc;
+    };
+    let new_balance: float = acc.balance - amount;
+    let mut new_history: [string] = acc.history;
+    let entry: string = "withdrawal|" + to_string(amount) + "|" + to_string(new_balance);
+    push(new_history, entry);
+    return Account { balance: new_balance, history: new_history };
+}
+
+fn account_balance(acc: Account) -> float {
+    return acc.balance;
+}
+
+fn account_history(acc: Account) -> [string] {
+    return acc.history;
+}
+
+fn print_history(history: [string]) -> unit {
+    if is_empty(history) {
+        print("  history: []");
+        return;
+    };
+    for i in range(0, len(history)) {
+        print("  history[" + to_string(i) + "]: " + history[i]);
+    }
+}
+
+fn main() -> unit {
+    // Test 1: deposit and withdrawal
+    let a1: Account = account_new(100.0);
+    let a1b: Account = account_deposit(a1, 50.0);
+    let a1c: Account = account_withdraw(a1b, 30.0);
+    print("balance after deposit(50)+withdraw(30) from 100 = " + to_string(account_balance(a1c)));
+    print_history(account_history(a1c));
+
+    // Test 2: rejected withdrawal (insufficient funds)
+    let a2: Account = account_new(50.0);
+    let a2b: Account = account_withdraw(a2, 100.0);
+    print("balance after rejected withdraw(100) from 50 = " + to_string(account_balance(a2b)));
+    print_history(account_history(a2b));
+
+    // Test 3: partial success sequence
+    let a3: Account = account_new(0.0);
+    let a3b: Account = account_deposit(a3, 200.0);
+    let a3c: Account = account_withdraw(a3b, 75.0);
+    let a3d: Account = account_withdraw(a3c, 200.0);
+    print("balance after deposit(200)+withdraw(75)+withdraw_fail(200) = " + to_string(account_balance(a3d)));
+    print_history(account_history(a3d));
+
+    // Test 4: exact balance withdrawal
+    let a4: Account = account_new(100.0);
+    let a4b: Account = account_withdraw(a4, 100.0);
+    print("balance after withdraw exact 100 from 100 = " + to_string(account_balance(a4b)));
+    print_history(account_history(a4b));
+
+    // Test 5: invalid deposit amounts rejected
+    let a5: Account = account_new(50.0);
+    let a5b: Account = account_deposit(a5, -10.0);
+    let a5c: Account = account_deposit(a5b, 0.0);
+    print("balance after invalid deposits = " + to_string(account_balance(a5c)));
+    print_history(account_history(a5c));
+
+    // Test 6: default zero initial balance
+    let a6: Account = account_new(0.0);
+    let a6b: Account = account_deposit(a6, 100.0);
+    let a6c: Account = account_deposit(a6b, 50.0);
+    let a6d: Account = account_withdraw(a6c, 20.0);
+    print("balance after 0+deposit(100)+deposit(50)+withdraw(20) = " + to_string(account_balance(a6d)));
+    print_history(account_history(a6d));
+}

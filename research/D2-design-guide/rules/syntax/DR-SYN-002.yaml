@@ -1,0 +1,58 @@
+id: DR-SYN-002
+category: SYNTAX
+name: No Significant Whitespace
+description: |
+  Whitespace (spaces, tabs, newlines) should not affect program semantics.
+  Use explicit delimiters or keywords for scope and structure instead of indentation.
+
+priority: 5
+impact_score: 0.85
+
+rationale: |
+  Significant whitespace (Python-style indentation) is invisible and error-prone for LLMs.
+  EP-SYN-002 occurs at 20% frequency in Python vs 0% in bracket-based languages.
+  Eliminating significant whitespace removes an entire error class.
+
+research_backing:
+  - source: "D1 Error Taxonomy - Cross-Language Analysis"
+    finding: "Python: 20% indentation errors, Rust/Go/TypeScript: 0% (use braces)"
+    confidence: HIGH
+
+  - source: "GlyphLang Design Philosophy"
+    finding: "Symbols over whitespace: improves LLM token prediction"
+    confidence: MEDIUM
+
+  - source: "P08 - Deep Dive into LLM Mistakes"
+    finding: "Invisible character errors (tabs/spaces) cause 8% of failures"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Compare LLM code generation accuracy on Python (indentation) vs equivalent
+    bracket-based syntax (like Nim's `{}` mode). Measure EP-SYN-002 frequency.
+  metrics:
+    - M-001  # Token Predictability
+    - M-002  # Parse Ambiguity
+  benchmark_specs:
+    - BS-S-005  # Nested if/else
+    - BS-M-018  # Multi-level functions
+    - BS-C-003  # Complex control flow
+
+counter_examples:
+  - scenario: "Readability for human beginners"
+    reason: "Python's indentation is praised for forcing readable code"
+    alternative: "Enforce formatting via linter/formatter, not parser"
+
+  - scenario: "Minimal syntax (fewer characters)"
+    reason: "Braces add token overhead"
+    alternative: "Use lightweight delimiters (e.g., `end` keyword instead of `}`)"
+
+related_patterns:
+  - pattern_id: EP-SYN-002
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Use braces `{}` or `begin/end` keywords for scope"
+  - "Whitespace is purely stylistic (handled by formatter)"
+  - "Parser ignores all whitespace except as token separator"
+  - "Provide canonical formatter to ensure consistency"

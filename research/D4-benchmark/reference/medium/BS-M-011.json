@@ -1,0 +1,24 @@
+{
+  "spec": "BS-M-011",
+  "title": "Min-Heap Insert and Extract",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "empty size: 0",
+    "empty peek_min: -1",
+    "single size: 1",
+    "single peek: 42",
+    "single extract: 42",
+    "after extract size: 0",
+    "extract seq: 1,3,5,8",
+    "drained empty: true",
+    "reverse insert min: 1",
+    "peek1: 2",
+    "peek2: 2",
+    "size unchanged: 3",
+    "dup extract: 1,3,3",
+    "size after 2 inserts: 2",
+    "size after extract: 1",
+    "large seq: 1,2,3,5,7"
+  ]
+}

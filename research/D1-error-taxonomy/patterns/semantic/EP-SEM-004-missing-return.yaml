@@ -1,0 +1,109 @@
+# Error Pattern: Missing or Incorrect Return Statement
+
+id: EP-SEM-004
+category: SEMANTIC
+subcategory: control-flow
+name: Missing Return Statement or Wrong Return Type
+description: |
+  LLM generates function that's missing return statement, returns None/null when
+  value expected, or returns from wrong code path. Common in functions with complex
+  control flow or early exit conditions.
+
+frequency:
+  overall: 0.12  # 12% of all semantic errors
+  by_model:
+    gpt4: 0.09
+    claude: 0.11
+    deepseek: 0.15
+  by_language:
+    python: 0.14  # Implicit None return
+    rust: 0.08   # Compiler enforces returns
+    typescript: 0.12
+    go: 0.10
+
+root_cause: |
+  LLMs generate code linearly without full control flow analysis. Early returns
+  or conditional branches may cause missing return in some paths. Implicit returns
+  (Python None, JavaScript undefined) not explicitly tracked during generation.
+
+trigger_conditions:
+  - feature: "Multiple return paths (if/else branches)"
+    severity: HIGH
+  - feature: "Early return conditions"
+    severity: MEDIUM
+  - feature: "Recursive functions"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def find_max(numbers: list[int]) -> int:
+          if not numbers:
+              return None  # Should raise exception or return sentinel
+          max_val = numbers[0]
+          for num in numbers:
+              if num > max_val:
+                  max_val = num
+          # Missing return statement
+    correct: |
+      def find_max(numbers: list[int]) -> int:
+          if not numbers:
+              raise ValueError("Empty list")
+          max_val = numbers[0]
+          for num in numbers:
+              if num > max_val:
+                  max_val = num
+          return max_val
+    explanation: "Missing return statement at end of function"
+
+  - language: rust
+    incorrect: |
+      fn divide(a: f64, b: f64) -> Option<f64> {
+          if b == 0.0 {
+              None  // Missing return keyword
+          }
+          Some(a / b)
+      }
+    correct: |
+      fn divide(a: f64, b: f64) -> Option<f64> {
+          if b == 0.0 {
+              return None;
+          }
+          Some(a / b)
+      }
+    explanation: "Need explicit 'return' in early exit path"
+
+  - language: typescript
+    incorrect: |
+      function findUser(id: number): User {
+          const users = getUsers();
+          for (const user of users) {
+              if (user.id === id) {
+                  return user;
+              }
+          }
+          // Missing return for not-found case
+      }
+    correct: |
+      function findUser(id: number): User | null {
+          const users = getUsers();
+          for (const user of users) {
+              if (user.id === id) {
+                  return user;
+              }
+          }
+          return null;
+      }
+    explanation: "Must handle case where user not found"
+
+related_patterns:
+  - pattern_id: EP-SEM-001
+    relationship: SIMILAR_TO
+  - pattern_id: EP-LOG-001
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Incorrect return values (syntactic characteristic)"
+  - paper_id: P02
+    section: "Control flow completion failures"

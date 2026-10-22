@@ -1,0 +1,38 @@
+// BS-S-026: Convert to Title Case
+// First letter of each space-separated word is uppercased, remaining letters lowercased.
+
+fn capitalize_word(word: string) -> string {
+    if len(word) == 0 {
+        return "";
+    };
+    let ch: [string] = chars(word);
+    let first_char: string = to_upper(ch[0]);
+    let mut rest: string = "";
+    for i in range(1, len(word)) {
+        rest = rest + to_lower(ch[i]);
+    }
+    return first_char + to_string(rest);
+}
+
+fn to_title_case(text: string) -> string {
+    if len(text) == 0 {
+        return "";
+    };
+    let words: [string] = split(text, " ");
+    let mut result: [string] = [];
+    for i in range(0, len(words)) {
+        push(result, capitalize_word(words[i]));
+    }
+    return join(result, " ");
+}
+
+fn main() -> unit {
+    print("to_title_case(\"hello world\") = \"" + to_title_case("hello world") + "\"");
+    print("to_title_case(\"Hello World\") = \"" + to_title_case("Hello World") + "\"");
+    print("to_title_case(\"HELLO WORLD\") = \"" + to_title_case("HELLO WORLD") + "\"");
+    print("to_title_case(\"the QUICK brown FOX\") = \"" + to_title_case("the QUICK brown FOX") + "\"");
+    print("to_title_case(\"python\") = \"" + to_title_case("python") + "\"");
+    print("to_title_case(\"\") = \"" + to_title_case("") + "\"");
+    print("to_title_case(\"version 2 release\") = \"" + to_title_case("version 2 release") + "\"");
+    print("to_title_case(\"1st place winner\") = \"" + to_title_case("1st place winner") + "\"");
+}

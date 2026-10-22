@@ -1,0 +1,70 @@
+fn longest_common_prefix(words: [string]) -> string {
+    if is_empty(words) {
+        return "";
+    };
+    if len(words) == 1 {
+        return words[0];
+    };
+    let first: string = words[0];
+    let first_chs: [string] = chars(first);
+    let mut prefix_len: int = len(first_chs);
+    for i in range(1, len(words)) {
+        let word_chs: [string] = chars(words[i]);
+        let wlen: int = len(word_chs);
+        if wlen < prefix_len {
+            prefix_len = wlen;
+        };
+        let mut j: int = 0;
+        let mut mismatch: bool = false;
+        while j < prefix_len and not mismatch {
+            if first_chs[j] != word_chs[j] {
+                prefix_len = j;
+                mismatch = true;
+            };
+            j = j + 1;
+        }
+    }
+    let mut result: string = "";
+    for i in range(0, prefix_len) {
+        result = result + to_string(first_chs[i]);
+    }
+    return result;
+}
+
+fn main() -> unit {
+    // Test 1: common prefix of multiple characters
+    let words1: [string] = ["flower", "flow", "flight"];
+    print("lcp([flower,flow,flight]) = " + longest_common_prefix(words1));
+
+    // Test 2: no common prefix
+    let words2: [string] = ["dog", "racecar", "car"];
+    print("lcp([dog,racecar,car]) = " + longest_common_prefix(words2));
+
+    // Test 3: all strings identical
+    let words3: [string] = ["test", "test", "test"];
+    print("lcp([test,test,test]) = " + longest_common_prefix(words3));
+
+    // Test 4: one string is prefix of all others
+    let words4: [string] = ["ab", "abc", "abcd"];
+    print("lcp([ab,abc,abcd]) = " + longest_common_prefix(words4));
+
+    // Test 5: single string in list
+    let words5: [string] = ["onlyone"];
+    print("lcp([onlyone]) = " + longest_common_prefix(words5));
+
+    // Test 6: empty list
+    let words6: [string] = [];
+    print("lcp([]) = " + longest_common_prefix(words6));
+
+    // Test 7: list containing an empty string
+    let words7: [string] = ["abc", "", "abcd"];
+    print("lcp([abc,,abcd]) = " + longest_common_prefix(words7));
+
+    // Test 8: long common prefix
+    let words8: [string] = ["interview", "interact", "interface", "internal"];
+    print("lcp([interview,interact,interface,internal]) = " + longest_common_prefix(words8));
+
+    // Test 9: prefix of exactly one character
+    let words9: [string] = ["apple", "ant", "azure"];
+    print("lcp([apple,ant,azure]) = " + longest_common_prefix(words9));
+}

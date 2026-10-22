@@ -1,0 +1,123 @@
+fn arr_contains(arr: [int], val: int) -> bool {
+    for item in arr {
+        if item == val {
+            return true;
+        };
+    }
+    return false;
+}
+
+fn arr_dedup_sorted(arr: [int]) -> [int] {
+    let mut result: [int] = [];
+    let mut sorted_arr: [int] = arr;
+    sort(sorted_arr);
+    for item in sorted_arr {
+        if not arr_contains(result, item) {
+            push(result, item);
+        };
+    }
+    return result;
+}
+
+fn set_union(a: [int], b: [int]) -> [int] {
+    let mut combined: [int] = [];
+    for item in a {
+        push(combined, item);
+    }
+    for item in b {
+        push(combined, item);
+    }
+    return arr_dedup_sorted(combined);
+}
+
+fn set_intersection(a: [int], b: [int]) -> [int] {
+    let dedup_a: [int] = arr_dedup_sorted(a);
+    let mut result: [int] = [];
+    for item in dedup_a {
+        if arr_contains(b, item) {
+            push(result, item);
+        };
+    }
+    return result;
+}
+
+fn set_difference(a: [int], b: [int]) -> [int] {
+    let dedup_a: [int] = arr_dedup_sorted(a);
+    let mut result: [int] = [];
+    for item in dedup_a {
+        if not arr_contains(b, item) {
+            push(result, item);
+        };
+    }
+    return result;
+}
+
+fn arr_to_str(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut s: string = "[";
+    for i in range(0, len(arr)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(arr[i]);
+    }
+    s = s + "]";
+    return s;
+}
+
+fn main() -> unit {
+    // Test 1: basic union
+    let a1: [int] = [1, 2, 3];
+    let b1: [int] = [3, 4, 5];
+    print("union([1,2,3],[3,4,5]) = " + arr_to_str(set_union(a1, b1)));
+
+    // Test 2: basic intersection
+    let a2: [int] = [1, 2, 3, 4];
+    let b2: [int] = [3, 4, 5, 6];
+    print("intersection([1,2,3,4],[3,4,5,6]) = " + arr_to_str(set_intersection(a2, b2)));
+
+    // Test 3: basic difference
+    print("difference([1,2,3,4],[3,4,5,6]) = " + arr_to_str(set_difference(a2, b2)));
+
+    // Test 4: duplicates in input
+    let a4: [int] = [1, 1, 2, 3];
+    let b4: [int] = [2, 2, 4];
+    print("union(dups) = " + arr_to_str(set_union(a4, b4)));
+    print("intersection(dups) = " + arr_to_str(set_intersection(a4, b4)));
+    print("difference(dups) = " + arr_to_str(set_difference(a4, b4)));
+
+    // Test 5: disjoint lists
+    let a5: [int] = [1, 2];
+    let b5: [int] = [3, 4];
+    print("union(disjoint) = " + arr_to_str(set_union(a5, b5)));
+    print("intersection(disjoint) = " + arr_to_str(set_intersection(a5, b5)));
+    print("difference(disjoint) = " + arr_to_str(set_difference(a5, b5)));
+
+    // Test 6: identical lists
+    let a6: [int] = [1, 2, 3];
+    let b6: [int] = [1, 2, 3];
+    print("union(identical) = " + arr_to_str(set_union(a6, b6)));
+    print("intersection(identical) = " + arr_to_str(set_intersection(a6, b6)));
+    print("difference(identical) = " + arr_to_str(set_difference(a6, b6)));
+
+    // Test 7: one empty list
+    let a7: [int] = [1, 2, 3];
+    let b7: [int] = [];
+    print("union(empty b) = " + arr_to_str(set_union(a7, b7)));
+    print("intersection(empty b) = " + arr_to_str(set_intersection(a7, b7)));
+    print("difference(empty b) = " + arr_to_str(set_difference(a7, b7)));
+
+    // Test 8: negative integers
+    let a8: [int] = [-3, -1, 0, 2];
+    let b8: [int] = [-1, 1, 2];
+    print("union(neg) = " + arr_to_str(set_union(a8, b8)));
+    print("intersection(neg) = " + arr_to_str(set_intersection(a8, b8)));
+    print("difference(neg) = " + arr_to_str(set_difference(a8, b8)));
+
+    // Test 9: b is superset of a -> difference empty
+    let a9: [int] = [1, 2];
+    let b9: [int] = [1, 2, 3, 4];
+    print("difference(a subset of b) = " + arr_to_str(set_difference(a9, b9)));
+}

@@ -1,0 +1,7 @@
+// NOT APPLICABLE: This benchmark spec requires file I/O
+// Lang4LLM does not support file reading/writing
+// Reference implementation not available for this spec
+
+fn main() -> unit {
+    print("BS-S-036: Not applicable (requires file I/O)");
+}

@@ -1,0 +1,18 @@
+{
+  "spec": "BS-M-021",
+  "title": "Anagram Check",
+  "tier": "medium",
+  "lang4llm_compatible": true,
+  "expected": [
+    "is_anagram(listen, silent) = true",
+    "is_anagram(Listen, Silent) = true",
+    "is_anagram(hello, world) = false",
+    "is_anagram(the morse code, here come dots) = true",
+    "is_anagram(abc, ab) = false",
+    "is_anagram(, ) = true",
+    "is_anagram(, a) = false",
+    "is_anagram(aab, bba) = false",
+    "is_anagram(a, a) = true",
+    "is_anagram(a, b) = false"
+  ]
+}

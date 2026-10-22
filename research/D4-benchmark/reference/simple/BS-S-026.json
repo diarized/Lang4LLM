@@ -1,0 +1,16 @@
+{
+  "spec": "BS-S-026",
+  "title": "Convert to Title Case",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "to_title_case(\"hello world\") = \"Hello World\"",
+    "to_title_case(\"Hello World\") = \"Hello World\"",
+    "to_title_case(\"HELLO WORLD\") = \"Hello World\"",
+    "to_title_case(\"the QUICK brown FOX\") = \"The Quick Brown Fox\"",
+    "to_title_case(\"python\") = \"Python\"",
+    "to_title_case(\"\") = \"\"",
+    "to_title_case(\"version 2 release\") = \"Version 2 Release\"",
+    "to_title_case(\"1st place winner\") = \"1st Place Winner\""
+  ]
+}

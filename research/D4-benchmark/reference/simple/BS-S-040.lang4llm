@@ -1,0 +1,22 @@
+// BS-S-040: Check Substring
+// Return true if substring appears anywhere in text (case-sensitive).
+// Empty substring is always present in any string.
+
+fn has_substring(text: string, substring: string) -> bool {
+    if len(substring) == 0 {
+        return true;
+    };
+    return contains(text, substring);
+}
+
+fn main() -> unit {
+    print("has_substring(\"hello world\", \"world\") = " + to_string(has_substring("hello world", "world")));
+    print("has_substring(\"hello world\", \"xyz\") = " + to_string(has_substring("hello world", "xyz")));
+    print("has_substring(\"Hello World\", \"hello\") = " + to_string(has_substring("Hello World", "hello")));
+    print("has_substring(\"anything\", \"\") = " + to_string(has_substring("anything", "")));
+    print("has_substring(\"\", \"abc\") = " + to_string(has_substring("", "abc")));
+    print("has_substring(\"\", \"\") = " + to_string(has_substring("", "")));
+    print("has_substring(\"abc\", \"abc\") = " + to_string(has_substring("abc", "abc")));
+    print("has_substring(\"hello world\", \"hello\") = " + to_string(has_substring("hello world", "hello")));
+    print("has_substring(\"hello world\", \"abcdefghijk\") = " + to_string(has_substring("hello world", "abcdefghijk")));
+}

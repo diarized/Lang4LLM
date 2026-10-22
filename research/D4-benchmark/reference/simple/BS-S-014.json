@@ -1,0 +1,14 @@
+{
+  "spec": "BS-S-014",
+  "title": "Count Elements Greater Than Threshold",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count_greater_than([1,5,3,8,2,7], 4) = 3",
+    "count_greater_than([1,2,3], 5) = 0",
+    "count_greater_than([3,5,7], 5) = 1",
+    "count_greater_than([], 10) = 0",
+    "count_greater_than([-3,-1,0,2], -2) = 3",
+    "count_greater_than([10,20,30], 5) = 3"
+  ]
+}

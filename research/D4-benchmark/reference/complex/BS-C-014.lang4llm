@@ -1,0 +1,134 @@
+// BS-C-014: Report Generator
+// Hardcoded records; format tabular report with left-aligned name, right-aligned scores.
+
+fn repeat_str(s: string, n: int) -> string {
+    let mut result: string = "";
+    let mut i: int = 0;
+    while i < n {
+        result = result + to_string(s);
+        i = i + 1;
+    }
+    return result;
+}
+
+fn pad_right(s: string, width: int) -> string {
+    let pad: int = width - len(s);
+    if pad <= 0 { return s; };
+    return s + to_string(repeat_str(" ", pad));
+}
+
+fn pad_left(s: string, width: int) -> string {
+    let pad: int = width - len(s);
+    if pad <= 0 { return s; };
+    return repeat_str(" ", pad) + to_string(s);
+}
+
+fn max_int(a: int, b: int) -> int {
+    if a > b { return a; };
+    return b;
+}
+
+fn format_score(v: float) -> string {
+    return to_string(v);
+}
+
+fn generate_report(title: string, names: [string], s1: [float], s2: [float], s3: [float], ncols: int) -> unit {
+    let n: int = len(names);
+    // Compute totals
+    let mut tot1: float = 0.0;
+    let mut tot2: float = 0.0;
+    let mut tot3: float = 0.0;
+    let mut i: int = 0;
+    while i < n {
+        tot1 = tot1 + s1[i];
+        if ncols >= 2 { tot2 = tot2 + s2[i]; };
+        if ncols >= 3 { tot3 = tot3 + s3[i]; };
+        i = i + 1;
+    }
+    // Compute name column width
+    let mut name_w: int = len("Name");
+    let mut j: int = 0;
+    while j < n {
+        name_w = max_int(name_w, len(names[j]));
+        j = j + 1;
+    }
+    name_w = max_int(name_w, len("TOTAL"));
+    // Compute score column widths
+    let mut w1: int = len("Score 1");
+    let mut k: int = 0;
+    while k < n {
+        w1 = max_int(w1, len(format_score(s1[k])));
+        k = k + 1;
+    }
+    w1 = max_int(w1, len(format_score(tot1)));
+    let mut w2: int = len("Score 2");
+    if ncols >= 2 {
+        let mut k2: int = 0;
+        while k2 < n {
+            w2 = max_int(w2, len(format_score(s2[k2])));
+            k2 = k2 + 1;
+        }
+        w2 = max_int(w2, len(format_score(tot2)));
+    };
+    let mut w3: int = len("Score 3");
+    if ncols >= 3 {
+        let mut k3: int = 0;
+        while k3 < n {
+            w3 = max_int(w3, len(format_score(s3[k3])));
+            k3 = k3 + 1;
+        }
+        w3 = max_int(w3, len(format_score(tot3)));
+    };
+    // Total table width: name_w + 3 + w1 (for " | ") [+ 3 + w2] ...
+    let mut total_w: int = name_w + 3 + w1;
+    if ncols >= 2 { total_w = total_w + 3 + w2; };
+    if ncols >= 3 { total_w = total_w + 3 + w3; };
+    let sep: string = repeat_str("-", total_w);
+    // Print report
+    print(title);
+    print(sep);
+    // Header row
+    let mut header: string = pad_right("Name", name_w) + " | " + pad_left("Score 1", w1);
+    if ncols >= 2 { header = header + " | " + pad_left("Score 2", w2); };
+    if ncols >= 3 { header = header + " | " + pad_left("Score 3", w3); };
+    print(header);
+    print(sep);
+    // Data rows
+    let mut r: int = 0;
+    while r < n {
+        let mut row: string = pad_right(names[r], name_w) + " | " + pad_left(format_score(s1[r]), w1);
+        if ncols >= 2 { row = row + " | " + pad_left(format_score(s2[r]), w2); };
+        if ncols >= 3 { row = row + " | " + pad_left(format_score(s3[r]), w3); };
+        print(row);
+        r = r + 1;
+    }
+    print(sep);
+    // Total row
+    let mut trow: string = pad_right("TOTAL", name_w) + " | " + pad_left(format_score(tot1), w1);
+    if ncols >= 2 { trow = trow + " | " + pad_left(format_score(tot2), w2); };
+    if ncols >= 3 { trow = trow + " | " + pad_left(format_score(tot3), w3); };
+    print(trow);
+    print(sep);
+}
+
+fn main() -> unit {
+    // Test 1: 2 records, 2 scores (from spec example)
+    let names1: [string] = ["Alice", "Bob"];
+    let sc1a: [float] = [85.0, 78.0];
+    let sc1b: [float] = [92.0, 88.0];
+    let empty1: [float] = [0.0, 0.0];
+    generate_report("Student Scores", names1, sc1a, sc1b, empty1, 2);
+
+    // Test 2: 3 records, 1 score
+    let names2: [string] = ["Team A", "Team B", "Team C"];
+    let sc2a: [float] = [42.0, 38.0, 55.0];
+    let empty2a: [float] = [0.0, 0.0, 0.0];
+    generate_report("Q1 Results", names2, sc2a, empty2a, empty2a, 1);
+
+    // Test 3: name column width driven by long name
+    let names3: [string] = ["Alice", "Bob", "Christopher"];
+    let sc3a: [float] = [10.0, 20.0, 30.0];
+    let sc3b: [float] = [5.0, 15.0, 25.0];
+    let empty3: [float] = [0.0, 0.0, 0.0];
+    generate_report("Name Width Test", names3, sc3a, sc3b, empty3, 2);
+}

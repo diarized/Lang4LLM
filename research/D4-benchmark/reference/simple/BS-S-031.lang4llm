@@ -1,0 +1,32 @@
+// BS-S-031: Integer Square Root
+// Return largest integer r such that r*r <= n, without using built-in sqrt.
+
+fn isqrt(n: int) -> int {
+    if n == 0 {
+        return 0;
+    };
+    let mut r: int = 0;
+    let mut running: bool = true;
+    for i in range(0, 100000) {
+        if running {
+            let next: int = r + 1;
+            if next * next <= n {
+                r = next;
+            } else {
+                running = false;
+            };
+        };
+    }
+    return r;
+}
+
+fn main() -> unit {
+    print("isqrt(9) = " + to_string(isqrt(9)));
+    print("isqrt(8) = " + to_string(isqrt(8)));
+    print("isqrt(0) = " + to_string(isqrt(0)));
+    print("isqrt(1) = " + to_string(isqrt(1)));
+    print("isqrt(100) = " + to_string(isqrt(100)));
+    print("isqrt(15) = " + to_string(isqrt(15)));
+    print("isqrt(2) = " + to_string(isqrt(2)));
+    print("isqrt(10000) = " + to_string(isqrt(10000)));
+}

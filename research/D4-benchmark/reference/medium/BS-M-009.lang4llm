@@ -1,0 +1,119 @@
+fn strip_punct(word: string) -> string {
+    let punct: string = ".,!?;:";
+    let mut result: string = word;
+    // strip leading punctuation
+    let mut changed: bool = true;
+    while changed and len(result) > 0 {
+        changed = false;
+        let first_char: string = chars(result)[0];
+        if contains(punct, first_char) {
+            let chs: [string] = chars(result);
+            let mut new_s: string = "";
+            for i in range(1, len(chs)) {
+                new_s = new_s + to_string(chs[i]);
+            }
+            result = new_s;
+            changed = true;
+        };
+    }
+    // strip trailing punctuation
+    changed = true;
+    while changed and len(result) > 0 {
+        changed = false;
+        let chs_t: [string] = chars(result);
+        let last_char: string = chs_t[len(chs_t) - 1];
+        if contains(punct, last_char) {
+            let mut new_s_t: string = "";
+            for i in range(0, len(chs_t) - 1) {
+                new_s_t = new_s_t + to_string(chs_t[i]);
+            }
+            result = new_s_t;
+            changed = true;
+        };
+    }
+    return result;
+}
+
+fn find_word(words: [string], target: string) -> int {
+    for i in range(0, len(words)) {
+        if words[i] == target {
+            return i;
+        };
+    }
+    return -1;
+}
+
+fn count_words(text: string) -> [string] {
+    let tokens: [string] = split(text, " ");
+    let mut words: [string] = [];
+    let mut counts: [int] = [];
+    for token in tokens {
+        let stripped: string = strip_punct(to_lower(token));
+        if len(stripped) > 0 {
+            let idx: int = find_word(words, stripped);
+            if idx == -1 {
+                push(words, stripped);
+                push(counts, 1);
+            } else {
+                counts[idx] = counts[idx] + 1;
+            };
+        };
+    }
+    // Build result: sort by count desc, then alpha asc (bubble sort)
+    let n: int = len(words);
+    for i in range(0, n) {
+        for j in range(0, n - i - 1) {
+            let should_swap: bool = counts[j] < counts[j + 1] or (counts[j] == counts[j + 1] and words[j] > words[j + 1]);
+            if should_swap {
+                let tmp_count: int = counts[j];
+                counts[j] = counts[j + 1];
+                counts[j + 1] = tmp_count;
+                let tmp_word: string = words[j];
+                words[j] = words[j + 1];
+                words[j + 1] = tmp_word;
+            };
+        }
+    }
+    // Format output as list of "word:count" strings
+    let mut result: [string] = [];
+    for i in range(0, n) {
+        push(result, words[i] + ":" + to_string(counts[i]));
+    }
+    return result;
+}
+
+fn print_result(label: string, pairs: [string]) -> unit {
+    if is_empty(pairs) {
+        print(label + ": []");
+        return;
+    };
+    let mut s: string = "[";
+    for i in range(0, len(pairs)) {
+        if i > 0 {
+            s = s + ", ";
+        };
+        s = s + to_string(pairs[i]);
+    }
+    s = s + "]";
+    print(label + ": " + s);
+}
+
+fn main() -> unit {
+    let r1: [string] = count_words("the cat sat on the mat the cat");
+    print_result("repeated", r1);
+
+    let r2: [string] = count_words("Hello hello HELLO world");
+    print_result("mixed case", r2);
+
+    let r3: [string] = count_words("Good morning, morning! Is it morning?");
+    print_result("trailing punct", r3);
+
+    let r4: [string] = count_words("dog cat bird dog cat bird");
+    print_result("tiebreaker", r4);
+
+    let r5: [string] = count_words("");
+    print_result("empty", r5);
+
+    let r6: [string] = count_words("hello");
+    print_result("single", r6);
+}

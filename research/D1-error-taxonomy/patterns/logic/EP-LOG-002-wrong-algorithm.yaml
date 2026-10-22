@@ -1,0 +1,91 @@
+# Error Pattern: Wrong Algorithm/Approach
+
+id: EP-LOG-002
+category: LOGIC
+subcategory: algorithm
+name: Fundamentally Incorrect Algorithmic Approach
+description: |
+  LLM chooses wrong algorithm or approach to solve the problem. Code is syntactically
+  and semantically correct but logically flawed - uses wrong data structure, wrong
+  iteration pattern, or wrong computational approach. Produces incorrect results.
+
+frequency:
+  overall: 0.20  # 20% of all logic errors
+  by_model:
+    gpt4: 0.16
+    claude: 0.18
+    deepseek: 0.24
+  by_language:
+    python: 0.20
+    rust: 0.19
+    typescript: 0.21
+    go: 0.20
+
+root_cause: |
+  LLMs pattern-match problem descriptions to similar-looking training examples,
+  leading to algorithmic substitution errors. Superficial similarity (e.g., "find maximum")
+  causes wrong algorithm selection. Lack of deep problem understanding leads to
+  locally coherent but globally incorrect solutions.
+
+trigger_conditions:
+  - feature: "Complex problem requiring specific algorithm"
+    severity: HIGH
+  - feature: "Multiple valid but efficiency-varying approaches"
+    severity: MEDIUM
+  - feature: "Ambiguous problem statement"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      # Task: Find if array has duplicates
+      def has_duplicates(arr: list[int]) -> bool:
+          for i in range(len(arr)):
+              if arr[i] in arr:  # Always True! Wrong logic
+                  return True
+          return False
+    correct: |
+      def has_duplicates(arr: list[int]) -> bool:
+          return len(arr) != len(set(arr))
+    explanation: "Checking if element in array always returns True; should use set comparison"
+
+  - language: rust
+    incorrect: |
+      // Task: Check if string is palindrome
+      fn is_palindrome(s: &str) -> bool {
+          s == s.to_uppercase()  // Wrong: compares case, not reversal
+      }
+    correct: |
+      fn is_palindrome(s: &str) -> bool {
+          let chars: Vec<char> = s.chars().collect();
+          chars == chars.iter().rev().copied().collect::<Vec<char>>()
+      }
+    explanation: "Comparing to uppercase instead of reversed string"
+
+  - language: typescript
+    incorrect: |
+      // Task: Find second largest number
+      function secondLargest(numbers: number[]): number {
+          numbers.sort();  // Wrong: lexicographic sort, not numeric
+          return numbers[numbers.length - 2];
+      }
+    correct: |
+      function secondLargest(numbers: number[]): number {
+          numbers.sort((a, b) => a - b);
+          return numbers[numbers.length - 2];
+      }
+    explanation: "Missing comparator causes lexicographic sort: [1,10,2] becomes [1,10,2]"
+
+related_patterns:
+  - pattern_id: EP-LOG-001
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SEM-003
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Wrong (logical) direction (semantic characteristic)"
+  - paper_id: P02
+    section: "Fundamental approach errors"
+  - paper_id: P08
+    section: "Algorithmic mistake: wrong solution strategy"

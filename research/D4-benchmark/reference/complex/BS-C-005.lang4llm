@@ -1,0 +1,195 @@
+fn char_idx(c: string) -> int {
+    if c == "a" { return 0; };
+    if c == "b" { return 1; };
+    if c == "c" { return 2; };
+    if c == "d" { return 3; };
+    if c == "e" { return 4; };
+    if c == "f" { return 5; };
+    if c == "g" { return 6; };
+    if c == "h" { return 7; };
+    if c == "i" { return 8; };
+    if c == "j" { return 9; };
+    if c == "k" { return 10; };
+    if c == "l" { return 11; };
+    if c == "m" { return 12; };
+    if c == "n" { return 13; };
+    if c == "o" { return 14; };
+    if c == "p" { return 15; };
+    if c == "q" { return 16; };
+    if c == "r" { return 17; };
+    if c == "s" { return 18; };
+    if c == "t" { return 19; };
+    if c == "u" { return 20; };
+    if c == "v" { return 21; };
+    if c == "w" { return 22; };
+    if c == "x" { return 23; };
+    if c == "y" { return 24; };
+    return 25;
+}
+
+fn idx_to_char(i: int) -> string {
+    if i == 0 { return "a"; };
+    if i == 1 { return "b"; };
+    if i == 2 { return "c"; };
+    if i == 3 { return "d"; };
+    if i == 4 { return "e"; };
+    if i == 5 { return "f"; };
+    if i == 6 { return "g"; };
+    if i == 7 { return "h"; };
+    if i == 8 { return "i"; };
+    if i == 9 { return "j"; };
+    if i == 10 { return "k"; };
+    if i == 11 { return "l"; };
+    if i == 12 { return "m"; };
+    if i == 13 { return "n"; };
+    if i == 14 { return "o"; };
+    if i == 15 { return "p"; };
+    if i == 16 { return "q"; };
+    if i == 17 { return "r"; };
+    if i == 18 { return "s"; };
+    if i == 19 { return "t"; };
+    if i == 20 { return "u"; };
+    if i == 21 { return "v"; };
+    if i == 22 { return "w"; };
+    if i == 23 { return "x"; };
+    if i == 24 { return "y"; };
+    return "z";
+}
+
+struct Trie {
+    children: [int],
+    is_end: [bool],
+    size: int
+}
+
+fn trie_new() -> Trie {
+    let mut ch: [int] = [];
+    let mut ie: [bool] = [];
+    let mut i: int = 0;
+    while i < 26 {
+        push(ch, -1);
+        i = i + 1;
+    }
+    push(ie, false);
+    return Trie { children: ch, is_end: ie, size: 1 };
+}
+
+fn trie_insert(t: Trie, word: string) -> Trie {
+    let chs: [string] = chars(word);
+    let mut new_ch: [int] = t.children;
+    let mut new_ie: [bool] = t.is_end;
+    let mut new_size: int = t.size;
+    let mut cur: int = 0;
+    let mut i: int = 0;
+    while i < len(chs) {
+        let ci: int = char_idx(chs[i]);
+        let idx: int = cur * 26 + ci;
+        if new_ch[idx] == -1 {
+            let node_id: int = new_size;
+            new_size = new_size + 1;
+            new_ch[idx] = node_id;
+            let mut j: int = 0;
+            while j < 26 {
+                push(new_ch, -1);
+                j = j + 1;
+            }
+            push(new_ie, false);
+        };
+        cur = new_ch[idx];
+        i = i + 1;
+    }
+    new_ie[cur] = true;
+    return Trie { children: new_ch, is_end: new_ie, size: new_size };
+}
+
+fn trie_find_node(t: Trie, prefix: string) -> int {
+    let chs: [string] = chars(prefix);
+    let mut cur: int = 0;
+    let mut i: int = 0;
+    while i < len(chs) {
+        let ci: int = char_idx(chs[i]);
+        let idx: int = cur * 26 + ci;
+        if t.children[idx] == -1 {
+            return -1;
+        };
+        cur = t.children[idx];
+        i = i + 1;
+    }
+    return cur;
+}
+
+fn trie_search(t: Trie, word: string) -> bool {
+    let node: int = trie_find_node(t, word);
+    if node == -1 { return false; };
+    return t.is_end[node];
+}
+
+fn trie_starts_with(t: Trie, prefix: string) -> bool {
+    if len(prefix) == 0 { return true; };
+    let node: int = trie_find_node(t, prefix);
+    return node != -1;
+}
+
+fn collect_words(ch: [int], ie: [bool], node: int, prefix: string) -> [string] {
+    let mut result: [string] = [];
+    if ie[node] {
+        push(result, prefix);
+    };
+    let mut i: int = 0;
+    while i < 26 {
+        let child: int = ch[node * 26 + i];
+        if child != -1 {
+            let sub: [string] = collect_words(ch, ie, child, prefix + to_string(idx_to_char(i)));
+            result = concat(result, sub);
+        };
+        i = i + 1;
+    }
+    return result;
+}
+
+fn trie_words_with_prefix(t: Trie, prefix: string) -> [string] {
+    if len(prefix) == 0 {
+        return collect_words(t.children, t.is_end, 0, "");
+    } else {
+        let start_node: int = trie_find_node(t, prefix);
+        if start_node != -1 {
+            return collect_words(t.children, t.is_end, start_node, prefix);
+        } else {
+            return [];
+        };
+    };
+}
+
+fn main() -> unit {
+    let t0: Trie = trie_new();
+    let t1: Trie = trie_insert(t0, "apple");
+    let t2: Trie = trie_insert(t1, "app");
+    let t3: Trie = trie_insert(t2, "application");
+    print("search(app) = " + to_string(trie_search(t3, "app")));
+    print("search(ap) = " + to_string(trie_search(t3, "ap")));
+    print("search(apple) = " + to_string(trie_search(t3, "apple")));
+    print("search(apricot) = " + to_string(trie_search(t3, "apricot")));
+
+    let u0: Trie = trie_new();
+    let u1: Trie = trie_insert(u0, "car");
+    let u2: Trie = trie_insert(u1, "card");
+    let u3: Trie = trie_insert(u2, "care");
+    let u4: Trie = trie_insert(u3, "careful");
+    let u5: Trie = trie_insert(u4, "bat");
+    let mut w1: [string] = trie_words_with_prefix(u5, "car");
+    sort(w1);
+    print("words(car) = " + join(w1, ", "));
+    let mut w2: [string] = trie_words_with_prefix(u5, "care");
+    sort(w2);
+    print("words(care) = " + join(w2, ", "));
+    let w3: [string] = trie_words_with_prefix(u5, "cat");
+    print("words(cat) count = " + to_string(len(w3)));
+    print("starts_with(car) = " + to_string(trie_starts_with(u5, "car")));
+    print("starts_with(xyz) = " + to_string(trie_starts_with(u5, "xyz")));
+
+    let v0: Trie = trie_new();
+    let v1: Trie = trie_insert(v0, "test");
+    let v2: Trie = trie_insert(v1, "test");
+    let w4: [string] = trie_words_with_prefix(v2, "test");
+    print("dup test count = " + to_string(len(w4)));
+}

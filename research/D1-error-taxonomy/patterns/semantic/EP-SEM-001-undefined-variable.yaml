@@ -1,0 +1,103 @@
+# Error Pattern: Undefined Variable Usage
+
+id: EP-SEM-001
+category: SEMANTIC
+subcategory: variable-scope
+name: Using Undefined or Out-of-Scope Variable
+description: |
+  LLM references a variable before it's defined, or references a variable outside its scope.
+  Common when LLM generates code blocks independently without tracking variable declarations.
+  Causes NameError (Python), undefined reference (Rust), ReferenceError (TypeScript).
+
+frequency:
+  overall: 0.18  # 18% of all semantic errors
+  by_model:
+    gpt4: 0.14
+    claude: 0.16
+    deepseek: 0.22
+  by_language:
+    python: 0.20
+    rust: 0.12  # Compiler catches most cases
+    typescript: 0.18
+    go: 0.15
+
+root_cause: |
+  LLMs generate code token-by-token without global symbol table tracking. Variables
+  mentioned in prompts may be assumed to exist. Context window limitations cause
+  forgetting earlier declarations. LLMs struggle with non-local variable dependencies.
+
+trigger_conditions:
+  - feature: "Multi-line function bodies"
+    severity: HIGH
+  - feature: "Nested scopes (closures, lambdas)"
+    severity: HIGH
+  - feature: "Error handling blocks (try/catch)"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      def process_data(items):
+          for item in items:
+              if item.valid:
+                  result = transform(item)
+          return result  # 'result' may be undefined if no valid items
+    correct: |
+      def process_data(items):
+          result = None
+          for item in items:
+              if item.valid:
+                  result = transform(item)
+          return result
+    explanation: "Variable 'result' only defined inside conditional; undefined if condition never true"
+
+  - language: rust
+    incorrect: |
+      fn calculate(x: i32) -> i32 {
+          if x > 0 {
+              let y = x * 2;
+          }
+          y  // Error: 'y' not in scope
+      }
+    correct: |
+      fn calculate(x: i32) -> i32 {
+          let y = if x > 0 {
+              x * 2
+          } else {
+              0
+          };
+          y
+      }
+    explanation: "Variable 'y' declared inside if block, not accessible outside"
+
+  - language: typescript
+    incorrect: |
+      function getUserData(id: number): User | null {
+          if (cache.has(id)) {
+              const user = cache.get(id);
+          }
+          return user;  // Error: 'user' not in scope
+      }
+    correct: |
+      function getUserData(id: number): User | null {
+          let user: User | null = null;
+          if (cache.has(id)) {
+              user = cache.get(id);
+          }
+          return user;
+      }
+    explanation: "Variable must be declared before conditional block"
+
+related_patterns:
+  - pattern_id: EP-SEM-002
+    relationship: SIMILAR_TO
+  - pattern_id: EP-LOG-002
+    relationship: CAUSES
+
+sources:
+  - paper_id: P01
+    section: "Semantic characteristics: Missing condition"
+  - paper_id: P02
+    section: "Variable scope management failures"
+  - paper_id: P08
+    section: "Category 2: API/Library Misuse"

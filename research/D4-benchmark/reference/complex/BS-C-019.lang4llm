@@ -1,0 +1,6 @@
+// BS-C-019: Thread Pool
+// lang4llm_compatible: false
+// Reason: Requires concurrency (mutex, threads) — not supported in Lang4LLM
+fn main() -> unit {
+    print("not implemented");
+}

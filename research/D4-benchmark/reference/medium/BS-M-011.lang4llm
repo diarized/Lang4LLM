@@ -1,0 +1,183 @@
+struct Heap {
+    items: [int]
+}
+
+fn heap_new() -> Heap {
+    return Heap { items: [] };
+}
+
+fn heap_size(h: Heap) -> int {
+    return len(h.items);
+}
+
+fn heap_is_empty(h: Heap) -> bool {
+    return is_empty(h.items);
+}
+
+fn heap_peek_min(h: Heap) -> int {
+    if is_empty(h.items) {
+        return -1;
+    };
+    return h.items[0];
+}
+
+fn heap_insert(h: Heap, val: int) -> Heap {
+    let mut new_items: [int] = h.items;
+    push(new_items, val);
+    let mut i: int = len(new_items) - 1;
+    while i > 0 {
+        let parent: int = (i - 1) / 2;
+        if new_items[i] < new_items[parent] {
+            let tmp: int = new_items[i];
+            new_items[i] = new_items[parent];
+            new_items[parent] = tmp;
+            i = parent;
+        } else {
+            i = 0;
+        };
+    }
+    return Heap { items: new_items };
+}
+
+fn heap_sift_down(items: [int], start: int, end_idx: int) -> [int] {
+    let mut new_items: [int] = items;
+    let mut cur: int = start;
+    let mut cont: bool = true;
+    while cont {
+        let left: int = 2 * cur + 1;
+        let right: int = 2 * cur + 2;
+        let mut smallest: int = cur;
+        if left < end_idx {
+            if new_items[left] < new_items[smallest] {
+                smallest = left;
+            };
+        };
+        if right < end_idx {
+            if new_items[right] < new_items[smallest] {
+                smallest = right;
+            };
+        };
+        if smallest != cur {
+            let tmp2: int = new_items[cur];
+            new_items[cur] = new_items[smallest];
+            new_items[smallest] = tmp2;
+            cur = smallest;
+        } else {
+            cont = false;
+        };
+    }
+    return new_items;
+}
+
+fn heap_extract_min(h: Heap) -> Heap {
+    if is_empty(h.items) {
+        print("ERROR: extract on empty heap");
+        return h;
+    };
+    let n: int = len(h.items);
+    let mut new_items: [int] = h.items;
+    new_items[0] = new_items[n - 1];
+    pop(new_items);
+    let sz: int = len(new_items);
+    if sz > 0 {
+        new_items = heap_sift_down(new_items, 0, sz);
+    };
+    return Heap { items: new_items };
+}
+
+fn heap_extract_min_val(h: Heap) -> int {
+    if is_empty(h.items) {
+        return -1;
+    };
+    return h.items[0];
+}
+
+fn main() -> unit {
+    // Test 1: empty heap size and peek
+    let h0: Heap = heap_new();
+    print("empty size: " + to_string(heap_size(h0)));
+    print("empty peek_min: " + to_string(heap_peek_min(h0)));
+
+    // Test 2: insert single, extract
+    let h1: Heap = heap_insert(h0, 42);
+    print("single size: " + to_string(heap_size(h1)));
+    print("single peek: " + to_string(heap_peek_min(h1)));
+    let v1: int = heap_extract_min_val(h1);
+    let h2: Heap = heap_extract_min(h1);
+    print("single extract: " + to_string(v1));
+    print("after extract size: " + to_string(heap_size(h2)));
+
+    // Test 3: insert 5,3,8,1 -> extract gives 1,3,5,8
+    let h3: Heap = heap_insert(h0, 5);
+    let h4: Heap = heap_insert(h3, 3);
+    let h5: Heap = heap_insert(h4, 8);
+    let h6: Heap = heap_insert(h5, 1);
+    let e1: int = heap_extract_min_val(h6);
+    let h7: Heap = heap_extract_min(h6);
+    let e2: int = heap_extract_min_val(h7);
+    let h8: Heap = heap_extract_min(h7);
+    let e3: int = heap_extract_min_val(h8);
+    let h9: Heap = heap_extract_min(h8);
+    let e4: int = heap_extract_min_val(h9);
+    let h10: Heap = heap_extract_min(h9);
+    print("extract seq: " + to_string(e1) + "," + to_string(e2) + "," + to_string(e3) + "," + to_string(e4));
+    print("drained empty: " + to_string(heap_is_empty(h10)));
+
+    // Test 4: reverse order insert 9,7,5,3,1
+    let r1: Heap = heap_insert(h0, 9);
+    let r2: Heap = heap_insert(r1, 7);
+    let r3: Heap = heap_insert(r2, 5);
+    let r4: Heap = heap_insert(r3, 3);
+    let r5: Heap = heap_insert(r4, 1);
+    print("reverse insert min: " + to_string(heap_peek_min(r5)));
+
+    // Test 5: peek_min does not remove
+    let p1: Heap = heap_insert(h0, 4);
+    let p2: Heap = heap_insert(p1, 2);
+    let p3: Heap = heap_insert(p2, 7);
+    print("peek1: " + to_string(heap_peek_min(p3)));
+    print("peek2: " + to_string(heap_peek_min(p3)));
+    print("size unchanged: " + to_string(heap_size(p3)));
+
+    // Test 6: duplicate values 3,3,1
+    let d1: Heap = heap_insert(h0, 3);
+    let d2: Heap = heap_insert(d1, 3);
+    let d3: Heap = heap_insert(d2, 1);
+    let dv1: int = heap_extract_min_val(d3);
+    let d4: Heap = heap_extract_min(d3);
+    let dv2: int = heap_extract_min_val(d4);
+    let d5: Heap = heap_extract_min(d4);
+    let dv3: int = heap_extract_min_val(d5);
+    let d6: Heap = heap_extract_min(d5);
+    print("dup extract: " + to_string(dv1) + "," + to_string(dv2) + "," + to_string(dv3));
+
+    // Test 7: size tracking
+    let sz1: Heap = heap_insert(h0, 10);
+    let sz2: Heap = heap_insert(sz1, 5);
+    print("size after 2 inserts: " + to_string(heap_size(sz2)));
+    let sz3: Heap = heap_extract_min(sz2);
+    print("size after extract: " + to_string(heap_size(sz3)));
+
+    // Test 8: large sequence 10 elements sorted ascending
+    let l1: Heap = heap_insert(h0, 15);
+    let l2: Heap = heap_insert(l1, 3);
+    let l3: Heap = heap_insert(l2, 22);
+    let l4: Heap = heap_insert(l3, 7);
+    let l5: Heap = heap_insert(l4, 11);
+    let l6: Heap = heap_insert(l5, 1);
+    let l7: Heap = heap_insert(l6, 9);
+    let l8: Heap = heap_insert(l7, 5);
+    let l9: Heap = heap_insert(l8, 18);
+    let l10: Heap = heap_insert(l9, 2);
+    let lv1: int = heap_extract_min_val(l10);
+    let la1: Heap = heap_extract_min(l10);
+    let lv2: int = heap_extract_min_val(la1);
+    let la2: Heap = heap_extract_min(la1);
+    let lv3: int = heap_extract_min_val(la2);
+    let la3: Heap = heap_extract_min(la2);
+    let lv4: int = heap_extract_min_val(la3);
+    let la4: Heap = heap_extract_min(la3);
+    let lv5: int = heap_extract_min_val(la4);
+    let la5: Heap = heap_extract_min(la4);
+    print("large seq: " + to_string(lv1) + "," + to_string(lv2) + "," + to_string(lv3) + "," + to_string(lv4) + "," + to_string(lv5));
+}

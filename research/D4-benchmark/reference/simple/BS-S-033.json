@@ -1,0 +1,8 @@
+{
+  "spec": "BS-S-033",
+  "title": "Read Lines from File",
+  "tier": "simple",
+  "lang4llm_compatible": false,
+  "reason": "Requires file I/O which Lang4LLM does not support",
+  "expected": []
+}

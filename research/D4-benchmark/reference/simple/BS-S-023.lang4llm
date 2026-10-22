@@ -1,0 +1,17 @@
+// BS-S-023: Remove Leading and Trailing Whitespace
+// Remove all whitespace characters from the beginning and end of a string.
+
+fn trim_whitespace(text: string) -> string {
+    return trim(text);
+}
+
+fn main() -> unit {
+    print("trim_whitespace(\"  hello  \") = \"" + trim_whitespace("  hello  ") + "\"");
+    print("trim_whitespace(\"   hello\") = \"" + trim_whitespace("   hello") + "\"");
+    print("trim_whitespace(\"hello   \") = \"" + trim_whitespace("hello   ") + "\"");
+    print("trim_whitespace(\"  hello world  \") = \"" + trim_whitespace("  hello world  ") + "\"");
+    print("trim_whitespace(\"hello\") = \"" + trim_whitespace("hello") + "\"");
+    print("trim_whitespace(\"   \") = \"" + trim_whitespace("   ") + "\"");
+    print("trim_whitespace(\"\") = \"" + trim_whitespace("") + "\"");
+    print("trim_whitespace(\"  tab content  \") = \"" + trim_whitespace("  tab content  ") + "\"");
+}

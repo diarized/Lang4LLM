@@ -1,0 +1,16 @@
+{
+  "spec": "BS-S-022",
+  "title": "Count Words in String",
+  "tier": "simple",
+  "lang4llm_compatible": true,
+  "expected": [
+    "count_words(\"hello world\") = 2",
+    "count_words(\"hello   world\") = 2",
+    "count_words(\"  hello world  \") = 2",
+    "count_words(\"\") = 0",
+    "count_words(\"hello\") = 1",
+    "count_words(\"   \") = 0",
+    "count_words(\"one two three four\") = 4",
+    "count_words(\"  leading and trailing  \") = 3"
+  ]
+}

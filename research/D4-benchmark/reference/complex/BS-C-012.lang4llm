@@ -1,0 +1,165 @@
+// BS-C-012: Matrix Multiplication
+// Matrices stored as flat [float] arrays with separate rows/cols counts.
+// A[i][j] = data[i * cols + j]
+
+struct Matrix {
+    data: [float],
+    rows: int,
+    cols: int
+}
+
+fn mat_get(m: Matrix, r: int, c: int) -> float {
+    return m.data[r * m.cols + c];
+}
+
+fn mat_new(rows: int, cols: int) -> Matrix {
+    let mut d: [float] = [];
+    let mut i: int = 0;
+    while i < rows * cols {
+        push(d, 0.0);
+        i = i + 1;
+    }
+    return Matrix { data: d, rows: rows, cols: cols };
+}
+
+fn row_to_string(m: Matrix, r: int) -> string {
+    let mut s: string = "[";
+    let mut j: int = 0;
+    while j < m.cols {
+        if j > 0 { s = s + ", "; };
+        s = s + to_string(mat_get(m, r, j));
+        j = j + 1;
+    }
+    s = s + "]";
+    return s;
+}
+
+fn mat_to_string(m: Matrix) -> string {
+    let mut s: string = "";
+    let mut i: int = 0;
+    while i < m.rows {
+        if i > 0 { s = s + "; "; };
+        s = s + to_string(row_to_string(m, i));
+        i = i + 1;
+    }
+    return s;
+}
+
+fn print_mat(label: string, m: Matrix) -> unit {
+    let mut i: int = 0;
+    while i < m.rows {
+        print(label + " row " + to_string(i) + ": " + row_to_string(m, i));
+        i = i + 1;
+    }
+}
+
+fn multiply(a: Matrix, b: Matrix) -> string {
+    if a.cols != b.rows {
+        return "error: incompatible dimensions";
+    };
+    let mut res: Matrix = mat_new(a.rows, b.cols);
+    let mut i: int = 0;
+    while i < a.rows {
+        let mut j: int = 0;
+        while j < b.cols {
+            let mut sum: float = 0.0;
+            let mut k: int = 0;
+            while k < a.cols {
+                sum = sum + mat_get(a, i, k) * mat_get(b, k, j);
+                k = k + 1;
+            }
+            res.data[i * res.cols + j] = sum;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return mat_to_string(res);
+}
+
+fn transpose(a: Matrix) -> Matrix {
+    let mut res: Matrix = mat_new(a.cols, a.rows);
+    let mut i: int = 0;
+    while i < a.rows {
+        let mut j: int = 0;
+        while j < a.cols {
+            res.data[j * res.cols + i] = mat_get(a, i, j);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    return res;
+}
+
+fn determinant(a: Matrix) -> string {
+    if a.rows != a.cols {
+        return "error: non-square matrix";
+    };
+    if a.rows == 1 {
+        return to_string(mat_get(a, 0, 0));
+    };
+    if a.rows == 2 {
+        let det2: float = mat_get(a, 0, 0) * mat_get(a, 1, 1) - mat_get(a, 0, 1) * mat_get(a, 1, 0);
+        return to_string(det2);
+    };
+    if a.rows == 3 {
+        let av: float = mat_get(a, 0, 0);
+        let bv: float = mat_get(a, 0, 1);
+        let cv: float = mat_get(a, 0, 2);
+        let dv: float = mat_get(a, 1, 0);
+        let ev: float = mat_get(a, 1, 1);
+        let fv: float = mat_get(a, 1, 2);
+        let gv: float = mat_get(a, 2, 0);
+        let hv: float = mat_get(a, 2, 1);
+        let iv: float = mat_get(a, 2, 2);
+        let det3: float = av * (ev * iv - fv * hv) - bv * (dv * iv - fv * gv) + cv * (dv * hv - ev * gv);
+        return to_string(det3);
+    };
+    return "error: matrix too large for determinant";
+}
+
+fn main() -> unit {
+    // Test 1: 2x2 multiply
+    let mut a2: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0], rows: 2, cols: 2 };
+    let mut b2: Matrix = Matrix { data: [5.0, 6.0, 7.0, 8.0], rows: 2, cols: 2 };
+    print("multiply 2x2:");
+    print(multiply(a2, b2));
+
+    // Test 2: 2x3 * 3x2
+    let mut a23: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], rows: 2, cols: 3 };
+    let mut b32: Matrix = Matrix { data: [7.0, 8.0, 9.0, 10.0, 11.0, 12.0], rows: 3, cols: 2 };
+    print("multiply 2x3 * 3x2:");
+    print(multiply(a23, b32));
+
+    // Test 3: dimension mismatch
+    let mut am: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0], rows: 2, cols: 2 };
+    let mut bm: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], rows: 3, cols: 2 };
+    print("mismatch: " + multiply(am, bm));
+
+    // Test 4: transpose 2x3
+    let mut t23: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], rows: 2, cols: 3 };
+    let mut tr: Matrix = transpose(t23);
+    print("transpose 2x3 -> 3x2:");
+    print_mat("T", tr);
+
+    // Test 5: determinant 1x1
+    let mut d1: Matrix = Matrix { data: [7.0], rows: 1, cols: 1 };
+    print("det 1x1: " + determinant(d1));
+
+    // Test 6: determinant 2x2
+    let mut d2: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0], rows: 2, cols: 2 };
+    print("det 2x2: " + determinant(d2));
+
+    // Test 7: determinant 3x3 (singular)
+    let mut d3: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], rows: 3, cols: 3 };
+    print("det 3x3: " + determinant(d3));
+
+    // Test 8: determinant non-square error
+    let mut dns: Matrix = Matrix { data: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], rows: 2, cols: 3 };
+    print("det non-square: " + determinant(dns));
+
+    // Test 9: multiply by identity
+    let mut id2: Matrix = Matrix { data: [1.0, 0.0, 0.0, 1.0], rows: 2, cols: 2 };
+    let mut orig: Matrix = Matrix { data: [3.0, 7.0, 2.0, 5.0], rows: 2, cols: 2 };
+    print("A * I:");
+    print(multiply(orig, id2));
+}

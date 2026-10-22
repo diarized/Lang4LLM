@@ -1,0 +1,100 @@
+// BS-M-034: Log Level Filter
+// Filter log lines at or above a minimum severity level.
+// Level order: DEBUG(0) < INFO(1) < WARN(2) < ERROR(3)
+// Valid line format: starts with [DEBUG] , [INFO] , [WARN] , or [ERROR]
+
+fn level_severity(level: string) -> int {
+    let upper: string = to_upper(level);
+    if upper == "DEBUG" {
+        return 0;
+    };
+    if upper == "INFO" {
+        return 1;
+    };
+    if upper == "WARN" {
+        return 2;
+    };
+    if upper == "ERROR" {
+        return 3;
+    };
+    return -1;
+}
+
+fn line_level(line: string) -> int {
+    if starts_with(line, "[DEBUG] ") {
+        return 0;
+    };
+    if starts_with(line, "[INFO] ") {
+        return 1;
+    };
+    if starts_with(line, "[WARN] ") {
+        return 2;
+    };
+    if starts_with(line, "[ERROR] ") {
+        return 3;
+    };
+    return -1;
+}
+
+fn filter_logs(log_text: string, min_level: string) -> [string] {
+    let min_sev: int = level_severity(min_level);
+    let lines: [string] = split(log_text, "\n");
+    let mut result: [string] = [];
+    for i in range(0, len(lines)) {
+        let line: string = lines[i];
+        let sev: int = line_level(line);
+        if sev >= 0 and sev >= min_sev {
+            push(result, line);
+        };
+    }
+    return result;
+}
+
+fn print_filtered(label: string, logs: [string]) -> unit {
+    print(label);
+    for i in range(0, len(logs)) {
+        print("  " + logs[i]);
+    }
+    if is_empty(logs) {
+        print("  (empty)");
+    };
+}
+
+fn main() -> unit {
+    let log1: string = "[DEBUG] Starting application\n[INFO] Server started on port 8080\n[WARN] High memory usage detected\n[ERROR] Database connection failed";
+
+    // Test 1: filter at INFO
+    let r1: [string] = filter_logs(log1, "INFO");
+    print_filtered("filter(INFO):", r1);
+
+    // Test 2: filter at ERROR
+    let r2: [string] = filter_logs(log1, "ERROR");
+    print_filtered("filter(ERROR):", r2);
+
+    // Test 3: filter at DEBUG (all included)
+    let r3: [string] = filter_logs(log1, "DEBUG");
+    print_filtered("filter(DEBUG):", r3);
+
+    // Test 4: filter at WARN
+    let r4: [string] = filter_logs(log1, "WARN");
+    print_filtered("filter(WARN):", r4);
+
+    // Test 5: malformed lines excluded
+    let log5: string = "[INFO] Valid line\nThis line has no level tag\n[WARN] Another valid line\n   [ERROR] Leading spaces make this malformed\n[UNKNOWN] Unrecognized level";
+    let r5: [string] = filter_logs(log5, "INFO");
+    print_filtered("filter_malformed(INFO):", r5);
+
+    // Test 6: case-insensitive min_level
+    let log6: string = "[WARN] Low disk space\n[ERROR] Out of memory";
+    let r6: [string] = filter_logs(log6, "warn");
+    print_filtered("filter_ci(warn):", r6);
+
+    // Test 7: empty input
+    let r7: [string] = filter_logs("", "WARN");
+    print_filtered("filter_empty(WARN):", r7);
+
+    // Test 8: no lines match
+    let log8: string = "[DEBUG] Verbose output\n[INFO] Status update";
+    let r8: [string] = filter_logs(log8, "ERROR");
+    print_filtered("filter_nomatch(ERROR):", r8);
+}

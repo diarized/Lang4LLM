@@ -1,0 +1,29 @@
+fn find_missing_number(numbers: [int]) -> int {
+    let n: int = len(numbers) + 1;
+    let expected_sum: int = n * (n + 1) / 2;
+    let mut actual_sum: int = 0;
+    for i in range(0, len(numbers)) {
+        actual_sum = actual_sum + numbers[i];
+    }
+    return expected_sum - actual_sum;
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 4, 5];
+    print("find_missing_number([1,2,4,5]) = " + to_string(find_missing_number(a)));
+
+    let b: [int] = [2, 3, 4];
+    print("find_missing_number([2,3,4]) = " + to_string(find_missing_number(b)));
+
+    let c: [int] = [1, 2, 3];
+    print("find_missing_number([1,2,3]) = " + to_string(find_missing_number(c)));
+
+    let d: [int] = [2];
+    print("find_missing_number([2]) = " + to_string(find_missing_number(d)));
+
+    let e: [int] = [5, 3, 1, 2];
+    print("find_missing_number([5,3,1,2]) = " + to_string(find_missing_number(e)));
+
+    let f: [int] = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11];
+    print("find_missing_number([1,2,3,5,6,7,8,9,10,11]) = " + to_string(find_missing_number(f)));
+}

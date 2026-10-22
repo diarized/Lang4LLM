@@ -1,0 +1,27 @@
+// BS-S-032: Count Digits
+// Count the number of decimal digits in a non-negative integer. Zero has exactly one digit.
+
+fn count_digits(number: int) -> int {
+    if number == 0 {
+        return 1;
+    };
+    let mut n: int = number;
+    let mut count: int = 0;
+    for i in range(0, 20) {
+        if n > 0 {
+            count = count + 1;
+            n = n / 10;
+        };
+    }
+    return count;
+}
+
+fn main() -> unit {
+    print("count_digits(5) = " + to_string(count_digits(5)));
+    print("count_digits(42) = " + to_string(count_digits(42)));
+    print("count_digits(100) = " + to_string(count_digits(100)));
+    print("count_digits(0) = " + to_string(count_digits(0)));
+    print("count_digits(1000000) = " + to_string(count_digits(1000000)));
+    print("count_digits(9) = " + to_string(count_digits(9)));
+    print("count_digits(111) = " + to_string(count_digits(111)));
+}

@@ -1,0 +1,53 @@
+id: DR-SYN-004
+category: SYNTAX
+name: Explicit Operator Distinction
+description: |
+  Use distinct syntax for assignment vs comparison, bitwise vs logical operations.
+  Avoid overloading operators with multiple semantic meanings.
+
+priority: 8
+impact_score: 0.55
+
+rationale: |
+  Operator confusion (= vs ==, & vs &&) causes 10% of syntax errors. Using distinct
+  symbols eliminates ambiguity and reduces cognitive load for LLMs parsing operator precedence.
+
+research_backing:
+  - source: "P07 - What's Wrong with LLM Code"
+    finding: "Operator confusion accounts for 10% of errors, especially assignment in conditionals"
+    confidence: MEDIUM
+
+  - source: "Go Language Design"
+    finding: "`:=` for short variable declaration eliminates `=` in conditionals"
+    confidence: HIGH
+
+validation_method:
+  approach: |
+    Compare error rates on languages with distinct operators (Go's `:=`) vs C-style (`=`).
+    Test LLM generation of conditionals with assignment requirements.
+  metrics:
+    - M-001  # Token Predictability (distinct tokens)
+  benchmark_specs:
+    - BS-S-015  # Assignment vs comparison
+    - BS-M-028  # Bitwise operations
+    - BS-M-035  # Complex expressions
+
+counter_examples:
+  - scenario: "Familiarity for C/Java developers"
+    reason: "`:=` is unfamiliar, `=` is universal"
+    alternative: "Compiler error for assignment in conditional (like Swift)"
+
+  - scenario: "Minimal token set"
+    reason: "Reusing `=` saves tokens"
+    alternative: "Distinct tokens improve clarity more than brevity"
+
+related_patterns:
+  - pattern_id: EP-SYN-004
+    mitigation: PREVENTS
+
+implementation_notes:
+  - "Assignment: `:=` (declaration), `=` (reassignment in non-conditional contexts)"
+  - "Comparison: `==` (equality), `!=` (inequality)"
+  - "Logical: `and`, `or`, `not` (keywords, not symbols)"
+  - "Bitwise: `&`, `|`, `^` (only in explicit bitwise contexts)"
+  - "Disallow assignment in conditionals unless wrapped: `if (x := getValue()) != nil`"

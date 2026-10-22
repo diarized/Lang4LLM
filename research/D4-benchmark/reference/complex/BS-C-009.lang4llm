@@ -1,0 +1,67 @@
+fn glob_match(pattern: string, text: string) -> bool {
+    let pat: [string] = chars(pattern);
+    let txt: [string] = chars(text);
+    let m: int = len(pat);
+    let n: int = len(txt);
+    let cols: int = m + 1;
+    let mut dp: [bool] = [];
+    let mut k: int = 0;
+    while k < (n + 1) * (m + 1) {
+        push(dp, false);
+        k = k + 1;
+    }
+    dp[0] = true;
+    let mut j: int = 1;
+    while j <= m {
+        if pat[j - 1] == "*" {
+            dp[j] = dp[j - 1];
+        };
+        j = j + 1;
+    }
+    let mut i: int = 1;
+    while i <= n {
+        let mut jj: int = 1;
+        while jj <= m {
+            let p_idx: int = jj - 1;
+            let t_idx: int = i - 1;
+            if pat[p_idx] == "*" {
+                let use_empty: bool = dp[i * cols + jj - 1];
+                let use_one: bool = dp[(i - 1) * cols + jj];
+                dp[i * cols + jj] = use_empty or use_one;
+            } else {
+                if pat[p_idx] == "?" or pat[p_idx] == txt[t_idx] {
+                    dp[i * cols + jj] = dp[(i - 1) * cols + jj - 1];
+                };
+            };
+            jj = jj + 1;
+        }
+        i = i + 1;
+    }
+    return dp[n * cols + m];
+}
+
+fn check(pattern: string, text: string) -> unit {
+    let result: bool = glob_match(pattern, text);
+    print("match('" + pattern + "', '" + text + "') = " + to_string(result));
+}
+
+fn main() -> unit {
+    check("hello", "hello");
+    check("hello", "world");
+    check("h?llo", "hello");
+    check("h?llo", "hllo");
+    check("he*", "hello");
+    check("he*", "he");
+    check("*", "");
+    check("*", "anything");
+    check("*.txt", "file.txt");
+    check("*.txt", "file.csv");
+    check("a*b*c", "aXXbYYc");
+    check("a*b*c", "abc");
+    check("a*b*c", "ac");
+    check("**", "hello");
+    check("", "");
+    check("", "a");
+    check("?", "a");
+    check("?", "");
+}

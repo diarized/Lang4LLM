@@ -1,0 +1,86 @@
+# Error Pattern: Incorrect Function Arguments
+
+id: EP-SEM-003
+category: SEMANTIC
+subcategory: function-call
+name: Wrong Number or Order of Function Arguments
+description: |
+  LLM calls function with wrong number of arguments, arguments in wrong order,
+  or missing required keyword arguments. Common when function signatures are complex
+  or have default parameters.
+
+frequency:
+  overall: 0.14  # 14% of all semantic errors
+  by_model:
+    gpt4: 0.10
+    claude: 0.12
+    deepseek: 0.18
+  by_language:
+    python: 0.16  # Flexible arg handling masks some cases
+    rust: 0.10   # Strict checking prevents most
+    typescript: 0.14
+    go: 0.12
+
+root_cause: |
+  LLMs may hallucinate function signatures or confuse similar functions. Default
+  parameters and optional arguments create ambiguity. Training data contains multiple
+  versions of same API with different signatures (version skew).
+
+trigger_conditions:
+  - feature: "Functions with >3 parameters"
+    severity: HIGH
+  - feature: "Optional/default parameters"
+    severity: MEDIUM
+  - feature: "Keyword arguments (Python)"
+    severity: MEDIUM
+
+examples:
+  - language: python
+    incorrect: |
+      # Expected: process_data(data, mode='strict', verbose=False)
+      def analyze(items):
+          result = process_data(items, True)  # Wrong order, missing arg
+          return result
+    correct: |
+      def analyze(items):
+          result = process_data(items, mode='strict', verbose=True)
+          return result
+    explanation: "Passing positional arg where keyword expected"
+
+  - language: rust
+    incorrect: |
+      // Expected: create_user(name: &str, age: u32, email: &str)
+      fn register() {
+          let user = create_user("Alice", "alice@example.com");  # Missing age
+      }
+    correct: |
+      fn register() {
+          let user = create_user("Alice", 25, "alice@example.com");
+      }
+    explanation: "Missing required parameter 'age'"
+
+  - language: typescript
+    incorrect: |
+      // Expected: fetchData(url: string, options?: RequestOptions)
+      async function getData() {
+          const data = await fetchData({ timeout: 5000 }, '/api/users');
+          return data;  // Arguments reversed
+      }
+    correct: |
+      async function getData() {
+          const data = await fetchData('/api/users', { timeout: 5000 });
+          return data;
+      }
+    explanation: "URL and options swapped"
+
+related_patterns:
+  - pattern_id: EP-SEM-002
+    relationship: SIMILAR_TO
+  - pattern_id: EP-SYN-004
+    relationship: CAUSED_BY
+
+sources:
+  - paper_id: P01
+    section: "Incorrect function arguments (syntactic characteristic)"
+  - paper_id: P08
+    section: "API misuse category"

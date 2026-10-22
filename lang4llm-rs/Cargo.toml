@@ -1,0 +1,53 @@
+[workspace]
+members = [
+    "crates/ast",
+    "crates/parser",
+    "crates/typeck",
+    "crates/transpiler",
+    "crates/formatter",
+    "crates/cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Artur Kaminski"]
+license = "MIT"
+repository = "https://github.com/diarized/Lang4LLM"
+description = "Parser and type checker for the Lang4LLM programming language"
+keywords = ["programming-language", "parser", "type-checker", "llm", "compiler"]
+categories = ["compilers", "development-tools"]
+
+[workspace.dependencies]
+# Parser dependencies
+lalrpop = "0.20"
+lalrpop-util = { version = "0.20", features = ["lexer"] }
+regex = "1.10"
+
+# Error reporting
+miette = { version = "7.0", features = ["fancy"] }
+ariadne = "0.4"
+thiserror = "1.0"
+
+# CLI dependencies
+clap = { version = "4.5", features = ["derive", "cargo"] }
+colored = "2.1"
+
+# Utilities
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Internal crates
+lang4llm-ast = { path = "crates/ast" }
+lang4llm-parser = { path = "crates/parser" }
+lang4llm-typeck = { path = "crates/typeck" }
+lang4llm-transpiler = { path = "crates/transpiler" }
+lang4llm-formatter = { path = "crates/formatter" }
+lang4llm-cli = { path = "crates/cli" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

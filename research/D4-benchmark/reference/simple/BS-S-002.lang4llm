@@ -1,0 +1,14 @@
+fn reverse_string(s: string) -> string {
+    let mut char_arr: [string] = chars(s);
+    reverse(char_arr);
+    return join(char_arr, "");
+}
+
+fn main() -> unit {
+    print("reverse_string(\"hello\") = " + reverse_string("hello"));
+    print("reverse_string(\"hello world\") = " + reverse_string("hello world"));
+    print("reverse_string(\"racecar\") = " + reverse_string("racecar"));
+    print("reverse_string(\"\") = " + reverse_string(""));
+    print("reverse_string(\"a\") = " + reverse_string("a"));
+    print("reverse_string(\"abc!\") = " + reverse_string("abc!"));
+}

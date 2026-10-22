@@ -1,0 +1,46 @@
+fn rotate_left(numbers: [int], k: int) -> [int] {
+    let n: int = len(numbers);
+    if n == 0 {
+        return numbers;
+    };
+    let shift: int = k % n;
+    let mut result: [int] = [];
+    for i in range(shift, n) {
+        push(result, numbers[i]);
+    }
+    for i in range(0, shift) {
+        push(result, numbers[i]);
+    }
+    return result;
+}
+
+fn print_int_arr(arr: [int]) -> string {
+    if is_empty(arr) {
+        return "[]";
+    };
+    let mut parts: [string] = [];
+    for i in range(0, len(arr)) {
+        push(parts, to_string(arr[i]));
+    }
+    return "[" + join(parts, ", ") + "]";
+}
+
+fn main() -> unit {
+    let a: [int] = [1, 2, 3, 4, 5];
+    print("rotate_left([1,2,3,4,5], 2) = " + print_int_arr(rotate_left(a, 2)));
+
+    let b: [int] = [1, 2, 3];
+    print("rotate_left([1,2,3], 3) = " + print_int_arr(rotate_left(b, 3)));
+
+    let c: [int] = [1, 2, 3, 4];
+    print("rotate_left([1,2,3,4], 6) = " + print_int_arr(rotate_left(c, 6)));
+
+    let d: [int] = [7, 8, 9];
+    print("rotate_left([7,8,9], 0) = " + print_int_arr(rotate_left(d, 0)));
+
+    let e: [int] = [];
+    print("rotate_left([], 5) = " + print_int_arr(rotate_left(e, 5)));
+
+    let f: [int] = [10];
+    print("rotate_left([10], 3) = " + print_int_arr(rotate_left(f, 3)));
+}

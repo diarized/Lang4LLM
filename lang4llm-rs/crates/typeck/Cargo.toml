@@ -1,0 +1,15 @@
+[package]
+name = "lang4llm-typeck"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+lang4llm-ast = { workspace = true }
+thiserror = { workspace = true }
+miette = { workspace = true }
+ariadne = { workspace = true }
+
+[dev-dependencies]
